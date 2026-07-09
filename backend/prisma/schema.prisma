@@ -1,0 +1,73 @@
+datasource db {
+  provider = "postgresql"
+}
+
+generator client {
+  provider     = "prisma-client"
+  output       = "../generated/prisma"
+  moduleFormat = "cjs"
+}
+
+// 1. Tabel User
+model User {
+  id        String    @id @default(uuid())
+  email     String    @unique
+  password  String
+  name      String
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  tags      Tag[]     
+  tagVotes  TagVote[] 
+
+  @@map("users") 
+}
+
+// 2. Tabel Pusat Nomor Telepon
+model PhoneNumber {
+  id          String   @id @default(uuid())
+  phoneNumber String   @unique @map("phone_number") 
+  countryCode String   @map("country_code")
+  searchCount Int      @default(1) @map("search_count")
+  trustScore  Float    @default(100.0) @map("trust_score")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  tags        Tag[]    
+
+  @@map("phone_numbers")
+}
+
+// 3. Tabel Tag dari Crowdsourcing
+model Tag {
+  id            String      @id @default(uuid())
+  phoneNumberId String      @map("phone_number_id")
+  phoneNumber   PhoneNumber @relation(fields: [phoneNumberId], references: [id], onDelete: Cascade)
+  userId        String?     @map("user_id") 
+  user          User?       @relation(fields: [userId], references: [id], onDelete: SetNull)
+  labelName     String      @map("label_name")
+  upvotes       Int         @default(0)
+  downvotes     Int         @default(0)
+  isSpam        Boolean     @default(false) @map("is_spam")
+  createdAt     DateTime    @default(now()) @map("created_at")
+  tagVotes      TagVote[]
+
+  @@map("tags")
+}
+
+// 4. Tabel Log Vote untuk mencegah double voting
+model TagVote {
+  id        String   @id @default(uuid())
+  tagId     String   @map("tag_id")
+  tag       Tag      @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  userId    String   @map("user_id")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  voteType  VoteType @map("vote_type")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@unique([tagId, userId]) 
+  @@map("tag_votes")
+}
+
+enum VoteType {
+  UPVOTE
+  DOWNVOTE
+}

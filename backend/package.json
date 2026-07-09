@@ -1,0 +1,30 @@
+{
+  "name": "phone-reputation-check",
+  "version": "1.0.0",
+  "description": "Full-stack crowdsourced phone reputation & spam verification system using NestJS, Prisma 7, and Next.js",
+  "scripts": {
+    "start:dev": "ts-node src/main.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^26.1.1",
+    "@types/pg": "^8.20.0",
+    "dotenv": "^17.4.2",
+    "prisma": "^7.8.0",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.23.0",
+    "typescript": "^5.9.3"
+  },
+  "prisma": {
+    "seed": "npx tsx prisma/seed.ts"
+  },
+  "dependencies": {
+    "@nestjs/common": "^11.1.28",
+    "@nestjs/core": "^11.1.28",
+    "@nestjs/platform-express": "^11.1.28",
+    "@prisma/adapter-pg": "^7.8.0",
+    "@prisma/client": "^7.8.0",
+    "pg": "^8.22.0",
+    "reflect-metadata": "^0.2.2",
+    "truecallerjs": "^2.2.0"
+  }
+}

@@ -1,0 +1,25 @@
+# Dependencies
+node_modules
+/node_modules/
+
+# Environment variables & secrets (CRITICAL: Do not commit to public repo)
+.env
+.env.*
+!.env.example
+
+# Build outputs & compiled files
+dist/
+/dist/
+*.tsbuildinfo
+
+# Generated code (Prisma Client etc)
+generated/
+/generated/
+
+# OS & Editor temporary files
+.DS_Store
+.vscode/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
