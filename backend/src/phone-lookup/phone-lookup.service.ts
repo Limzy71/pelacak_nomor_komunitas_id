@@ -43,6 +43,18 @@ export class PhoneLookupService {
         },
       });
 
+      // Filter out tag sistem lama jika masih ada di database
+      updatedRecord.tags = updatedRecord.tags
+        .filter((t: any) =>
+          !t.labelName.includes('Terverifikasi Otomatis') &&
+          !t.labelName.includes('Belum Ada Label Nama') &&
+          !t.labelName.startsWith('Operator: ')
+        )
+        .map((t: any) => ({
+          ...t,
+          labelName: t.labelName.replace(/^Nama:\s*/i, '').trim(),
+        }));
+
       return {
         found: true,
         phoneNumber: number,
@@ -157,35 +169,16 @@ export class PhoneLookupService {
       }
     }
 
-    // 3. Susun tag yang akan disimpan tanpa menggunakan data nama hardcode / simulasi sama sekali
+    // 3. Susun tag komunitas yang asli (tanpa tag otomatis/sistem seperti 'Terverifikasi Otomatis' atau 'Operator:')
     const tagsToCreate: any[] = [];
     if (actualName && actualName !== 'Nomor Tidak Dikenal') {
       tagsToCreate.push({
-        labelName: `Nama: ${actualName}`,
+        labelName: actualName,
         isSpam: false,
         upvotes: 2,
         downvotes: 0,
       });
-    } else {
-      tagsToCreate.push({
-        labelName: 'Belum Ada Label Nama (Menunggu Akses Kontak / Komunitas)',
-        isSpam: false,
-        upvotes: 1,
-        downvotes: 0,
-      });
     }
-    tagsToCreate.push({
-      labelName: `Operator: ${carrier}`,
-      isSpam: false,
-      upvotes: 1,
-      downvotes: 0,
-    });
-    tagsToCreate.push({
-      labelName: 'Terverifikasi Otomatis (Carrier Check & Live API)',
-      isSpam: false,
-      upvotes: 1,
-      downvotes: 0,
-    });
 
     // 4. Simpan nomor baru beserta tag otomatis ke database PostgreSQL
     const newRecord = await this.prisma.phoneNumber.create({
