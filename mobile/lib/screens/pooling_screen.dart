@@ -5,7 +5,6 @@ import 'package:permission_handler/permission_handler.dart';
 import '../models/phone_record.dart';
 import '../services/api_service.dart';
 import '../theme/app_theme.dart';
-import '../widgets/glass_card.dart';
 
 class PoolingScreen extends StatefulWidget {
   final ApiService apiService;
@@ -22,6 +21,10 @@ class _PoolingScreenState extends State<PoolingScreen> {
   List<Contact> _contacts = [];
   SyncContactResult? _lastSyncResult;
   String? _errorMessage;
+
+  // Toggle states ala GetContact
+  bool _isDefaultPhoneApp = true;
+  bool _isOverlayAllowed = true;
 
   @override
   void initState() {
@@ -175,391 +178,268 @@ class _PoolingScreenState extends State<PoolingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: const Color(0xFF0F131D),
       body: SafeArea(
         child: Column(
           children: [
-            // Header Sleek ala GetContact
+            // Top Bar Pencarian ala GetContact
             Container(
-              padding: const EdgeInsets.fromLTRB(20, 16, 20, 16),
-              decoration: BoxDecoration(
-                color: AppColors.cardBg,
-                border: Border(bottom: BorderSide(color: AppColors.border, width: 1)),
-              ),
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+              color: const Color(0xFF131824),
               child: Row(
                 children: [
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: AppColors.primaryLight.withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: AppColors.primaryLight.withValues(alpha: 0.4)),
-                    ),
-                    child: const Icon(Icons.verified_user_rounded, color: AppColors.primaryLight, size: 26),
-                  ),
-                  const SizedBox(width: 14),
                   Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'PhoneRep Komunitas ID',
-                          style: GoogleFonts.outfit(
-                            fontSize: 20,
-                            fontWeight: FontWeight.w800,
-                            color: Colors.white,
+                    child: Container(
+                      height: 44,
+                      padding: const EdgeInsets.symmetric(horizontal: 14),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF1F2637),
+                        borderRadius: BorderRadius.circular(22),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.search_rounded, color: Colors.white60, size: 20),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Text(
+                              'Pencarian berdasarkan nomor',
+                              style: GoogleFonts.outfit(color: Colors.white60, fontSize: 14),
+                            ),
                           ),
-                        ),
-                        Text(
-                          'Kontribusi Buku Alamat & Caller ID Bersama',
-                          style: GoogleFonts.outfit(
-                            fontSize: 12,
-                            color: AppColors.accentCyan,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
+                          const Icon(Icons.account_circle_outlined, color: Colors.white70, size: 24),
+                        ],
+                      ),
                     ),
-                  ),
-                  IconButton(
-                    onPressed: _hasPermission ? _loadContacts : _requestPermission,
-                    icon: const Icon(Icons.refresh_rounded, color: AppColors.textSecondary),
-                    tooltip: 'Muat Ulang Kontak',
                   ),
                 ],
               ),
             ),
+
             Expanded(
-              child: _isLoading && _contacts.isEmpty
-                  ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
-                  : SingleChildScrollView(
-                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Kartu 1: Selalu ketahui siapa yang menelepon Anda
+                    _buildBlueToggleCard(
+                      title: 'Selalu ketahui siapa yang menelepon Anda.',
+                      subtitle: 'Atur PhoneRep sebagai aplikasi telepon default sehingga PhoneRep dapat mengidentifikasi panggilan masuk untuk melindungi Anda dari panggilan spam.',
+                      value: _isDefaultPhoneApp,
+                      onChanged: (v) => setState(() => _isDefaultPhoneApp = v),
+                    ),
+                    const SizedBox(height: 14),
+
+                    // Kartu 2: Izinkan untuk ditampilkan pada layar
+                    _buildBlueToggleCard(
+                      title: 'Izinkan untuk ditampilkan pada layar',
+                      subtitle: 'Saat nomor tidak dikenal menelepon, kartu ID penelepon akan muncul di layar Anda secara otomatis.',
+                      value: _isOverlayAllowed,
+                      onChanged: (v) => setState(() => _isOverlayAllowed = v),
+                    ),
+                    const SizedBox(height: 24),
+
+                    // ID Penelepon untuk Panggilan Internet ala GetContact
+                    Text(
+                      'ID Penelepon untuk Panggilan Internet',
+                      style: GoogleFonts.outfit(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(20),
+                        gradient: const LinearGradient(
+                          colors: [
+                            Color(0xFF0096C7),
+                            Color(0xFF10B981),
+                          ],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color(0xFF10B981).withValues(alpha: 0.25),
+                            blurRadius: 12,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: Row(
                         children: [
-                          // Status Card Hero ala GetContact
-                          GlassCard(
-                            padding: const EdgeInsets.all(22),
-                            borderColor: _lastSyncResult != null
-                                ? AppColors.accentGreen.withValues(alpha: 0.6)
-                                : AppColors.primaryLight.withValues(alpha: 0.4),
-                            backgroundColor: _lastSyncResult != null
-                                ? AppColors.accentGreen.withValues(alpha: 0.1)
-                                : AppColors.primary.withValues(alpha: 0.12),
+                          Container(
+                            width: 52,
+                            height: 52,
+                            decoration: BoxDecoration(
+                              color: Colors.white.withValues(alpha: 0.25),
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(Icons.person_rounded, color: Colors.white, size: 34),
+                          ),
+                          const SizedBox(width: 14),
+                          Expanded(
                             child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Row(
-                                  children: [
-                                    Container(
-                                      padding: const EdgeInsets.all(14),
-                                      decoration: BoxDecoration(
-                                        color: (_lastSyncResult != null ? AppColors.accentGreen : AppColors.primaryLight)
-                                            .withValues(alpha: 0.2),
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child: Icon(
-                                        _lastSyncResult != null ? Icons.cloud_done_rounded : Icons.shield_rounded,
-                                        color: _lastSyncResult != null ? AppColors.accentGreen : AppColors.primaryLight,
-                                        size: 36,
-                                      ),
-                                    ),
-                                    const SizedBox(width: 16),
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Container(
-                                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                                            decoration: BoxDecoration(
-                                              color: (_lastSyncResult != null ? AppColors.accentGreen : AppColors.primaryLight)
-                                                  .withValues(alpha: 0.2),
-                                              borderRadius: BorderRadius.circular(20),
-                                            ),
-                                            child: Text(
-                                              _lastSyncResult != null ? '✔ TERSINKRONISASI' : '⚡ SIAP BERKONTRIBUSI',
-                                              style: GoogleFonts.outfit(
-                                                color: _lastSyncResult != null ? AppColors.accentGreen : AppColors.primaryLight,
-                                                fontSize: 11,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                          ),
-                                          const SizedBox(height: 6),
-                                          Text(
-                                            _lastSyncResult != null
-                                                ? 'Buku Alamat Aktif'
-                                                : '${_contacts.length} Kontak Terdeteksi',
-                                            style: GoogleFonts.outfit(
-                                              color: Colors.white,
-                                              fontSize: 20,
-                                              fontWeight: FontWeight.w800,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 16),
                                 Text(
-                                  'Buku alamat Anda secara otomatis diubah menjadi referensi pengenalan nomor (Caller ID) bagi jutaan anggota komunitas PhoneRep untuk mengidentifikasi kurir, rekan, dan memblokir penipuan.',
+                                  'Budi Suhardi',
                                   style: GoogleFonts.outfit(
-                                    color: AppColors.textSecondary,
+                                    color: Colors.white,
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  '+62-898-555-775',
+                                  style: GoogleFonts.outfit(
+                                    color: Colors.white.withValues(alpha: 0.9),
                                     fontSize: 13,
-                                    height: 1.5,
                                   ),
                                 ),
-                                if (_lastSyncResult != null) ...[
-                                  const SizedBox(height: 16),
-                                  Container(
-                                    width: double.infinity,
-                                    padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 14),
-                                    decoration: BoxDecoration(
-                                      color: AppColors.accentGreen.withValues(alpha: 0.15),
-                                      borderRadius: BorderRadius.circular(12),
-                                      border: Border.all(color: AppColors.accentGreen.withValues(alpha: 0.4)),
-                                    ),
-                                    child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      children: [
-                                        const Icon(Icons.check_circle_rounded, color: AppColors.accentGreen, size: 18),
-                                        const SizedBox(width: 8),
-                                        Text(
-                                          '+${_lastSyncResult!.syncedCount} Nomor Berhasil Diperbarui di Server',
-                                          style: GoogleFonts.outfit(
-                                            color: AppColors.accentGreen,
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 13,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ],
-                            ),
-                          ),
-                          if (_errorMessage != null) ...[
-                            const SizedBox(height: 16),
-                            GlassCard(
-                              borderColor: AppColors.accentRed.withValues(alpha: 0.5),
-                              backgroundColor: AppColors.accentRed.withValues(alpha: 0.1),
-                              child: Row(
-                                children: [
-                                  const Icon(Icons.error_outline, color: AppColors.accentRed, size: 24),
-                                  const SizedBox(width: 12),
-                                  Expanded(
-                                    child: Text(
-                                      _errorMessage!,
-                                      style: GoogleFonts.outfit(color: AppColors.accentRed, fontSize: 13),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                          const SizedBox(height: 24),
-
-                          // Tombol Utama One-Click Ala GetContact
-                          if (!_hasPermission && _contacts.isEmpty)
-                            GlassCard(
-                              padding: const EdgeInsets.all(28),
-                              child: Column(
-                                children: [
-                                  const Icon(Icons.lock_person_rounded, size: 56, color: AppColors.primaryLight),
-                                  const SizedBox(height: 16),
-                                  Text(
-                                    'Akses Buku Alamat Dibutuhkan',
-                                    style: GoogleFonts.outfit(
-                                      color: Colors.white,
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Text(
-                                    'Berikan izin untuk menghubungkan buku alamat Anda dengan sistem perlindungan anti-spam PhoneRep.',
-                                    textAlign: TextAlign.center,
-                                    style: GoogleFonts.outfit(color: AppColors.textSecondary, fontSize: 13),
-                                  ),
-                                  const SizedBox(height: 24),
-                                  ElevatedButton.icon(
-                                    onPressed: _requestPermission,
-                                    icon: const Icon(Icons.check_circle_outline, size: 20),
-                                    label: const Text('BERI IZIN & AKTIFKAN PERLINDUNGAN'),
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: AppColors.primary,
-                                      foregroundColor: Colors.white,
-                                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            )
-                          else if (_contacts.isNotEmpty)
-                            Container(
-                              width: double.infinity,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(18),
-                                gradient: LinearGradient(
-                                  colors: [
-                                    AppColors.accentGreen,
-                                    AppColors.accentCyan.withValues(alpha: 0.8),
-                                  ],
-                                ),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: AppColors.accentGreen.withValues(alpha: 0.3),
-                                    blurRadius: 16,
-                                    offset: const Offset(0, 6),
-                                  ),
-                                ],
-                              ),
-                              child: ElevatedButton.icon(
-                                onPressed: _isLoading ? null : _performSync,
-                                icon: _isLoading
-                                    ? const SizedBox(
-                                        width: 20,
-                                        height: 20,
-                                        child: CircularProgressIndicator(color: Colors.black, strokeWidth: 2.5),
-                                      )
-                                    : const Icon(Icons.sync_rounded, color: Colors.black, size: 24),
-                                label: Text(
-                                  _isLoading
-                                      ? 'MENGHUBUNGKAN KE SERVER PhoneRep...'
-                                      : 'AKTIFKAN SINKRONISASI BUKU ALAMAT (${_contacts.length} KONTAK)',
-                                  style: GoogleFonts.outfit(
-                                    color: Colors.black,
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w800,
-                                    letterSpacing: 0.5,
-                                  ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.transparent,
-                                  shadowColor: Colors.transparent,
-                                  padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 16),
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-                                ),
-                              ),
-                            ),
-
-                          const SizedBox(height: 28),
-
-                          // Fitur & Jaminan Ala GetContact
-                          Text(
-                            'Mengapa Sinkronisasi PhoneRep Aman?',
-                            style: GoogleFonts.outfit(
-                              color: Colors.white,
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: 14),
-                          _buildFeatureCard(
-                            icon: Icons.security_rounded,
-                            color: AppColors.accentCyan,
-                            title: 'Enkripsi & Normalisasi E.164',
-                            description: 'Nomor telepon dinormalisasi ke format E.164 (+628...). Kami hanya mencatat label nama untuk identifikasi, tanpa mengoleksi data pribadi atau riwayat pesan.',
-                          ),
-                          const SizedBox(height: 12),
-                          _buildFeatureCard(
-                            icon: Icons.groups_rounded,
-                            color: AppColors.primaryLight,
-                            title: 'Kekuatan Crowdsourcing Komunitas',
-                            description: 'Setiap nama kontak yang Anda kontribusikan membantu pengguna lain mengenali telepon penting atau memblokir penipuan secara langsung.',
-                          ),
-                          const SizedBox(height: 12),
-                          _buildFeatureCard(
-                            icon: Icons.bolt_rounded,
-                            color: AppColors.accentGreen,
-                            title: 'Ringan & Otomatis di Latar Belakang',
-                            description: 'Sinkronisasi berlangsung cepat sekali klik tanpa membebani memori, kuota data, ataupun baterai HP Anda.',
-                          ),
-
-                          // Cuplikan Ringkas Kontak (Tanpa Checkbox yang Bikin Jelek!)
-                          if (_contacts.isNotEmpty) ...[
-                            const SizedBox(height: 28),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
+                                const SizedBox(height: 2),
                                 Text(
-                                  'Pratinjau Buku Alamat Anda (${_contacts.length} Nomor)',
+                                  'Panggilan...',
                                   style: GoogleFonts.outfit(
-                                    color: Colors.white70,
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w600,
+                                    color: Colors.white.withValues(alpha: 0.8),
+                                    fontSize: 12,
                                   ),
                                 ),
-                                const Icon(Icons.visibility_outlined, color: AppColors.textSecondary, size: 18),
                               ],
                             ),
-                            const SizedBox(height: 12),
-                            GlassCard(
-                              padding: const EdgeInsets.all(16),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Wrap(
-                                    spacing: 8,
-                                    runSpacing: 8,
-                                    children: _contacts.take(6).map((c) {
-                                      final name = _getContactName(c);
-                                      return Container(
-                                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                                        decoration: BoxDecoration(
-                                          color: AppColors.cardBgElevated,
-                                          borderRadius: BorderRadius.circular(20),
-                                          border: Border.all(color: AppColors.border),
-                                        ),
-                                        child: Row(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            CircleAvatar(
-                                              radius: 10,
-                                              backgroundColor: AppColors.primary,
-                                              child: Text(
-                                                name.isNotEmpty ? name[0].toUpperCase() : '?',
-                                                style: GoogleFonts.outfit(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
-                                              ),
-                                            ),
-                                            const SizedBox(width: 8),
-                                            Text(
-                                              name.length > 18 ? '${name.substring(0, 16)}...' : name,
-                                              style: GoogleFonts.outfit(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w500),
-                                            ),
-                                          ],
-                                        ),
-                                      );
-                                    }).toList(),
-                                  ),
-                                  if (_contacts.length > 6) ...[
-                                    const SizedBox(height: 14),
-                                    Container(
-                                      width: double.infinity,
-                                      padding: const EdgeInsets.symmetric(vertical: 8),
-                                      decoration: BoxDecoration(
-                                        color: AppColors.primaryLight.withValues(alpha: 0.1),
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
-                                      child: Text(
-                                        '+ ${_contacts.length - 6} kontak lainnya siap memperkaya perlindungan PhoneRep',
-                                        textAlign: TextAlign.center,
-                                        style: GoogleFonts.outfit(color: AppColors.primaryLight, fontSize: 12, fontWeight: FontWeight.bold),
-                                      ),
-                                    ),
-                                  ],
-                                ],
-                              ),
+                          ),
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF0088CC),
+                              shape: BoxShape.circle,
                             ),
-                          ],
-                          const SizedBox(height: 30),
+                            child: const Icon(Icons.send_rounded, color: Colors.white, size: 18),
+                          ),
+                          const SizedBox(width: 8),
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF25D366),
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(Icons.call_rounded, color: Colors.white, size: 18),
+                          ),
                         ],
                       ),
                     ),
+                    const SizedBox(height: 10),
+                    Text(
+                      'Lihat ID penelepon untuk “panggilan tak dikenal” panggilan internet WhatsApp dan Telegram.',
+                      style: GoogleFonts.outfit(color: AppColors.textSecondary, fontSize: 13, height: 1.4),
+                    ),
+                    const SizedBox(height: 28),
+
+                    // Bagian Contact Pooling Sekali Klik Ala GetContact
+                    Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF182030),
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(
+                          color: _lastSyncResult != null
+                              ? AppColors.accentGreen.withValues(alpha: 0.6)
+                              : AppColors.primaryLight.withValues(alpha: 0.4),
+                        ),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: (_lastSyncResult != null ? AppColors.accentGreen : AppColors.primaryLight)
+                                      .withValues(alpha: 0.2),
+                                  borderRadius: BorderRadius.circular(14),
+                                ),
+                                child: Icon(
+                                  _lastSyncResult != null ? Icons.cloud_done_rounded : Icons.sync_rounded,
+                                  color: _lastSyncResult != null ? AppColors.accentGreen : AppColors.primaryLight,
+                                  size: 26,
+                                ),
+                              ),
+                              const SizedBox(width: 14),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Kontribusi Buku Alamat (Pooling)',
+                                      style: GoogleFonts.outfit(
+                                        color: Colors.white,
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    Text(
+                                      _lastSyncResult != null
+                                          ? '✔ Tersinkronisasi (+${_lastSyncResult!.syncedCount} nomor)'
+                                          : '${_contacts.length} Nomor siap memperkaya proteksi',
+                                      style: GoogleFonts.outfit(
+                                        color: _lastSyncResult != null ? AppColors.accentGreen : AppColors.accentCyan,
+                                        fontSize: 13,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              IconButton(
+                                onPressed: _hasPermission ? _loadContacts : _requestPermission,
+                                icon: const Icon(Icons.refresh_rounded, color: AppColors.textSecondary),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 14),
+                          Text(
+                            'Dengan menyinkronkan buku alamat secara otomatis, Anda membantu seluruh pengguna mengenali nomor kurir, penipu, dan nomor penting tanpa menampilkan riwayat pribadi.',
+                            style: GoogleFonts.outfit(color: AppColors.textSecondary, fontSize: 13, height: 1.4),
+                          ),
+                          if (_errorMessage != null) ...[
+                            const SizedBox(height: 12),
+                            Text(_errorMessage!, style: GoogleFonts.outfit(color: AppColors.accentRed, fontSize: 12)),
+                          ],
+                          const SizedBox(height: 18),
+                          SizedBox(
+                            width: double.infinity,
+                            child: ElevatedButton.icon(
+                              onPressed: _isLoading ? null : (_contacts.isEmpty ? _requestPermission : _performSync),
+                              icon: _isLoading
+                                  ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                                  : const Icon(Icons.cloud_upload_rounded, size: 20),
+                              label: Text(
+                                _isLoading
+                                    ? 'MENGHUBUNGKAN KE SERVER...'
+                                    : (_contacts.isEmpty
+                                        ? 'BERI IZIN BUKU ALAMAT SEKARANG'
+                                        : 'SINKRONISASI ${_contacts.length} KONTAK SEKARANG'),
+                                style: GoogleFonts.outfit(fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 0.5),
+                              ),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: _lastSyncResult != null ? AppColors.accentGreen : const Color(0xFF007AFF),
+                                foregroundColor: _lastSyncResult != null ? Colors.black : Colors.white,
+                                padding: const EdgeInsets.symmetric(vertical: 16),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 40),
+                  ],
+                ),
+              ),
             ),
           ],
         ),
@@ -567,21 +447,28 @@ class _PoolingScreenState extends State<PoolingScreen> {
     );
   }
 
-  Widget _buildFeatureCard({required IconData icon, required Color color, required String title, required String description}) {
-    return GlassCard(
-      padding: const EdgeInsets.all(16),
+  Widget _buildBlueToggleCard({
+    required String title,
+    required String subtitle,
+    required bool value,
+    required ValueChanged<bool> onChanged,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: const Color(0xFF2B8CFF),
+        borderRadius: BorderRadius.circular(22),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF2B8CFF).withValues(alpha: 0.25),
+            blurRadius: 14,
+            offset: const Offset(0, 6),
+          ),
+        ],
+      ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Icon(icon, color: color, size: 22),
-          ),
-          const SizedBox(width: 14),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -590,21 +477,30 @@ class _PoolingScreenState extends State<PoolingScreen> {
                   title,
                   style: GoogleFonts.outfit(
                     color: Colors.white,
-                    fontSize: 15,
-                    fontWeight: FontWeight.bold,
+                    fontSize: 17,
+                    fontWeight: FontWeight.w800,
                   ),
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: 8),
                 Text(
-                  description,
+                  subtitle,
                   style: GoogleFonts.outfit(
-                    color: AppColors.textSecondary,
+                    color: Colors.white.withValues(alpha: 0.9),
                     fontSize: 13,
-                    height: 1.4,
+                    height: 1.45,
                   ),
                 ),
               ],
             ),
+          ),
+          const SizedBox(width: 16),
+          Switch(
+            value: value,
+            onChanged: onChanged,
+            activeThumbColor: Colors.white,
+            activeTrackColor: const Color(0xFF0F172A),
+            inactiveThumbColor: Colors.white,
+            inactiveTrackColor: const Color(0xFF1E293B),
           ),
         ],
       ),

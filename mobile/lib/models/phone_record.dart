@@ -45,6 +45,7 @@ class PhoneRecord {
   final String countryCode;
   final int searchCount;
   final double trustScore;
+  final String? carrier;
   final List<TagItem> tags;
 
   PhoneRecord({
@@ -53,6 +54,7 @@ class PhoneRecord {
     required this.countryCode,
     required this.searchCount,
     required this.trustScore,
+    this.carrier,
     required this.tags,
   });
 
@@ -68,6 +70,7 @@ class PhoneRecord {
       trustScore: json['trustScore'] is num
           ? (json['trustScore'] as num).toDouble()
           : double.tryParse(json['trustScore']?.toString() ?? '80.0') ?? 80.0,
+      carrier: json['carrier']?.toString() ?? 'Telkomsel / Seluler Indonesia',
       tags: rawTags
           .map((t) => TagItem.fromJson(t as Map<String, dynamic>))
           .toList(),

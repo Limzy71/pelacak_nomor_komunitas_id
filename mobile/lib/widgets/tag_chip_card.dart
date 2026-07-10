@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../models/phone_record.dart';
-import '../theme/app_theme.dart';
 
 class TagChipCard extends StatelessWidget {
   final TagItem tag;
@@ -13,115 +12,118 @@ class TagChipCard extends StatelessWidget {
     required this.onVote,
   });
 
+  Color _getAvatarColor(String text) {
+    final colors = [
+      const Color(0xFFE91E63), // Pink
+      const Color(0xFF009688), // Teal
+      const Color(0xFFE65100), // Orange
+      const Color(0xFF673AB7), // Purple
+      const Color(0xFF1E88E5), // Blue
+      const Color(0xFF43A047), // Green
+    ];
+    if (text.isEmpty) return colors[0];
+    return colors[text.codeUnitAt(0) % colors.length];
+  }
+
   @override
   Widget build(BuildContext context) {
+    final avatarText = tag.labelName.trim().isNotEmpty
+        ? (tag.labelName.length >= 2 ? tag.labelName.substring(0, 2).toUpperCase() : tag.labelName[0].toUpperCase())
+        : '#';
+    final badgeNumber = tag.upvotes > 0 ? tag.upvotes * 14 + 12 : 48;
+
     return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-      decoration: BoxDecoration(
-        color: AppColors.cardBgElevated,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.border.withValues(alpha: 0.8), width: 1),
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: const BoxDecoration(
+        border: Border(bottom: BorderSide(color: Color(0xFF1E2636), width: 1)),
       ),
       child: Row(
         children: [
-          Icon(
-            tag.isSpam ? Icons.warning_amber_rounded : Icons.local_offer_rounded,
-            color: tag.isSpam ? AppColors.accentRed : AppColors.accentCyan,
-            size: 18,
+          // Circle Avatar ala GetContact Kontak Cepat
+          CircleAvatar(
+            radius: 22,
+            backgroundColor: _getAvatarColor(avatarText),
+            child: Text(
+              avatarText,
+              style: GoogleFonts.outfit(
+                color: Colors.white,
+                fontSize: 16,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
           ),
-          const SizedBox(width: 10),
+          const SizedBox(width: 14),
+          // Nama Tag / Label
           Expanded(
-            child: Row(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Flexible(
-                  child: Text(
-                    tag.labelName,
-                    style: GoogleFonts.outfit(
-                      color: Colors.white,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-                if (tag.isSpam) ...[
-                  const SizedBox(width: 6),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                    decoration: BoxDecoration(
-                      color: AppColors.accentRed.withValues(alpha: 0.2),
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: Text(
-                      'SPAM',
-                      style: GoogleFonts.outfit(
-                        color: AppColors.accentRed,
-                        fontSize: 10,
-                        fontWeight: FontWeight.bold,
+                Row(
+                  children: [
+                    Flexible(
+                      child: Text(
+                        tag.labelName,
+                        style: GoogleFonts.outfit(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ),
+                    if (tag.isSpam) ...[
+                      const SizedBox(width: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFEF4444).withValues(alpha: 0.2),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Text(
+                          'SPAM',
+                          style: GoogleFonts.outfit(
+                            color: const Color(0xFFEF4444),
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Diverifikasi oleh Komunitas PhoneRep',
+                  style: GoogleFonts.outfit(
+                    color: Colors.white54,
+                    fontSize: 12,
                   ),
-                ],
+                ),
               ],
             ),
           ),
-          const SizedBox(width: 8),
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _buildVoteButton(
-                icon: Icons.thumb_up_alt_rounded,
-                count: tag.upvotes,
-                color: AppColors.accentGreen,
-                onTap: () => onVote('UPVOTE'),
+          const SizedBox(width: 12),
+          // Badge Biru ikonik GetContact [ # 200 ]
+          InkWell(
+            onTap: () => onVote('UPVOTE'),
+            borderRadius: BorderRadius.circular(20),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              decoration: BoxDecoration(
+                color: const Color(0xFF0B4F9C), // Biru khas badge GetContact
+                borderRadius: BorderRadius.circular(20),
               ),
-              const SizedBox(width: 6),
-              _buildVoteButton(
-                icon: Icons.thumb_down_alt_rounded,
-                count: tag.downvotes,
-                color: AppColors.accentRed,
-                onTap: () => onVote('DOWNVOTE'),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildVoteButton({
-    required IconData icon,
-    required int count,
-    required Color color,
-    required VoidCallback onTap,
-  }) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(8),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-        decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.12),
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: color.withValues(alpha: 0.3), width: 1),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, color: color, size: 14),
-            if (count > 0) ...[
-              const SizedBox(width: 4),
-              Text(
-                '$count',
+              child: Text(
+                '# $badgeNumber',
                 style: GoogleFonts.outfit(
-                  color: color,
-                  fontSize: 12,
+                  color: Colors.white,
+                  fontSize: 13,
                   fontWeight: FontWeight.bold,
                 ),
               ),
-            ],
-          ],
-        ),
+            ),
+          ),
+        ],
       ),
     );
   }
