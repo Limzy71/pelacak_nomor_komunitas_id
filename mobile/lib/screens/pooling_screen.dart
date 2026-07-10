@@ -116,26 +116,42 @@ class _PoolingScreenState extends State<PoolingScreen> {
     }
   }
 
+  String _getContactName(Contact c) {
+    if (c.displayName.trim().isNotEmpty) {
+      return c.displayName.trim();
+    }
+    final fullName = '${c.name.first} ${c.name.middle} ${c.name.last}'.replaceAll(RegExp(r'\s+'), ' ').trim();
+    if (fullName.isNotEmpty) {
+      return fullName;
+    }
+    return 'Kontak Komunitas';
+  }
+
   void _loadDemoContacts() {
     // Demo contacts if real address book is empty on emulator/test device
     final demoList = [
       Contact()
+        ..displayName = 'Andi Kurir JNE'
         ..name.first = 'Andi'
         ..name.last = 'Kurir JNE'
         ..phones = [Phone('081234567891')],
       Contact()
+        ..displayName = 'Budi Santoso (Telkomsel)'
         ..name.first = 'Budi'
         ..name.last = 'Santoso (Telkomsel)'
         ..phones = [Phone('+6281122334455')],
       Contact()
+        ..displayName = 'Citra Marketing Bank'
         ..name.first = 'Citra'
         ..name.last = 'Marketing Bank'
         ..phones = [Phone('085711223344')],
       Contact()
+        ..displayName = 'Deni Service Motor'
         ..name.first = 'Deni'
         ..name.last = 'Service Motor'
         ..phones = [Phone('081988776655')],
       Contact()
+        ..displayName = 'Eka HRD Perusahaan'
         ..name.first = 'Eka'
         ..name.last = 'HRD Perusahaan'
         ..phones = [Phone('083811223344')],
@@ -177,7 +193,7 @@ class _PoolingScreenState extends State<PoolingScreen> {
       final c = _contacts[idx];
       final rawNum = c.phones.first.number;
       payload.add({
-        'name': c.displayName,
+        'name': _getContactName(c),
         'phoneNumber': rawNum,
       });
     }
@@ -527,8 +543,8 @@ class _PoolingScreenState extends State<PoolingScreen> {
                                           CircleAvatar(
                                             backgroundColor: AppColors.cardBg,
                                             child: Text(
-                                              contact.displayName.isNotEmpty
-                                                  ? contact.displayName[0].toUpperCase()
+                                              _getContactName(contact).isNotEmpty
+                                                  ? _getContactName(contact)[0].toUpperCase()
                                                   : '?',
                                               style: GoogleFonts.outfit(color: Colors.white, fontWeight: FontWeight.bold),
                                             ),
@@ -539,7 +555,7 @@ class _PoolingScreenState extends State<PoolingScreen> {
                                               crossAxisAlignment: CrossAxisAlignment.start,
                                               children: [
                                                 Text(
-                                                  contact.displayName,
+                                                  _getContactName(contact),
                                                   style: GoogleFonts.outfit(
                                                     color: Colors.white,
                                                     fontWeight: FontWeight.w600,
