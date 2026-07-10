@@ -360,81 +360,101 @@ export class PhoneLookupService {
     let syncedCount = 0;
 
     for (const item of dto.contacts) {
-      if (!item.phoneNumber || !item.name) continue;
+      try {
+        if (!item || !item.phoneNumber || !item.name) continue;
 
-      let number = item.phoneNumber.trim().replace(/\s+/g, '').replace(/-/g, '');
-      if (number.startsWith('08')) {
-        number = '+62' + number.substring(1);
-      } else if (number.startsWith('628')) {
-        number = '+' + number;
-      }
-
-      const cleanName = item.name.trim();
-      if (!cleanName) continue;
-
-      let phoneRecord = await this.prisma.phoneNumber.findUnique({
-        where: { phoneNumber: number },
-      });
-
-      let countryCode = 'ID';
-      if (!number.startsWith('+62')) {
-        if (number.startsWith('+1')) countryCode = 'US';
-        else if (number.startsWith('+44')) countryCode = 'UK';
-        else if (number.startsWith('+65')) countryCode = 'SG';
-        else if (number.startsWith('+60')) countryCode = 'MY';
-        else countryCode = 'GLOBAL';
-      }
-
-      if (!phoneRecord) {
-        phoneRecord = await this.prisma.phoneNumber.create({
-          data: {
-            phoneNumber: number,
-            countryCode: countryCode,
-            searchCount: 0,
-            trustScore: 80.0,
-            tags: {
-              create: [
-                {
-                  labelName: cleanName,
-                  userId: validUserId,
-                  isSpam: false,
-                  upvotes: 1,
-                  downvotes: 0,
-                },
-              ],
-            },
-          },
-        });
-        syncedCount++;
-      } else {
-        const existingTag = await this.prisma.tag.findFirst({
-          where: {
-            phoneNumberId: phoneRecord.id,
-            labelName: {
-              equals: cleanName,
-              mode: 'insensitive',
-            },
-          },
-        });
-
-        if (existingTag) {
-          await this.prisma.tag.update({
-            where: { id: existingTag.id },
-            data: { upvotes: { increment: 1 } },
-          });
-        } else {
-          await this.prisma.tag.create({
-            data: {
-              phoneNumberId: phoneRecord.id,
-              labelName: cleanName,
-              userId: validUserId,
-              isSpam: false,
-              upvotes: 1,
-              downvotes: 0,
-            },
-          });
+        let number = item.phoneNumber.trim().replace(/[\s\-\(\)\.]+/g, '');
+        if (number.startsWith('08')) {
+          number = '+62' + number.substring(1);
+        } else if (number.startsWith('628')) {
+          number = '+' + number;
         }
-        syncedCount++;
+
+        if (!number || number.length < 5 || (!number.startsWith('+') && !/^\d+$/.test(number))) {
+          continue;
+        }
+
+        const cleanName = item.name.trim();
+        if (!cleanName) continue;
+
+        let phoneRecord = await this.prisma.phoneNumber.findUnique({
+          where: { phoneNumber: number },
+        });
+
+        let countryCode = 'ID';
+        if (!number.startsWith('+62')) {
+          if (number.startsWith('+1')) countryCode = 'US';
+          else if (number.startsWith('+44')) countryCode = 'UK';
+          else if (number.startsWith('+65')) countryCode = 'SG';
+          else if (number.startsWith('+60')) countryCode = 'MY';
+          else countryCode = 'GLOBAL';
+        }
+
+        if (!phoneRecord) {
+          try {
+            phoneRecord = await this.prisma.phoneNumber.create({
+              data: {
+                phoneNumber: number,
+                countryCode: countryCode,
+                searchCount: 0,
+                trustScore: 80.0,
+                tags: {
+                  create: [
+                    {
+                      labelName: cleanName,
+                      userId: validUserId,
+                      isSpam: false,
+                      upvotes: 1,
+                      downvotes: 0,
+                    },
+                  ],
+                },
+              },
+            });
+            syncedCount++;
+          } catch (createErr) {
+            // Jika terjadi race condition / nomor duplikat bersamaan, ambil ulang dan tambahkan tag
+            phoneRecord = await this.prisma.phoneNumber.findUnique({
+              where: { phoneNumber: number },
+            });
+            if (!phoneRecord) continue;
+          }
+        }
+
+        if (phoneRecord) {
+          const existingTag = await this.prisma.tag.findFirst({
+            where: {
+              phoneNumberId: phoneRecord.id,
+              labelName: {
+                equals: cleanName,
+                mode: 'insensitive',
+              },
+            },
+          });
+
+          if (existingTag) {
+            await this.prisma.tag.update({
+              where: { id: existingTag.id },
+              data: { upvotes: { increment: 1 } },
+            });
+          } else {
+            await this.prisma.tag.create({
+              data: {
+                phoneNumberId: phoneRecord.id,
+                labelName: cleanName,
+                userId: validUserId,
+                isSpam: false,
+                upvotes: 1,
+                downvotes: 0,
+              },
+            });
+          }
+          syncedCount++;
+        }
+      } catch (itemErr: any) {
+        // Abaikan kontak yang bermasalah (misal karakter ilegal/emoticon aneh) agar tidak menyebabkan 500 Server Error
+        console.error('Error saat menyinkronkan kontak individual:', item?.phoneNumber, item?.name, itemErr?.message);
+        continue;
       }
     }
 

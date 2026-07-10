@@ -384,15 +384,21 @@ class _PoolingScreenState extends State<PoolingScreen> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text(
-                                  'Daftar Kontak (${_selectedIndices.length} / ${_contacts.length} Dipilih)',
-                                  style: GoogleFonts.outfit(
-                                    color: Colors.white,
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
+                                Expanded(
+                                  child: Text(
+                                    'Daftar Kontak (${_selectedIndices.length}/${_contacts.length} Dipilih)',
+                                    style: GoogleFonts.outfit(
+                                      color: Colors.white,
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
                                   ),
                                 ),
+                                const SizedBox(width: 8),
                                 Row(
+                                  mainAxisSize: MainAxisSize.min,
                                   children: [
                                     TextButton(
                                       onPressed: () {
@@ -408,7 +414,7 @@ class _PoolingScreenState extends State<PoolingScreen> {
                                       },
                                       child: Text(
                                         _selectedIndices.length == _contacts.length ? 'Batal Semua' : 'Pilih Semua',
-                                        style: GoogleFonts.outfit(color: AppColors.primaryLight, fontWeight: FontWeight.bold),
+                                        style: GoogleFonts.outfit(color: AppColors.primaryLight, fontWeight: FontWeight.bold, fontSize: 13),
                                       ),
                                     ),
                                   ],
@@ -545,19 +551,25 @@ class _PoolingScreenState extends State<PoolingScreen> {
                         height: 20,
                         child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
                       )
-                    : const Icon(Icons.cloud_upload_rounded, size: 22),
-                label: Text(
-                  _isLoading ? 'MENGIRIM KE SERVER...' : 'SINKRONKASI ${_selectedIndices.length} KONTAK SEKARANG',
-                  style: GoogleFonts.outfit(
-                    fontSize: 15,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 1.0,
+                    : const Icon(Icons.cloud_upload_rounded, size: 20),
+                label: Flexible(
+                  child: Text(
+                    _isLoading
+                        ? 'MENGIRIM KE SERVER...'
+                        : 'SINKRONISASI ${_selectedIndices.length} KONTAK',
+                    style: GoogleFonts.outfit(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 0.5,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.accentGreen,
                   foregroundColor: Colors.black,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                   disabledBackgroundColor: AppColors.cardBgElevated,
                 ),
