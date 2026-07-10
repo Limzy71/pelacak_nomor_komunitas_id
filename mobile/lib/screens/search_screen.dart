@@ -1,3 +1,4 @@
+import 'package:call_log/call_log.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_contacts/flutter_contacts.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -30,10 +31,12 @@ class _SearchScreenState extends State<SearchScreen> {
   bool _isSearchExpanded = false;
   final String _selectedCountryCode = '+62';
 
-  // State Kontak Nyata Perangkat (TANPA DATA DUMMY)
+  // State Kontak & Riwayat Telepon Nyata Perangkat (TANPA DATA DUMMY / ALFABETIS)
   bool _hasContactPermission = false;
+  bool _hasCallLogPermission = false;
   bool _isContactsLoading = false;
   List<Contact> _contacts = [];
+  List<CallLogEntry> _callLogs = [];
 
   // Daftar nyata riwayat "Baru Saja Dilihat" (Real dari kontak & riwayat pencarian sesi ini)
   final List<Map<String, dynamic>> _recentlyViewed = [];
@@ -53,13 +56,50 @@ class _SearchScreenState extends State<SearchScreen> {
 
   Future<void> _checkAndLoadContacts() async {
     setState(() => _isContactsLoading = true);
-    final status = await Permission.contacts.status;
-    if (status.isGranted) {
-      _hasContactPermission = true;
+    final contactStatus = await Permission.contacts.status;
+    final callStatus = await Permission.phone.status;
+
+    _hasContactPermission = contactStatus.isGranted;
+    _hasCallLogPermission = callStatus.isGranted;
+
+    if (_hasContactPermission) {
       await _fetchRealDeviceContacts();
-    } else {
-      _hasContactPermission = false;
+    }
+    if (_hasCallLogPermission) {
+      await _fetchRealCallLogs();
+    }
+    if (mounted) {
       setState(() => _isContactsLoading = false);
+    }
+  }
+
+  Future<void> _requestCallLogPermission() async {
+    setState(() => _isContactsLoading = true);
+    final status = await Permission.phone.request();
+    if (status.isGranted) {
+      _hasCallLogPermission = true;
+      await _fetchRealCallLogs();
+    } else {
+      _hasCallLogPermission = false;
+      if (mounted && status.isPermanentlyDenied) {
+        openAppSettings();
+      }
+    }
+    if (mounted) {
+      setState(() => _isContactsLoading = false);
+    }
+  }
+
+  Future<void> _fetchRealCallLogs() async {
+    try {
+      final Iterable<CallLogEntry> entries = await CallLog.get();
+      if (mounted) {
+        setState(() {
+          _callLogs = entries.where((e) => (e.number ?? '').trim().isNotEmpty).toList();
+        });
+      }
+    } catch (e) {
+      // Abaikan jika gagal mengakses log
     }
   }
 
@@ -153,10 +193,47 @@ class _SearchScreenState extends State<SearchScreen> {
     return colors[seed.hashCode.abs() % colors.length];
   }
 
-  // Getter Panggilan Terbaru Asli dari Kontak Perangkat & Riwayat Nyata
+  String _formatCallType(CallType? type) {
+    switch (type) {
+      case CallType.incoming:
+        return 'Panggilan Masuk';
+      case CallType.outgoing:
+        return 'Panggilan Keluar';
+      case CallType.missed:
+        return 'Tak Terjawab';
+      case CallType.rejected:
+        return 'Ditolak';
+      case CallType.blocked:
+        return 'Dibloking';
+      default:
+        return 'Panggilan';
+    }
+  }
+
+  String _formatCallLogDate(int? timestamp) {
+    if (timestamp == null || timestamp == 0) return 'Baru saja';
+    final date = DateTime.fromMillisecondsSinceEpoch(timestamp);
+    final now = DateTime.now();
+    final diff = now.difference(date);
+    if (diff.inMinutes < 1) return 'Baru saja';
+    if (diff.inMinutes < 60) return '${diff.inMinutes} mnt lalu';
+    if (diff.inHours < 24 && now.day == date.day) {
+      final h = date.hour.toString().padLeft(2, '0');
+      final m = date.minute.toString().padLeft(2, '0');
+      return 'Hari Ini, $h:$m';
+    }
+    if (diff.inDays == 1 || (diff.inHours < 48 && now.day != date.day)) {
+      final h = date.hour.toString().padLeft(2, '0');
+      final m = date.minute.toString().padLeft(2, '0');
+      return 'Kemarin, $h:$m';
+    }
+    return '${date.day}/${date.month}/${date.year}';
+  }
+
+  // Getter Panggilan Terbaru Asli dari Riwayat Telepon Nyata (Call Log Android) & Riwayat Pencarian
   List<Map<String, dynamic>> get _realRecentCalls {
     final List<Map<String, dynamic>> combined = [];
-    // Prioritaskan riwayat pencarian nyata pengguna jika ada
+    // 1. Prioritaskan riwayat pencarian nomor yang baru dilakukan pengguna di aplikasi
     for (final item in _recentlyViewed) {
       if (item['date'] != 'Dari Kontak') {
         combined.add({
@@ -168,24 +245,34 @@ class _SearchScreenState extends State<SearchScreen> {
         });
       }
     }
-    // Lengkapi dengan kontak asli HP pengguna tanpa hardcode string/tanggal palsu
-    if (_contacts.isNotEmpty) {
-      for (final c in _contacts) {
+    // 2. Ambil langsung dari Riwayat Telepon Asli HP Pengguna (Call Log) jika izin diberikan
+    if (_callLogs.isNotEmpty) {
+      for (final e in _callLogs) {
         if (combined.length >= 5) break;
-        final num = c.phones.first.number;
+        final num = (e.number ?? '').trim();
+        if (num.isEmpty) continue;
         if (!combined.any((x) => x['number'] == num)) {
-          final labelStr = (c.phones.first.label == PhoneLabel.custom ? c.phones.first.customLabel : c.phones.first.label.name).trim();
-          final cleanLabel = labelStr.isNotEmpty && labelStr != 'custom' ? labelStr : 'Ponsel';
+          // Cari nama kontak asli dari address book jika e.name kosong
+          String display = (e.name ?? '').trim();
+          if (display.isEmpty && _contacts.isNotEmpty) {
+            final match = _contacts.where((c) => c.phones.any((p) => p.number.replaceAll(RegExp(r'\D'), '').endsWith(num.replaceAll(RegExp(r'\D'), '')))).firstOrNull;
+            if (match != null) {
+              display = _getContactName(match);
+            }
+          }
+          if (display.isEmpty) display = num;
+
           combined.add({
-            'name': _getContactName(c),
-            'sub': '$num ($cleanLabel)',
-            'date': 'Kontak HP',
+            'name': display,
+            'sub': '$num (${_formatCallType(e.callType)})',
+            'date': _formatCallLogDate(e.timestamp),
             'isSpam': false,
             'number': num,
           });
         }
       }
     }
+    // Tidak pernah lagi mengambil kontak alfabetis A-Z ke dalam Panggilan Terbaru agar tidak salah data!
     return combined.take(5).toList();
   }
 
@@ -693,19 +780,91 @@ class _SearchScreenState extends State<SearchScreen> {
               ),
 
             // -------------------------------------------------------------
-            // 1. PANGGILAN TERBARU & TOMBOL LIHAT SEMUA (Struktur Gambar 1)
+            // 1. PANGGILAN TERBARU & TOMBOL LIHAT SEMUA
             // -------------------------------------------------------------
-            Text(
-              'Panggilan Terbaru',
-              style: GoogleFonts.outfit(fontSize: 18, fontWeight: FontWeight.w800, color: Colors.white),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Panggilan Terbaru',
+                  style: GoogleFonts.outfit(fontSize: 18, fontWeight: FontWeight.w800, color: Colors.white),
+                ),
+                if (_hasCallLogPermission)
+                  InkWell(
+                    onTap: _fetchRealCallLogs,
+                    borderRadius: BorderRadius.circular(16),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.refresh_rounded, color: AppColors.primaryLight, size: 16),
+                          const SizedBox(width: 4),
+                          Text('Perbarui', style: GoogleFonts.outfit(color: AppColors.primaryLight, fontSize: 12.5, fontWeight: FontWeight.w600)),
+                        ],
+                      ),
+                    ),
+                  ),
+              ],
             ),
             const SizedBox(height: 12),
-            if (_realRecentCalls.isEmpty)
+            if (!_hasCallLogPermission)
+              Container(
+                margin: const EdgeInsets.only(bottom: 16),
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF141A26),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: const Color(0xFF222C40)),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: AppColors.primary.withValues(alpha: 0.2),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: const Icon(Icons.call_made_rounded, color: AppColors.primaryLight, size: 20),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            'Hubungkan Riwayat Telepon Asli',
+                            style: GoogleFonts.outfit(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Beri izin Call Log agar Panggilan Terbaru menampilkan riwayat telepon asli HP Anda (+62 895..., +62 814...).',
+                      style: GoogleFonts.outfit(color: AppColors.textSecondary, fontSize: 12.5, height: 1.35),
+                    ),
+                    const SizedBox(height: 12),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: _requestCallLogPermission,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primary,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          padding: const EdgeInsets.symmetric(vertical: 11),
+                        ),
+                        child: Text('Aktifkan Izin Riwayat Telepon', style: GoogleFonts.outfit(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13.5)),
+                      ),
+                    ),
+                  ],
+                ),
+              )
+            else if (_realRecentCalls.isEmpty)
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 24),
                 child: Center(
                   child: Text(
-                    _hasContactPermission ? 'Belum ada riwayat panggilan kontak nyata.' : 'Izin kontak belum diaktifkan.',
+                    'Belum ada riwayat panggilan telepon.',
                     style: GoogleFonts.outfit(color: AppColors.textSecondary, fontSize: 13.5),
                   ),
                 ),
