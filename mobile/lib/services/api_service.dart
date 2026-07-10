@@ -8,10 +8,10 @@ class ApiService extends ChangeNotifier {
   late String _baseUrl;
 
   ApiService() {
-    // If running on Android (e.g., real device via USB/Wi-Fi), default to local IP.
-    // Can also be switched to http://10.0.2.2:3000 for emulator via Analytics screen settings.
     if (!kIsWeb && Platform.isAndroid) {
-      _baseUrl = 'http://192.168.1.15:3000';
+      // Default menggunakan http://127.0.0.1:3000 via ADB Reverse Tunnel (paling stabil & anti firewall).
+      // Bisa diganti via menu Pengaturan ke IP Wi-Fi PC saat ini: http://192.168.1.159:3000
+      _baseUrl = 'http://127.0.0.1:3000';
     } else {
       _baseUrl = 'http://localhost:3000';
     }

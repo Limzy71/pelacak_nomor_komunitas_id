@@ -126,7 +126,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'Jika menjalankan di perangkat HP nyata (via Wi-Fi/USB), gunakan IP PC (contoh: http://192.168.1.15:3000). Untuk emulator Android gunakan http://10.0.2.2:3000.',
+                        'Untuk perangkat HP nyata via ADB Tunnel gunakan http://127.0.0.1:3000 (paling stabil). Jika via Wi-Fi langsung gunakan IP PC saat ini (http://192.168.1.159:3000). Untuk emulator gunakan http://10.0.2.2:3000.',
                         style: GoogleFonts.outfit(
                           color: AppColors.textSecondary,
                           fontSize: 12,
@@ -140,7 +140,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                               controller: _urlController,
                               style: GoogleFonts.outfit(color: Colors.white, fontSize: 14),
                               decoration: const InputDecoration(
-                                hintText: 'http://192.168.1.15:3000',
+                                hintText: 'http://127.0.0.1:3000',
                                 prefixIcon: Icon(Icons.link, size: 18),
                                 isDense: true,
                               ),
@@ -175,9 +175,9 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                         spacing: 8,
                         runSpacing: 8,
                         children: [
-                          _buildQuickUrlChip('http://192.168.1.15:3000', 'HP Nyata (Wi-Fi/USB)'),
+                          _buildQuickUrlChip('http://127.0.0.1:3000', 'ADB Tunnel (HP USB/Wi-Fi)'),
+                          _buildQuickUrlChip('http://192.168.1.159:3000', 'IP Wi-Fi PC (192.168.1.159)'),
                           _buildQuickUrlChip('http://10.0.2.2:3000', 'Emulator Android'),
-                          _buildQuickUrlChip('http://localhost:3000', 'Localhost PC'),
                         ],
                       ),
                     ],
