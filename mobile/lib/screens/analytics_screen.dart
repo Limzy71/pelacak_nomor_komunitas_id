@@ -185,7 +185,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                 ),
                 const SizedBox(height: 20),
                 Text(
-                  'Ikhtisar Database GetContact',
+                  'Ikhtisar Database Komunitas PhoneRep',
                   style: GoogleFonts.outfit(
                     color: Colors.white,
                     fontSize: 18,

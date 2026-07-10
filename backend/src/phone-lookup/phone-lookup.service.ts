@@ -345,7 +345,7 @@ export class PhoneLookupService {
           update: {},
           create: {
             id: dto.userId,
-            email: `${dto.userId}@mobile.getcontact.app`,
+            email: `${dto.userId}@mobile.phonerep.komunitas`,
             password: 'mobile-app-sync-hash',
             name: 'Mobile App User',
           },
@@ -460,7 +460,7 @@ export class PhoneLookupService {
 
     return {
       success: true,
-      message: `Berhasil menyinkronkan ${syncedCount} kontak ke database GetContact.`,
+      message: `Berhasil menyinkronkan ${syncedCount} kontak ke database PhoneRep Komunitas.`,
       syncedCount,
     };
   }
