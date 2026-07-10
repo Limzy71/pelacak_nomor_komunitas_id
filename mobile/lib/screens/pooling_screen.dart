@@ -95,7 +95,7 @@ class _PoolingScreenState extends State<PoolingScreen> {
           withPhoto: false,
         );
         setState(() {
-          _contacts = contacts.where((c) => c.phones.isNotEmpty && c.displayName.trim().isNotEmpty).toList();
+          _contacts = contacts.where((c) => c.phones.isNotEmpty && _getContactName(c) != 'Kontak Komunitas').toList();
           _selectedIndices.clear();
           for (int i = 0; i < _contacts.length; i++) {
             _selectedIndices.add(i); // default select all
@@ -125,53 +125,6 @@ class _PoolingScreenState extends State<PoolingScreen> {
       return fullName;
     }
     return 'Kontak Komunitas';
-  }
-
-  void _loadDemoContacts() {
-    // Demo contacts if real address book is empty on emulator/test device
-    final demoList = [
-      Contact()
-        ..displayName = 'Andi Kurir JNE'
-        ..name.first = 'Andi'
-        ..name.last = 'Kurir JNE'
-        ..phones = [Phone('081234567891')],
-      Contact()
-        ..displayName = 'Budi Santoso (Telkomsel)'
-        ..name.first = 'Budi'
-        ..name.last = 'Santoso (Telkomsel)'
-        ..phones = [Phone('+6281122334455')],
-      Contact()
-        ..displayName = 'Citra Marketing Bank'
-        ..name.first = 'Citra'
-        ..name.last = 'Marketing Bank'
-        ..phones = [Phone('085711223344')],
-      Contact()
-        ..displayName = 'Deni Service Motor'
-        ..name.first = 'Deni'
-        ..name.last = 'Service Motor'
-        ..phones = [Phone('081988776655')],
-      Contact()
-        ..displayName = 'Eka HRD Perusahaan'
-        ..name.first = 'Eka'
-        ..name.last = 'HRD Perusahaan'
-        ..phones = [Phone('083811223344')],
-    ];
-
-    setState(() {
-      _contacts = demoList;
-      _selectedIndices.clear();
-      for (int i = 0; i < _contacts.length; i++) {
-        _selectedIndices.add(i);
-      }
-      _hasPermission = true;
-    });
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('5 Kontak Demo berhasil dimuat untuk pengujian!'),
-        backgroundColor: AppColors.accentCyan,
-      ),
-    );
   }
 
   Future<void> _performSync() async {
@@ -424,15 +377,6 @@ class _PoolingScreenState extends State<PoolingScreen> {
                                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                                     ),
                                   ),
-                                  const SizedBox(height: 14),
-                                  TextButton.icon(
-                                    onPressed: _loadDemoContacts,
-                                    icon: const Icon(Icons.science_outlined, color: AppColors.accentCyan, size: 18),
-                                    label: Text(
-                                      'Gunakan 5 Kontak Demo (Pengujian Cepat)',
-                                      style: GoogleFonts.outfit(color: AppColors.accentCyan, fontWeight: FontWeight.w600),
-                                    ),
-                                  ),
                                 ],
                               ),
                             ),
@@ -450,11 +394,6 @@ class _PoolingScreenState extends State<PoolingScreen> {
                                 ),
                                 Row(
                                   children: [
-                                    if (_contacts.isEmpty)
-                                      TextButton(
-                                        onPressed: _loadDemoContacts,
-                                        child: Text('Muat Demo', style: GoogleFonts.outfit(color: AppColors.accentCyan)),
-                                      ),
                                     TextButton(
                                       onPressed: () {
                                         setState(() {
@@ -484,14 +423,16 @@ class _PoolingScreenState extends State<PoolingScreen> {
                                   child: Column(
                                     children: [
                                       Text(
-                                        'Tidak ada kontak dengan nomor telepon ditemukan.',
+                                        'Tidak ada kontak dengan nomor telepon yang ditemukan di HP Anda.',
+                                        textAlign: TextAlign.center,
                                         style: GoogleFonts.outfit(color: AppColors.textSecondary),
                                       ),
                                       const SizedBox(height: 12),
-                                      ElevatedButton(
-                                        onPressed: _loadDemoContacts,
-                                        style: ElevatedButton.styleFrom(backgroundColor: AppColors.cardBgElevated),
-                                        child: Text('Muat Kontak Demo', style: GoogleFonts.outfit(color: Colors.white)),
+                                      ElevatedButton.icon(
+                                        onPressed: _loadContacts,
+                                        icon: const Icon(Icons.refresh, size: 18),
+                                        label: Text('Muat Ulang Kontak HP', style: GoogleFonts.outfit(color: Colors.white)),
+                                        style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),
                                       ),
                                     ],
                                   ),
