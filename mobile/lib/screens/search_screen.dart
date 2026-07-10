@@ -67,6 +67,17 @@ class _SearchScreenState extends State<SearchScreen> {
     }
     if (_hasCallLogPermission) {
       await _fetchRealCallLogs();
+    } else {
+      // Fallback: coba tes baca langsung jika izin ternyata sudah ada di OS Android
+      try {
+        final entries = await CallLog.get();
+        _hasCallLogPermission = true;
+        if (mounted) {
+          setState(() {
+            _callLogs = entries.where((e) => (e.number ?? '').trim().isNotEmpty).toList();
+          });
+        }
+      } catch (_) {}
     }
     if (mounted) {
       setState(() => _isContactsLoading = false);
@@ -80,9 +91,20 @@ class _SearchScreenState extends State<SearchScreen> {
       _hasCallLogPermission = true;
       await _fetchRealCallLogs();
     } else {
-      _hasCallLogPermission = false;
-      if (mounted && status.isPermanentlyDenied) {
-        openAppSettings();
+      // Coba panggil langsung log, jika sukses berarti Android sudah memberikan izin
+      try {
+        final entries = await CallLog.get();
+        _hasCallLogPermission = true;
+        if (mounted) {
+          setState(() {
+            _callLogs = entries.where((e) => (e.number ?? '').trim().isNotEmpty).toList();
+          });
+        }
+      } catch (e) {
+        _hasCallLogPermission = false;
+        if (mounted && status.isPermanentlyDenied) {
+          openAppSettings();
+        }
       }
     }
     if (mounted) {
