@@ -153,34 +153,55 @@ class _SearchScreenState extends State<SearchScreen> {
     return colors[seed.hashCode.abs() % colors.length];
   }
 
-  // Getter Panggilan Terbaru Asli dari Kontak Perangkat & Riwayat
+  // Getter Panggilan Terbaru Asli dari Kontak Perangkat & Riwayat Nyata
   List<Map<String, dynamic>> get _realRecentCalls {
-    if (_contacts.isEmpty) return [];
-    return _contacts.take(5).map((c) {
-      final name = _getContactName(c);
-      final num = c.phones.first.number;
-      return {
-        'name': name,
-        'sub': 'Pencarian Nomor Telepon',
-        'date': 'Hari Ini',
-        'isSpam': false,
-        'number': num,
-      };
-    }).toList();
+    final List<Map<String, dynamic>> combined = [];
+    // Prioritaskan riwayat pencarian nyata pengguna jika ada
+    for (final item in _recentlyViewed) {
+      if (item['date'] != 'Dari Kontak') {
+        combined.add({
+          'name': item['name'],
+          'sub': item['number'],
+          'date': item['date'],
+          'isSpam': false,
+          'number': item['number'],
+        });
+      }
+    }
+    // Lengkapi dengan kontak asli HP pengguna tanpa hardcode string/tanggal palsu
+    if (_contacts.isNotEmpty) {
+      for (final c in _contacts) {
+        if (combined.length >= 5) break;
+        final num = c.phones.first.number;
+        if (!combined.any((x) => x['number'] == num)) {
+          final labelStr = (c.phones.first.label == PhoneLabel.custom ? c.phones.first.customLabel : c.phones.first.label.name).trim();
+          final cleanLabel = labelStr.isNotEmpty && labelStr != 'custom' ? labelStr : 'Ponsel';
+          combined.add({
+            'name': _getContactName(c),
+            'sub': '$num ($cleanLabel)',
+            'date': 'Kontak HP',
+            'isSpam': false,
+            'number': num,
+          });
+        }
+      }
+    }
+    return combined.take(5).toList();
   }
 
-  // Getter Kontak Cepat Asli dari Kontak Perangkat
+  // Getter Kontak Cepat Asli dari Kontak Perangkat (Tanpa Angka Hash Palsu)
   List<TagItem> get _realQuickContacts {
     if (_contacts.isEmpty) return [];
     return _contacts.take(12).map((c) {
       final name = _getContactName(c);
       final num = c.phones.first.number;
-      final tagCount = (name.hashCode.abs() % 180) + 15;
+      // Gunakan jumlah nyata nomor telepon/entri yang tercatat di kontak HP
+      final realCount = c.phones.isNotEmpty ? c.phones.length : 1;
       return TagItem(
         id: c.id,
         phoneNumberId: num,
         labelName: name,
-        upvotes: tagCount,
+        upvotes: realCount,
         isSpam: false,
       );
     }).toList();

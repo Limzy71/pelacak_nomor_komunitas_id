@@ -30,7 +30,7 @@ class TagChipCard extends StatelessWidget {
     final avatarText = tag.labelName.trim().isNotEmpty
         ? (tag.labelName.length >= 2 ? tag.labelName.substring(0, 2).toUpperCase() : tag.labelName[0].toUpperCase())
         : '#';
-    final badgeNumber = tag.upvotes > 0 ? tag.upvotes * 14 + 12 : 48;
+    final badgeNumber = tag.upvotes > 0 ? tag.upvotes : 1;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -93,10 +93,10 @@ class TagChipCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Diverifikasi oleh Komunitas PhoneRep',
+                  tag.phoneNumberId.isNotEmpty ? tag.phoneNumberId : 'Diverifikasi oleh Komunitas',
                   style: GoogleFonts.outfit(
                     color: Colors.white54,
-                    fontSize: 12,
+                    fontSize: 12.5,
                   ),
                 ),
               ],
