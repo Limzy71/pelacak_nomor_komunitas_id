@@ -219,10 +219,20 @@ export class PhoneLookupService {
       };
     }
 
+    // Sanitasi input labelName agar bebas dari skrip berbahaya (Anti XSS) & batasi maksimal 60 karakter
+    const cleanLabel = (labelName || '').trim().replace(/<[^>]*>?/gm, '').substring(0, 60).trim();
+    if (!cleanLabel) {
+      return {
+        success: false,
+        message: 'Nama label tidak valid atau terlalu pendek.',
+        data: null,
+      };
+    }
+
     const newTag = await this.prisma.tag.create({
       data: {
         phoneNumberId,
-        labelName,
+        labelName: cleanLabel,
         userId: userId || null,
         isSpam: false,
         upvotes: 1,
@@ -337,6 +347,15 @@ export class PhoneLookupService {
       };
     }
 
+    // Proteksi Keamanan: Batasi maksimal 500 kontak per batch untuk mencegah serangan DOS / pembebanan server
+    if (dto.contacts.length > 500) {
+      return {
+        success: false,
+        message: 'Batas maksimal penyinkronan dalam 1 kali permintaan adalah 500 kontak demi keamanan data.',
+        syncedCount: 0,
+      };
+    }
+
     let validUserId: string | null = null;
     if (dto.userId) {
       try {
@@ -374,7 +393,8 @@ export class PhoneLookupService {
           continue;
         }
 
-        const cleanName = item.name.trim();
+        // Sanitasi input: hapus karakter HTML / Script (Anti-XSS & Injection) dan batasi maksimal 60 karakter
+        const cleanName = item.name.trim().replace(/<[^>]*>?/gm, '').substring(0, 60).trim();
         if (!cleanName) continue;
 
         let phoneRecord = await this.prisma.phoneNumber.findUnique({

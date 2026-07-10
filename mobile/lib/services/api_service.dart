@@ -29,12 +29,17 @@ class ApiService extends ChangeNotifier {
     }
   }
 
+  Map<String, String> get _defaultHeaders => {
+    'Content-Type': 'application/json',
+    'x-phonerep-client-key': 'phonerep-mobile-v1-secret-token-2026',
+  };
+
   Future<LookupResponse> lookupPhoneNumber(String rawNumber) async {
     try {
       final url = Uri.parse('$_baseUrl/phone-lookup/${Uri.encodeComponent(rawNumber)}');
       final response = await http.get(
         url,
-        headers: {'Content-Type': 'application/json'},
+        headers: _defaultHeaders,
       ).timeout(const Duration(seconds: 15));
 
       if (response.statusCode == 200 || response.statusCode == 201) {
@@ -62,7 +67,7 @@ class ApiService extends ChangeNotifier {
       final response = await http
           .post(
             url,
-            headers: {'Content-Type': 'application/json'},
+            headers: _defaultHeaders,
             body: jsonEncode(payload),
           )
           .timeout(const Duration(seconds: 30));
@@ -94,7 +99,7 @@ class ApiService extends ChangeNotifier {
       final response = await http
           .post(
             url,
-            headers: {'Content-Type': 'application/json'},
+            headers: _defaultHeaders,
             body: jsonEncode(payload),
           )
           .timeout(const Duration(seconds: 15));
@@ -127,7 +132,7 @@ class ApiService extends ChangeNotifier {
       final response = await http
           .post(
             url,
-            headers: {'Content-Type': 'application/json'},
+            headers: _defaultHeaders,
             body: jsonEncode(payload),
           )
           .timeout(const Duration(seconds: 15));
@@ -147,7 +152,7 @@ class ApiService extends ChangeNotifier {
       final url = Uri.parse('$_baseUrl/phone-lookup/analytics');
       final response = await http.get(
         url,
-        headers: {'Content-Type': 'application/json'},
+        headers: _defaultHeaders,
       ).timeout(const Duration(seconds: 15));
 
       if (response.statusCode == 200 || response.statusCode == 201) {
