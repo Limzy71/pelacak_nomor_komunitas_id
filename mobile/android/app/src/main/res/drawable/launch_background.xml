@@ -1,12 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Latar Belakang Deep Royal Blue Premium -->
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <!-- Latar Belakang Deep Royal Blue Premium yang Menyatu dengan Ikon -->
     <item android:drawable="@color/splash_background" />
-
-    <!-- Ikon Aplikasi Di Tengah Layar -->
-    <item>
-        <bitmap
-            android:gravity="center"
-            android:src="@mipmap/launcher_icon" />
-    </item>
 </layer-list>
