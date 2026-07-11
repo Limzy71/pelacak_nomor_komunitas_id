@@ -149,22 +149,6 @@ class _SearchScreenState extends State<SearchScreen> {
           setState(() {
             _contacts = contacts.where((c) => c.phones.isNotEmpty).toList();
             _isContactsLoading = false;
-
-            // Inisialisasi daftar "Baru Saja Dilihat" nyata dari kontak pertama pengguna
-            if (_recentlyViewed.isEmpty && _contacts.isNotEmpty) {
-              for (final c in _contacts.take(8)) {
-                final name = _getContactName(c);
-                final num = c.phones.first.number;
-                final initial = _getInitials(name);
-                _recentlyViewed.add({
-                  'name': name,
-                  'number': num,
-                  'date': 'Dari Kontak',
-                  'initial': initial,
-                  'color': _getAvatarColor(name),
-                });
-              }
-            }
           });
         }
       } else {
