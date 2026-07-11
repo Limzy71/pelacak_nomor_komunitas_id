@@ -137,7 +137,7 @@ class _SetupProfileScreenState extends State<SetupProfileScreen> {
                 ),
                 const SizedBox(height: 10),
                 Text(
-                  'Sebelum memasuki komunitas PhoneRep, Anda diwajibkan mendaftarkan nama dan nomor telepon aktif Anda sendiri.',
+                  'Daftarkan identitas resmi dan nomor telepon aktif Anda untuk mengakses sistem perlindungan PhoneRep.',
                   textAlign: TextAlign.center,
                   style: GoogleFonts.outfit(
                     fontSize: 14,
@@ -166,7 +166,7 @@ class _SetupProfileScreenState extends State<SetupProfileScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Nama / Identitas Anda',
+                        'Nama Lengkap Anda',
                         style: GoogleFonts.outfit(
                           fontSize: 13,
                           fontWeight: FontWeight.w600,
@@ -178,7 +178,7 @@ class _SetupProfileScreenState extends State<SetupProfileScreen> {
                         controller: _nameController,
                         style: GoogleFonts.outfit(color: Colors.white, fontSize: 16),
                         decoration: InputDecoration(
-                          hintText: 'Misal: Ikhsan / Bisnis Saya',
+                          hintText: 'Contoh: Budi Santoso',
                           hintStyle: GoogleFonts.outfit(color: Colors.white38),
                           prefixIcon: const Icon(
                             Icons.person_outline_rounded,
@@ -194,7 +194,7 @@ class _SetupProfileScreenState extends State<SetupProfileScreen> {
                       ),
                       const SizedBox(height: 20),
                       Text(
-                        'Nomor Telepon Sendiri',
+                        'Nomor Telepon Aktif',
                         style: GoogleFonts.outfit(
                           fontSize: 13,
                           fontWeight: FontWeight.w600,
@@ -207,7 +207,7 @@ class _SetupProfileScreenState extends State<SetupProfileScreen> {
                         keyboardType: TextInputType.phone,
                         style: GoogleFonts.outfit(color: Colors.white, fontSize: 16),
                         decoration: InputDecoration(
-                          hintText: 'Misal: 081234567890',
+                          hintText: 'Contoh: 081234567890',
                           hintStyle: GoogleFonts.outfit(color: Colors.white38),
                           prefixIcon: const Icon(
                             Icons.phone_android_rounded,
@@ -281,7 +281,7 @@ class _SetupProfileScreenState extends State<SetupProfileScreen> {
                             ),
                           )
                         : Text(
-                            'SIMPAN & MASUK KE KOMUNITAS',
+                            'SIMPAN & LANJUTKAN',
                             style: GoogleFonts.outfit(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
@@ -292,7 +292,7 @@ class _SetupProfileScreenState extends State<SetupProfileScreen> {
                 ),
                 const SizedBox(height: 20),
                 Text(
-                  'Data identitas Anda dilindungi dengan enkripsi komunitas dan digunakan untuk sinkronisasi perlindungan nomor.',
+                  'Data identitas Anda disimpan secara aman di perangkat dan dienkripsi untuk keperluan verifikasi keamanan nomor.',
                   textAlign: TextAlign.center,
                   style: GoogleFonts.outfit(
                     fontSize: 12,

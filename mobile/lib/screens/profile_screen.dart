@@ -57,13 +57,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Nama / Identitas Anda', style: GoogleFonts.outfit(color: AppColors.textSecondary, fontSize: 13)),
+                Text('Nama Lengkap Anda', style: GoogleFonts.outfit(color: AppColors.textSecondary, fontSize: 13)),
                 const SizedBox(height: 6),
                 TextField(
                   controller: nameCtrl,
                   style: GoogleFonts.outfit(color: Colors.white),
                   decoration: InputDecoration(
-                    hintText: 'Nama Anda',
+                    hintText: 'Contoh: Budi Santoso',
                     hintStyle: GoogleFonts.outfit(color: Colors.white38),
                     filled: true,
                     fillColor: const Color(0xFF131824),
@@ -71,14 +71,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                 ),
                 const SizedBox(height: 16),
-                Text('Nomor Telepon Sendiri', style: GoogleFonts.outfit(color: AppColors.textSecondary, fontSize: 13)),
+                Text('Nomor Telepon Aktif', style: GoogleFonts.outfit(color: AppColors.textSecondary, fontSize: 13)),
                 const SizedBox(height: 6),
                 TextField(
                   controller: phoneCtrl,
                   keyboardType: TextInputType.phone,
                   style: GoogleFonts.outfit(color: Colors.white),
                   decoration: InputDecoration(
-                    hintText: 'Nomor Telepon Anda',
+                    hintText: 'Contoh: 081234567890',
                     hintStyle: GoogleFonts.outfit(color: Colors.white38),
                     filled: true,
                     fillColor: const Color(0xFF131824),
