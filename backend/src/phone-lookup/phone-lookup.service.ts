@@ -58,7 +58,7 @@ export class PhoneLookupService {
       return {
         found: true,
         phoneNumber: number,
-        message: 'Detail nomor telepon berhasil diambil dari database lokal.',
+        message: 'Informasi nomor telepon ditemukan.',
         data: updatedRecord,
       };
     }
@@ -199,7 +199,7 @@ export class PhoneLookupService {
     return {
       found: true,
       phoneNumber: number,
-      message: `Detail nomor telepon (${actualName !== 'Nomor Tidak Dikenal' ? actualName + ' • ' : ''}${carrier} - ${countryCode}) berhasil diidentifikasi dan disimpan ke database.`,
+      message: `Reputasi nomor telepon (${actualName !== 'Nomor Tidak Dikenal' ? actualName + ' • ' : ''}${carrier} - ${countryCode}) berhasil diperbarui.`,
       data: newRecord,
     };
   }
@@ -214,7 +214,7 @@ export class PhoneLookupService {
     if (!phone) {
       return {
         success: false,
-        message: 'ID Nomor Telepon tidak ditemukan.',
+        message: 'Nomor telepon tidak ditemukan dalam sistem.',
         data: null,
       };
     }
@@ -224,7 +224,7 @@ export class PhoneLookupService {
     if (!cleanLabel) {
       return {
         success: false,
-        message: 'Nama label tidak valid atau terlalu pendek.',
+        message: 'Nama label tidak valid atau terlalu pendek (minimal 2 karakter).',
         data: null,
       };
     }
@@ -241,7 +241,7 @@ export class PhoneLookupService {
 
     return {
       success: true,
-      message: 'Tag baru berhasil ditambahkan.',
+      message: 'Label tag berhasil ditambahkan.',
       data: newTag,
     };
   }
@@ -255,7 +255,7 @@ export class PhoneLookupService {
     if (!tag) {
       return {
         success: false,
-        message: 'Tag tidak ditemukan.',
+        message: 'Label tag tidak ditemukan.',
         data: null,
       };
     }
@@ -268,7 +268,7 @@ export class PhoneLookupService {
     if (!user) {
       return {
         success: false,
-        message: 'User ID tidak ditemukan atau belum terdaftar.',
+        message: 'Pengguna tidak terdaftar.',
         data: null,
       };
     }
@@ -287,7 +287,7 @@ export class PhoneLookupService {
       if (existingVote.voteType === voteType) {
         return {
           success: true,
-          message: 'Anda sudah memberikan voting yang sama pada tag ini sebelumnya.',
+          message: 'Anda sudah memberikan penilaian pada label ini.',
           data: tag,
         };
       }
@@ -309,7 +309,7 @@ export class PhoneLookupService {
 
       return {
         success: true,
-        message: `Voting berhasil diubah menjadi ${voteType}.`,
+        message: `Penilaian berhasil diperbarui.`,
         data: updatedTag,
       };
     }
@@ -333,7 +333,7 @@ export class PhoneLookupService {
 
     return {
       success: true,
-      message: `Voting ${voteType} berhasil ditambahkan.`,
+      message: `Penilaian berhasil dicatat.`,
       data: updatedTag,
     };
   }
@@ -351,7 +351,7 @@ export class PhoneLookupService {
     if (dto.contacts.length > 500) {
       return {
         success: false,
-        message: 'Batas maksimal penyinkronan dalam 1 kali permintaan adalah 500 kontak demi keamanan data.',
+        message: 'Maksimal 500 kontak dapat disinkronkan dalam satu permintaan.',
         syncedCount: 0,
       };
     }
@@ -480,7 +480,7 @@ export class PhoneLookupService {
 
     return {
       success: true,
-      message: `Berhasil menyinkronkan ${syncedCount} kontak ke database PhoneRep Komunitas.`,
+      message: `${syncedCount} kontak berhasil disinkronkan ke jaringan PhoneRep.`,
       syncedCount,
     };
   }

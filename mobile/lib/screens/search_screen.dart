@@ -27,6 +27,23 @@ class _SearchScreenState extends State<SearchScreen> {
   PhoneRecord? _phoneRecord;
   String? _statusMessage;
 
+  void _showAutoDismissStatus(String? status, {String? error}) {
+    setState(() {
+      _statusMessage = status;
+      _errorMessage = error;
+    });
+    if (status != null || error != null) {
+      Future.delayed(const Duration(seconds: 4), () {
+        if (mounted && (_statusMessage == status || _errorMessage == error)) {
+          setState(() {
+            if (_statusMessage == status) _statusMessage = null;
+            if (_errorMessage == error) _errorMessage = null;
+          });
+        }
+      });
+    }
+  }
+
   // Status apakah bar pencarian sedang diklik/difokuskan (untuk menampilkan mode Gambar ke-5)
   bool _isSearchExpanded = false;
   String _selectedCountryCode = '+62';
@@ -311,7 +328,13 @@ class _SearchScreenState extends State<SearchScreen> {
       if (mounted) {
         setState(() {
           _phoneRecord = res.data;
-          _statusMessage = res.message;
+          // Jangan tampilkan banner status bila data detail nomor berhasil dimuat ke layar
+          if (res.data == null) {
+            _showAutoDismissStatus(res.message);
+          } else {
+            _statusMessage = null;
+            _errorMessage = null;
+          }
           _isLoading = false;
 
           // Tambahkan ke daftar nyata "Baru Saja Dilihat"
@@ -355,8 +378,8 @@ class _SearchScreenState extends State<SearchScreen> {
       }
     } catch (e) {
       if (mounted) {
+        _showAutoDismissStatus(null, error: e.toString().replaceAll('Exception: ', ''));
         setState(() {
-          _errorMessage = e.toString().replaceAll('Exception: ', '');
           _isLoading = false;
         });
       }
@@ -369,7 +392,7 @@ class _SearchScreenState extends State<SearchScreen> {
       if (success && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Voting $voteType berhasil dicatat!'),
+            content: Text('Penilaian reputasi ($voteType) berhasil dicatat.'),
             backgroundColor: AppColors.primary,
             behavior: SnackBarBehavior.floating,
           ),
@@ -578,11 +601,7 @@ class _SearchScreenState extends State<SearchScreen> {
                         }
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                            content: Text(
-                              phoneId.isNotEmpty
-                                  ? 'Tag "#$label" berhasil ditambahkan dan disimpan ke database!'
-                                  : 'Tag "#$label" berhasil ditambahkan ke Tag Saya!',
-                            ),
+                            content: Text('Label "#$label" berhasil ditambahkan.'),
                             backgroundColor: AppColors.accentGreen,
                             behavior: SnackBarBehavior.floating,
                           ),
@@ -603,7 +622,7 @@ class _SearchScreenState extends State<SearchScreen> {
                         }
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                            content: Text('Tag "#$label" ditambahkan ke Tag Saya. (${e.toString().replaceAll('Exception: ', '')})'),
+                            content: Text('Label "#$label" ditambahkan ke daftar Anda. (${e.toString().replaceAll('Exception: ', '')})'),
                             backgroundColor: AppColors.accentGreen,
                             behavior: SnackBarBehavior.floating,
                           ),
@@ -909,6 +928,18 @@ class _SearchScreenState extends State<SearchScreen> {
                             ),
                           ),
                         ),
+                        InkWell(
+                          onTap: () => setState(() => _errorMessage = null),
+                          borderRadius: BorderRadius.circular(12),
+                          child: const Padding(
+                            padding: EdgeInsets.all(4.0),
+                            child: Icon(
+                              Icons.close_rounded,
+                              color: Color(0xFFEF4444),
+                              size: 18,
+                            ),
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -938,6 +969,18 @@ class _SearchScreenState extends State<SearchScreen> {
                             style: GoogleFonts.outfit(
                               color: const Color(0xFF10B981),
                               fontSize: 13,
+                            ),
+                          ),
+                        ),
+                        InkWell(
+                          onTap: () => setState(() => _statusMessage = null),
+                          borderRadius: BorderRadius.circular(12),
+                          child: const Padding(
+                            padding: EdgeInsets.all(4.0),
+                            child: Icon(
+                              Icons.close_rounded,
+                              color: Color(0xFF10B981),
+                              size: 18,
                             ),
                           ),
                         ),
@@ -1104,6 +1147,91 @@ class _SearchScreenState extends State<SearchScreen> {
                         size: 22,
                       ),
                   ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    } else if (_phoneRecord != null) {
+      // Mode Hasil Pencarian Detail: Tombol Kembali + Kapsul Info Nomor/Tutup
+      return Container(
+        padding: const EdgeInsets.fromLTRB(12, 12, 16, 12),
+        color: const Color(0xFF131824),
+        child: Row(
+          children: [
+            IconButton(
+              onPressed: () {
+                setState(() {
+                  _phoneRecord = null;
+                  _statusMessage = null;
+                  _errorMessage = null;
+                  _searchController.clear();
+                });
+              },
+              icon: const Icon(
+                Icons.arrow_back_rounded,
+                color: Colors.white,
+                size: 24,
+              ),
+            ),
+            const SizedBox(width: 4),
+            Expanded(
+              child: InkWell(
+                onTap: () {
+                  setState(() {
+                    _isSearchExpanded = true;
+                  });
+                  _searchFocusNode.requestFocus();
+                },
+                borderRadius: BorderRadius.circular(24),
+                child: Container(
+                  height: 48,
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF1A2133),
+                    borderRadius: BorderRadius.circular(24),
+                    border: Border.all(color: const Color(0xFF2A3450), width: 1),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(
+                        Icons.search_rounded,
+                        color: Colors.white60,
+                        size: 22,
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          _phoneRecord!.phoneNumber,
+                          style: GoogleFonts.outfit(
+                            color: Colors.white,
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                      InkWell(
+                        onTap: () {
+                          setState(() {
+                            _phoneRecord = null;
+                            _statusMessage = null;
+                            _errorMessage = null;
+                            _searchController.clear();
+                          });
+                        },
+                        borderRadius: BorderRadius.circular(16),
+                        child: const Padding(
+                          padding: EdgeInsets.all(4.0),
+                          child: Icon(
+                            Icons.close_rounded,
+                            color: Colors.white60,
+                            size: 20,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
