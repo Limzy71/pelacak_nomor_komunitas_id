@@ -115,34 +115,29 @@ class _SetupProfileScreenState extends State<SetupProfileScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(3.5),
+                    padding: const EdgeInsets.all(1.2),
                     decoration: BoxDecoration(
-                      gradient: const LinearGradient(
+                      gradient: LinearGradient(
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                         colors: [
-                          AppColors.primaryLight,
-                          AppColors.primary,
-                          Color(0xFF0F2352),
+                          AppColors.primaryLight.withValues(alpha: 0.8),
+                          AppColors.primary.withValues(alpha: 0.6),
+                          const Color(0xFF13264D),
                         ],
                       ),
-                      borderRadius: BorderRadius.circular(26),
+                      borderRadius: BorderRadius.circular(23.5),
                       boxShadow: [
                         BoxShadow(
-                          color: AppColors.primary.withValues(alpha: 0.55),
-                          blurRadius: 38,
-                          spreadRadius: 3,
-                          offset: const Offset(0, 10),
-                        ),
-                        BoxShadow(
-                          color: AppColors.primaryLight.withValues(alpha: 0.3),
-                          blurRadius: 18,
-                          spreadRadius: -1,
+                          color: AppColors.primary.withValues(alpha: 0.35),
+                          blurRadius: 26,
+                          spreadRadius: 0,
+                          offset: const Offset(0, 6),
                         ),
                       ],
                     ),
                     child: ClipRRect(
-                      borderRadius: BorderRadius.circular(23),
+                      borderRadius: BorderRadius.circular(22.5),
                       child: Image.asset(
                         'assets/images/logo.png',
                         width: 100,
