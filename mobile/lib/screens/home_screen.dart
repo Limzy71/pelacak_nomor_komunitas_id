@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/api_service.dart';
 import '../theme/app_theme.dart';
-import 'analytics_screen.dart';
 import 'pooling_screen.dart';
 import 'profile_screen.dart';
 import 'search_screen.dart';
@@ -27,11 +26,9 @@ class _HomeScreenState extends State<HomeScreen> {
       case 0:
         return SearchScreen(apiService: widget.apiService);
       case 1:
-        return ProfileScreen(apiService: widget.apiService);
-      case 2:
         return PoolingScreen(apiService: widget.apiService);
-      case 3:
-        return AnalyticsScreen(apiService: widget.apiService);
+      case 2:
+        return ProfileScreen(apiService: widget.apiService);
       default:
         return const SizedBox.shrink();
     }
@@ -51,7 +48,6 @@ class _HomeScreenState extends State<HomeScreen> {
           _getScreen(0),
           _getScreen(1),
           _getScreen(2),
-          _getScreen(3),
         ],
       ),
       bottomNavigationBar: Container(
@@ -86,19 +82,14 @@ class _HomeScreenState extends State<HomeScreen> {
               label: 'Beranda',
             ),
             NavigationDestination(
-              icon: const Icon(Icons.person_outline_rounded, color: AppColors.textSecondary, size: 24),
-              selectedIcon: const Icon(Icons.person_rounded, color: AppColors.primaryLight, size: 24),
-              label: 'Profil Saya',
-            ),
-            NavigationDestination(
               icon: const Icon(Icons.shield_outlined, color: AppColors.textSecondary, size: 24),
               selectedIcon: const Icon(Icons.shield_rounded, color: AppColors.accentGreen, size: 24),
               label: 'Perlindungan',
             ),
             NavigationDestination(
-              icon: const Icon(Icons.menu_rounded, color: AppColors.textSecondary, size: 24),
-              selectedIcon: const Icon(Icons.menu_open_rounded, color: AppColors.accentOrange, size: 24),
-              label: 'Menu',
+              icon: const Icon(Icons.person_outline_rounded, color: AppColors.textSecondary, size: 24),
+              selectedIcon: const Icon(Icons.person_rounded, color: AppColors.primaryLight, size: 24),
+              label: 'Profil Saya',
             ),
           ],
         ),

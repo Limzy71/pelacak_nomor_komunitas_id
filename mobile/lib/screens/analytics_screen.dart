@@ -73,6 +73,14 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                 // Header
                 Row(
                   children: [
+                    if (Navigator.of(context).canPop()) ...[
+                      IconButton(
+                        onPressed: () => Navigator.pop(context),
+                        icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white, size: 20),
+                        tooltip: 'Kembali',
+                      ),
+                      const SizedBox(width: 4),
+                    ],
                     Container(
                       padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
