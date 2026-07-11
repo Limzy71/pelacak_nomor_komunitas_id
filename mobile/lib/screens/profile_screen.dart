@@ -328,12 +328,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               children: [
                                 const Icon(Icons.shield_rounded, color: AppColors.accentGreen, size: 14),
                                 const SizedBox(width: 6),
-                                Text(
-                                  'Aktif • Komunitas PhoneRep',
-                                  style: GoogleFonts.outfit(
-                                    color: AppColors.accentGreen,
-                                    fontSize: 11.5,
-                                    fontWeight: FontWeight.bold,
+                                Flexible(
+                                  child: Text(
+                                    'Akun Terverifikasi',
+                                    style: GoogleFonts.outfit(
+                                      color: AppColors.accentGreen,
+                                      fontSize: 11.5,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
                                   ),
                                 ),
                               ],
@@ -502,6 +506,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 fontSize: 12.5,
                                 color: AppColors.textSecondary,
                               ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ],
                         ),
