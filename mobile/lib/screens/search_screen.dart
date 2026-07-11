@@ -871,8 +871,9 @@ class _SearchScreenState extends State<SearchScreen> {
       body: SafeArea(
         child: Stack(
           children: [
-            Column(
-              children: [
+            Positioned.fill(
+              child: Column(
+                children: [
                 // Top Bar yang berubah secara dinamis antara mode biasa dan mode aktif pencarian (Gambar ke-5)
                 _buildDynamicTopBar(),
 
@@ -960,6 +961,7 @@ class _SearchScreenState extends State<SearchScreen> {
                 ),
               ],
             ),
+          ),
 
             // Floating Dialpad Button ala aplikasi referensi (muncul di Beranda saat idle)
             if (!_isSearchExpanded && _phoneRecord == null)
@@ -1746,24 +1748,18 @@ class _SearchScreenState extends State<SearchScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Text(
-                        _phoneRecord!.phoneNumber,
-                        style: GoogleFonts.outfit(
-                          color: Colors.white,
-                          fontSize: 24,
-                          fontWeight: FontWeight.w800,
-                        ),
-                      ),
-                    ),
-                    TrustMeter(
-                      score: _phoneRecord!.trustScore,
-                      searchCount: _phoneRecord!.searchCount,
-                    ),
-                  ],
+                Text(
+                  _phoneRecord!.phoneNumber,
+                  style: GoogleFonts.outfit(
+                    color: Colors.white,
+                    fontSize: 24,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                TrustMeter(
+                  score: _phoneRecord!.trustScore,
+                  searchCount: _phoneRecord!.searchCount,
                 ),
                 if (_phoneRecord!.carrier != null &&
                     _phoneRecord!.carrier!.isNotEmpty) ...[
