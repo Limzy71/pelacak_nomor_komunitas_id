@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Untuk Android 12+ (API 31+): hanya warna solid tanpa bitmap.
+     Ikon aplikasi ditampilkan secara otomatis oleh sistem Android melalui
+     windowSplashScreenAnimatedIcon dengan kualitas tinggi (tidak pecah/burik). -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@color/splash_background" />
+</layer-list>
