@@ -427,6 +427,7 @@ class _SearchScreenState extends State<SearchScreen> {
       ),
       builder: (ctx) {
         return Container(
+          width: double.infinity,
           padding: const EdgeInsets.all(20),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -465,7 +466,8 @@ class _SearchScreenState extends State<SearchScreen> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       builder: (ctx) {
-        return Padding(
+        return Container(
+          width: double.infinity,
           padding: EdgeInsets.only(
             left: 24,
             right: 24,
@@ -670,6 +672,7 @@ class _SearchScreenState extends State<SearchScreen> {
             }).toList();
 
             return Container(
+              width: double.infinity,
               height: MediaQuery.of(ctx).size.height * 0.8,
               padding: const EdgeInsets.only(top: 20, left: 20, right: 20),
               child: Column(
@@ -786,6 +789,7 @@ class _SearchScreenState extends State<SearchScreen> {
             }).toList();
 
             return Container(
+              width: double.infinity,
               height: MediaQuery.of(ctx).size.height * 0.85,
               padding: const EdgeInsets.only(top: 20, left: 20, right: 20),
               child: Column(
