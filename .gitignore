@@ -23,3 +23,9 @@ generated/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# Android compiler session & keystore files
+**/.kotlin/
+**/*.salive
+**/*.keystore
+**/*.jks
