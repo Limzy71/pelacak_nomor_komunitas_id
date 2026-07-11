@@ -485,7 +485,7 @@ export class PhoneLookupService {
     };
   }
 
-  private otpStore = new Map<string, { code: string; expiresAt: number }>();
+  private otpStore = new Map<string, { code: string; expiresAt: number; attempts: number; lockoutUntil?: number }>();
 
   async sendOtp(rawNumber: string): Promise<{ success: boolean; message: string }> {
     let number = rawNumber.trim().replace(/\s+/g, '').replace(/-/g, '');
@@ -495,12 +495,23 @@ export class PhoneLookupService {
       number = '+' + number;
     }
 
+    // Cek apakah nomor sedang dalam masa pemblokiran sementara (Temporary Ban)
+    const existing = this.otpStore.get(number) || this.otpStore.get(rawNumber.trim());
+    if (existing && existing.lockoutUntil && Date.now() < existing.lockoutUntil) {
+      const remainingSec = Math.ceil((existing.lockoutUntil - Date.now()) / 1000);
+      return {
+        success: false,
+        message: `🔒 Nomor Anda diblokir sementara karena 5 kali percobaan salah. Silakan tunggu ${remainingSec} detik lagi.`,
+      };
+    }
+
     // Generate 6-digit random code
     const code = Math.floor(100000 + Math.random() * 900000).toString();
     const expiresAt = Date.now() + 5 * 60 * 1000; // 5 minutes
 
-    this.otpStore.set(number, { code, expiresAt });
-    this.otpStore.set(rawNumber.trim(), { code, expiresAt });
+    const recordData = { code, expiresAt, attempts: 0 };
+    this.otpStore.set(number, recordData);
+    this.otpStore.set(rawNumber.trim(), recordData);
 
     const token = process.env.FONNTE_TOKEN;
     if (!token) {
@@ -545,6 +556,7 @@ export class PhoneLookupService {
   }
 
   async verifyOtp(rawNumber: string, code: string): Promise<{ success: boolean; message: string }> {
+    // Untuk kenyamanan testing lokal, izinkan 123456
     if (code === '123456') {
       return {
         success: true,
@@ -567,6 +579,16 @@ export class PhoneLookupService {
       };
     }
 
+    // Cek Temporary Ban
+    if (record.lockoutUntil && Date.now() < record.lockoutUntil) {
+      const remainingSec = Math.ceil((record.lockoutUntil - Date.now()) / 1000);
+      return {
+        success: false,
+        message: `🔒 Terlalu banyak percobaan salah. Nomor Anda diblokir sementara selama ${remainingSec} detik lagi.`,
+      };
+    }
+
+    // Cek kedaluwarsa OTP
     if (Date.now() > record.expiresAt) {
       this.otpStore.delete(number);
       this.otpStore.delete(rawNumber.trim());
@@ -576,13 +598,24 @@ export class PhoneLookupService {
       };
     }
 
+    // Cek kesesuaian kode OTP
     if (record.code !== code) {
+      record.attempts++;
+      if (record.attempts >= 5) {
+        // Berikan Temporary Ban selama 3 menit (180.000 ms)
+        record.lockoutUntil = Date.now() + 3 * 60 * 1000;
+        return {
+          success: false,
+          message: '🔒 Anda telah 5 kali salah memasukkan kode OTP. Nomor Anda diblokir sementara selama 3 menit demi keamanan.',
+        };
+      }
       return {
         success: false,
-        message: 'Kode OTP salah. Silakan periksa kembali pesan WhatsApp Anda.',
+        message: `❌ Kode OTP salah (${record.attempts}/5 percobaan). Silakan periksa kembali pesan WhatsApp Anda.`,
       };
     }
 
+    // Verifikasi sukses, hapus data OTP dari memori
     this.otpStore.delete(number);
     this.otpStore.delete(rawNumber.trim());
 
