@@ -1,5 +1,7 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/api_service.dart';
 import '../theme/app_theme.dart';
@@ -18,6 +20,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   String _userName = 'Pengguna PhoneRep';
   String _userPhone = '+62...';
   List<String> _userTags = [];
+  String? _userPhotoPath;
   bool _isLoading = true;
 
   @override
@@ -33,8 +36,32 @@ class _ProfileScreenState extends State<ProfileScreen> {
         _userName = prefs.getString('user_my_name') ?? 'Pengguna PhoneRep';
         _userPhone = prefs.getString('user_my_phone') ?? 'Belum Diatur';
         _userTags = prefs.getStringList('user_my_tags') ?? [];
+        _userPhotoPath = prefs.getString('user_my_photo');
         _isLoading = false;
       });
+    }
+  }
+
+  Future<void> _pickPhoto() async {
+    try {
+      final picker = ImagePicker();
+      final pickedFile = await picker.pickImage(
+        source: ImageSource.gallery,
+        maxWidth: 600,
+        maxHeight: 600,
+        imageQuality: 85,
+      );
+      if (pickedFile != null) {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('user_my_photo', pickedFile.path);
+        if (mounted) {
+          setState(() {
+            _userPhotoPath = pickedFile.path;
+          });
+        }
+      }
+    } catch (e) {
+      debugPrint('Error picking photo: $e');
     }
   }
 
@@ -200,23 +227,62 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 child: Row(
                   children: [
-                    Container(
-                      width: 72,
-                      height: 72,
-                      decoration: BoxDecoration(
-                        color: AppColors.primary,
-                        shape: BoxShape.circle,
-                        border: Border.all(color: Colors.white, width: 2),
-                      ),
-                      child: Center(
-                        child: Text(
-                          _getInitials(_userName),
-                          style: GoogleFonts.outfit(
-                            fontSize: 26,
-                            fontWeight: FontWeight.w800,
-                            color: Colors.white,
+                    GestureDetector(
+                      onTap: _pickPhoto,
+                      child: Stack(
+                        alignment: Alignment.bottomRight,
+                        children: [
+                          Container(
+                            width: 76,
+                            height: 76,
+                            decoration: BoxDecoration(
+                              color: AppColors.primary,
+                              shape: BoxShape.circle,
+                              border: Border.all(color: Colors.white, width: 2),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: AppColors.primary.withValues(alpha: 0.3),
+                                  blurRadius: 10,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
+                            ),
+                            child: ClipOval(
+                              child: _userPhotoPath != null &&
+                                      File(_userPhotoPath!).existsSync()
+                                  ? Image.file(
+                                      File(_userPhotoPath!),
+                                      fit: BoxFit.cover,
+                                      width: 72,
+                                      height: 72,
+                                    )
+                                  : Center(
+                                      child: Text(
+                                        _getInitials(_userName),
+                                        style: GoogleFonts.outfit(
+                                          fontSize: 26,
+                                          fontWeight: FontWeight.w800,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ),
+                            ),
                           ),
-                        ),
+                          Container(
+                            width: 24,
+                            height: 24,
+                            decoration: BoxDecoration(
+                              color: AppColors.primaryLight,
+                              shape: BoxShape.circle,
+                              border: Border.all(color: const Color(0xFF1E273A), width: 2),
+                            ),
+                            child: const Icon(
+                              Icons.camera_alt_rounded,
+                              size: 12,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                     const SizedBox(width: 18),

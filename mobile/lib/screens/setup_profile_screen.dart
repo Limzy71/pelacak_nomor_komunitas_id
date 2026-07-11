@@ -1,5 +1,7 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/api_service.dart';
 import '../theme/app_theme.dart';
@@ -19,6 +21,26 @@ class _SetupProfileScreenState extends State<SetupProfileScreen> {
   final TextEditingController _phoneController = TextEditingController();
   bool _isLoading = false;
   String? _errorMessage;
+  String? _profilePhotoPath;
+
+  Future<void> _pickProfilePhoto() async {
+    try {
+      final picker = ImagePicker();
+      final pickedFile = await picker.pickImage(
+        source: ImageSource.gallery,
+        maxWidth: 600,
+        maxHeight: 600,
+        imageQuality: 85,
+      );
+      if (pickedFile != null) {
+        setState(() {
+          _profilePhotoPath = pickedFile.path;
+        });
+      }
+    } catch (e) {
+      debugPrint('Error picking image: $e');
+    }
+  }
 
   Future<void> _saveAndContinue() async {
     final name = _nameController.text.trim();
@@ -42,6 +64,9 @@ class _SetupProfileScreenState extends State<SetupProfileScreen> {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('user_my_name', name);
       await prefs.setString('user_my_phone', phone);
+      if (_profilePhotoPath != null && _profilePhotoPath!.isNotEmpty) {
+        await prefs.setString('user_my_photo', _profilePhotoPath!);
+      }
 
       // Simpan tag awal bila belum ada
       final List<String> currentTags = prefs.getStringList('user_my_tags') ?? [];
@@ -114,39 +139,96 @@ class _SetupProfileScreenState extends State<SetupProfileScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Container(
-                    padding: const EdgeInsets.all(1.2),
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [
-                          AppColors.primaryLight.withValues(alpha: 0.8),
-                          AppColors.primary.withValues(alpha: 0.6),
-                          const Color(0xFF13264D),
-                        ],
-                      ),
-                      borderRadius: BorderRadius.circular(23.5),
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppColors.primary.withValues(alpha: 0.35),
-                          blurRadius: 26,
-                          spreadRadius: 0,
-                          offset: const Offset(0, 6),
+                  GestureDetector(
+                    onTap: _pickProfilePhoto,
+                    child: Stack(
+                      alignment: Alignment.bottomRight,
+                      children: [
+                        Container(
+                          width: 110,
+                          height: 110,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            gradient: const LinearGradient(
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                              colors: [
+                                AppColors.primaryLight,
+                                AppColors.primary,
+                                Color(0xFF0D1B3E),
+                              ],
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: AppColors.primary.withValues(alpha: 0.45),
+                                blurRadius: 28,
+                                spreadRadius: 0,
+                                offset: const Offset(0, 6),
+                              ),
+                            ],
+                          ),
+                          padding: const EdgeInsets.all(3),
+                          child: Container(
+                            decoration: const BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: Color(0xFF101624),
+                            ),
+                            child: ClipOval(
+                              child: _profilePhotoPath != null &&
+                                      File(_profilePhotoPath!).existsSync()
+                                  ? Image.file(
+                                      File(_profilePhotoPath!),
+                                      fit: BoxFit.cover,
+                                      width: 104,
+                                      height: 104,
+                                    )
+                                  : const Center(
+                                      child: Icon(
+                                        Icons.person_add_rounded,
+                                        size: 50,
+                                        color: AppColors.primaryLight,
+                                      ),
+                                    ),
+                            ),
+                          ),
+                        ),
+                        Container(
+                          width: 34,
+                          height: 34,
+                          decoration: BoxDecoration(
+                            color: AppColors.primaryLight,
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: const Color(0xFF0D1B3E),
+                              width: 2.5,
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.35),
+                                blurRadius: 6,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: const Icon(
+                            Icons.camera_alt_rounded,
+                            size: 17,
+                            color: Colors.white,
+                          ),
                         ),
                       ],
                     ),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(22.5),
-                      child: Image.asset(
-                        'assets/images/logo.png',
-                        width: 100,
-                        height: 100,
-                        fit: BoxFit.cover,
-                      ),
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    'Ketuk untuk memilih foto profil Anda',
+                    style: GoogleFonts.outfit(
+                      fontSize: 12,
+                      color: AppColors.primaryLight.withValues(alpha: 0.85),
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
-                  const SizedBox(height: 28),
+                  const SizedBox(height: 22),
                 Text(
                   'Profil & Identitas Saya',
                   textAlign: TextAlign.center,
