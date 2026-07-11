@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_contacts/flutter_contacts.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../models/phone_record.dart';
 import '../services/api_service.dart';
 import '../theme/app_theme.dart';
@@ -65,6 +66,7 @@ class _SearchScreenState extends State<SearchScreen> {
   @override
   void initState() {
     super.initState();
+    _loadUserTagsFromPrefs();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         // Berikan delay singkat agar Android merender frame pertama dan menutup splash screen terlebih dahulu
@@ -75,6 +77,25 @@ class _SearchScreenState extends State<SearchScreen> {
         });
       }
     });
+  }
+
+  Future<void> _loadUserTagsFromPrefs() async {
+    final prefs = await SharedPreferences.getInstance();
+    final savedTags = prefs.getStringList('user_my_tags') ?? [];
+    if (mounted && savedTags.isNotEmpty) {
+      setState(() {
+        for (final t in savedTags) {
+          if (!_userTags.contains(t)) {
+            _userTags.add(t);
+          }
+        }
+      });
+    }
+  }
+
+  Future<void> _saveUserTagsToPrefs() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList('user_my_tags', _userTags);
   }
 
   Future<void> _checkAndLoadContacts() async {
@@ -587,6 +608,7 @@ class _SearchScreenState extends State<SearchScreen> {
                       if (mounted) {
                         if (!_userTags.contains(label)) {
                           setState(() => _userTags.add(label));
+                          _saveUserTagsToPrefs();
                         }
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
@@ -608,6 +630,7 @@ class _SearchScreenState extends State<SearchScreen> {
                       if (mounted) {
                         if (!_userTags.contains(label)) {
                           setState(() => _userTags.add(label));
+                          _saveUserTagsToPrefs();
                         }
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(

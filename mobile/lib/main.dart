@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'screens/home_screen.dart';
+import 'screens/setup_profile_screen.dart';
 import 'services/api_service.dart';
 import 'theme/app_theme.dart';
 
@@ -17,6 +19,23 @@ class PhoneRepApp extends StatefulWidget {
 
 class _PhoneRepAppState extends State<PhoneRepApp> {
   final ApiService _apiService = ApiService();
+  bool? _isProfileRegistered;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkInitialProfile();
+  }
+
+  Future<void> _checkInitialProfile() async {
+    final prefs = await SharedPreferences.getInstance();
+    final phone = prefs.getString('user_my_phone') ?? '';
+    if (mounted) {
+      setState(() {
+        _isProfileRegistered = phone.trim().isNotEmpty;
+      });
+    }
+  }
 
   @override
   void dispose() {
@@ -33,7 +52,16 @@ class _PhoneRepAppState extends State<PhoneRepApp> {
           title: 'PhoneRep Mobile Check',
           debugShowCheckedModeBanner: false,
           theme: AppTheme.darkTheme,
-          home: HomeScreen(apiService: _apiService),
+          home: _isProfileRegistered == null
+              ? const Scaffold(
+                  backgroundColor: AppColors.background,
+                  body: Center(
+                    child: CircularProgressIndicator(color: AppColors.primaryLight),
+                  ),
+                )
+              : (_isProfileRegistered!
+                  ? HomeScreen(apiService: _apiService)
+                  : SetupProfileScreen(apiService: _apiService)),
         );
       },
     );

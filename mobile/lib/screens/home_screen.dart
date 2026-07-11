@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../services/api_service.dart';
 import '../theme/app_theme.dart';
 import 'analytics_screen.dart';
 import 'pooling_screen.dart';
+import 'profile_screen.dart';
 import 'search_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -27,7 +27,7 @@ class _HomeScreenState extends State<HomeScreen> {
       case 0:
         return SearchScreen(apiService: widget.apiService);
       case 1:
-        return _buildChatPlaceholder();
+        return ProfileScreen(apiService: widget.apiService);
       case 2:
         return PoolingScreen(apiService: widget.apiService);
       case 3:
@@ -40,64 +40,6 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-  }
-
-  Widget _buildChatPlaceholder() {
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      body: SafeArea(
-        child: Column(
-          children: [
-            Container(
-              padding: const EdgeInsets.fromLTRB(20, 16, 20, 16),
-              decoration: const BoxDecoration(
-                color: AppColors.cardBg,
-                border: Border(bottom: BorderSide(color: AppColors.border)),
-              ),
-              child: Row(
-                children: [
-                  Text(
-                    'Obrolan Komunitas PhoneRep',
-                    style: GoogleFonts.outfit(fontSize: 20, fontWeight: FontWeight.w800, color: Colors.white),
-                  ),
-                ],
-              ),
-            ),
-            Expanded(
-              child: Center(
-                child: Padding(
-                  padding: const EdgeInsets.all(32),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(20),
-                        decoration: BoxDecoration(
-                          color: AppColors.primary.withValues(alpha: 0.15),
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(Icons.mark_chat_unread_rounded, size: 56, color: AppColors.primaryLight),
-                      ),
-                      const SizedBox(height: 20),
-                      Text(
-                        'Pesan & Forum Anti-Spam',
-                        style: GoogleFonts.outfit(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'Fitur obrolan antar pengguna PhoneRep untuk bertukar info penipuan dan nomor mencurigakan sedang dalam persiapan.',
-                        textAlign: TextAlign.center,
-                        style: GoogleFonts.outfit(color: AppColors.textSecondary, fontSize: 14, height: 1.5),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
   }
 
   @override
@@ -144,9 +86,9 @@ class _HomeScreenState extends State<HomeScreen> {
               label: 'Beranda',
             ),
             NavigationDestination(
-              icon: const Icon(Icons.chat_bubble_outline_rounded, color: AppColors.textSecondary, size: 24),
-              selectedIcon: const Icon(Icons.chat_bubble_rounded, color: AppColors.primaryLight, size: 24),
-              label: 'Obrolan',
+              icon: const Icon(Icons.person_outline_rounded, color: AppColors.textSecondary, size: 24),
+              selectedIcon: const Icon(Icons.person_rounded, color: AppColors.primaryLight, size: 24),
+              label: 'Profil Saya',
             ),
             NavigationDestination(
               icon: const Icon(Icons.shield_outlined, color: AppColors.textSecondary, size: 24),
