@@ -499,33 +499,64 @@ class _SearchScreenState extends State<SearchScreen> {
 
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
       backgroundColor: const Color(0xFF141926),
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       builder: (ctx) {
-        return Container(
-          width: double.infinity,
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('Pilih Kode Negara', style: GoogleFonts.outfit(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 14),
-              ...countries.map((item) {
-                final isSel = _selectedCountryCode == item['code'];
-                return ListTile(
-                  leading: Text(item['flag']!, style: const TextStyle(fontSize: 24)),
-                  title: Text(item['name']!, style: GoogleFonts.outfit(color: Colors.white, fontWeight: isSel ? FontWeight.bold : FontWeight.normal)),
-                  trailing: Text(item['code']!, style: GoogleFonts.outfit(color: isSel ? const Color(0xFF007AFF) : AppColors.textSecondary, fontWeight: FontWeight.bold)),
-                  onTap: () {
-                    Navigator.pop(ctx);
-                    setState(() => _selectedCountryCode = item['code']!);
-                  },
-                );
-              }),
-            ],
+        return SafeArea(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              maxHeight: MediaQuery.of(ctx).size.height * 0.75,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 20, 20, 10),
+                  child: Text(
+                    'Pilih Kode Negara',
+                    style: GoogleFonts.outfit(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                Flexible(
+                  child: ListView(
+                    shrinkWrap: true,
+                    padding: const EdgeInsets.only(bottom: 12),
+                    children: countries.map((item) {
+                      final isSel = _selectedCountryCode == item['code'];
+                      return ListTile(
+                        leading: Text(item['flag']!, style: const TextStyle(fontSize: 24)),
+                        title: Text(
+                          item['name']!,
+                          style: GoogleFonts.outfit(
+                            color: Colors.white,
+                            fontWeight: isSel ? FontWeight.bold : FontWeight.normal,
+                          ),
+                        ),
+                        trailing: Text(
+                          item['code']!,
+                          style: GoogleFonts.outfit(
+                            color: isSel ? const Color(0xFF007AFF) : AppColors.textSecondary,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        onTap: () {
+                          Navigator.pop(ctx);
+                          setState(() => _selectedCountryCode = item['code']!);
+                        },
+                      );
+                    }).toList(),
+                  ),
+                ),
+              ],
+            ),
           ),
         );
       },
