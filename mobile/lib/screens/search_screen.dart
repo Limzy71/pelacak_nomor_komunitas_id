@@ -473,7 +473,6 @@ class _SearchScreenState extends State<SearchScreen> {
               const SizedBox(height: 28),
               SizedBox(
                 width: double.infinity,
-                height: 52,
                 child: ElevatedButton(
                   onPressed: () async {
                     Navigator.pop(context);
@@ -499,24 +498,28 @@ class _SearchScreenState extends State<SearchScreen> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primary,
                     foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
                     ),
                     elevation: 6,
                   ),
-                  child: Text(
-                    'Aktifkan Izin Akses Kontak & Log Telepon',
-                    style: GoogleFonts.outfit(
-                      fontSize: 15.5,
-                      fontWeight: FontWeight.w700,
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      'Aktifkan Izin & Proteksi',
+                      maxLines: 1,
+                      style: GoogleFonts.outfit(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
                   ),
                 ),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 10),
               SizedBox(
                 width: double.infinity,
-                height: 48,
                 child: TextButton(
                   onPressed: () async {
                     Navigator.pop(context);
@@ -534,6 +537,7 @@ class _SearchScreenState extends State<SearchScreen> {
                   },
                   style: TextButton.styleFrom(
                     foregroundColor: AppColors.textSecondary,
+                    padding: const EdgeInsets.symmetric(vertical: 12),
                   ),
                   child: Text(
                     'Lanjutkan Tanpa Izin',
