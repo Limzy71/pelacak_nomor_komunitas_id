@@ -5,11 +5,13 @@ import '../models/phone_record.dart';
 class TagChipCard extends StatelessWidget {
   final TagItem tag;
   final Function(String voteType) onVote;
+  final VoidCallback? onTap;
 
   const TagChipCard({
     super.key,
     required this.tag,
     required this.onVote,
+    this.onTap,
   });
 
   Color _getAvatarColor(String text) {
@@ -32,98 +34,102 @@ class TagChipCard extends StatelessWidget {
         : '#';
     final badgeNumber = tag.upvotes > 0 ? tag.upvotes : 1;
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: const BoxDecoration(
-        border: Border(bottom: BorderSide(color: Color(0xFF1E2636), width: 1)),
-      ),
-      child: Row(
-        children: [
-          // Circle Avatar ala GetContact Kontak Cepat
-          CircleAvatar(
-            radius: 22,
-            backgroundColor: _getAvatarColor(avatarText),
-            child: Text(
-              avatarText,
-              style: GoogleFonts.outfit(
-                color: Colors.white,
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        decoration: const BoxDecoration(
+          border: Border(bottom: BorderSide(color: Color(0xFF1E2636), width: 1)),
+        ),
+        child: Row(
+          children: [
+            // Circle Avatar ala GetContact Kontak Cepat
+            CircleAvatar(
+              radius: 22,
+              backgroundColor: _getAvatarColor(avatarText),
+              child: Text(
+                avatarText,
+                style: GoogleFonts.outfit(
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
             ),
-          ),
-          const SizedBox(width: 14),
-          // Nama Tag / Label
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Flexible(
-                      child: Text(
-                        tag.labelName,
-                        style: GoogleFonts.outfit(
-                          color: Colors.white,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                    if (tag.isSpam) ...[
-                      const SizedBox(width: 8),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFEF4444).withValues(alpha: 0.2),
-                          borderRadius: BorderRadius.circular(6),
-                        ),
+            const SizedBox(width: 14),
+            // Nama Tag / Label
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Flexible(
                         child: Text(
-                          'SPAM',
+                          tag.labelName,
                           style: GoogleFonts.outfit(
-                            color: const Color(0xFFEF4444),
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
                       ),
+                      if (tag.isSpam) ...[
+                        const SizedBox(width: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFEF4444).withValues(alpha: 0.2),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Text(
+                            'SPAM',
+                            style: GoogleFonts.outfit(
+                              color: const Color(0xFFEF4444),
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ],
                     ],
-                  ],
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    tag.phoneNumberId.isNotEmpty ? tag.phoneNumberId : 'Diverifikasi oleh Komunitas',
+                    style: GoogleFonts.outfit(
+                      color: Colors.white54,
+                      fontSize: 12.5,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 12),
+            // Badge Biru ikonik GetContact [ # 200 ]
+            InkWell(
+              onTap: onTap ?? () => onVote('UPVOTE'),
+              borderRadius: BorderRadius.circular(20),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF0B4F9C), // Biru khas badge GetContact
+                  borderRadius: BorderRadius.circular(20),
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  tag.phoneNumberId.isNotEmpty ? tag.phoneNumberId : 'Diverifikasi oleh Komunitas',
+                child: Text(
+                  '# $badgeNumber',
                   style: GoogleFonts.outfit(
-                    color: Colors.white54,
-                    fontSize: 12.5,
+                    color: Colors.white,
+                    fontSize: 13,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 12),
-          // Badge Biru ikonik GetContact [ # 200 ]
-          InkWell(
-            onTap: () => onVote('UPVOTE'),
-            borderRadius: BorderRadius.circular(20),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              decoration: BoxDecoration(
-                color: const Color(0xFF0B4F9C), // Biru khas badge GetContact
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Text(
-                '# $badgeNumber',
-                style: GoogleFonts.outfit(
-                  color: Colors.white,
-                  fontSize: 13,
-                  fontWeight: FontWeight.bold,
-                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

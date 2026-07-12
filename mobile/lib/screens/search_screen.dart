@@ -850,12 +850,11 @@ class _SearchScreenState extends State<SearchScreen> {
     return selectedContacts.map((c) {
       final name = _getContactName(c);
       final num = c.phones.isNotEmpty ? c.phones.first.number : '';
-      final realCount = c.phones.isNotEmpty ? c.phones.length : 1;
       return TagItem(
         id: c.id,
         phoneNumberId: num,
         labelName: name,
-        upvotes: realCount,
+        upvotes: 1, // Penanda awal 1 label kontak dari buku telepon Anda
         isSpam: false,
       );
     }).toList();
@@ -2304,6 +2303,12 @@ class _SearchScreenState extends State<SearchScreen> {
                       (t) => TagChipCard(
                         tag: t,
                         onVote: (type) => _handleVote(t, type),
+                        onTap: () {
+                          if (t.phoneNumberId.isNotEmpty) {
+                            _searchController.text = t.phoneNumberId;
+                            _performSearch(t.phoneNumberId);
+                          }
+                        },
                       ),
                     )
                     .toList(),
