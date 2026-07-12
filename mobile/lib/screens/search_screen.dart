@@ -505,9 +505,9 @@ class _SearchScreenState extends State<SearchScreen> {
                     elevation: 6,
                   ),
                   child: Text(
-                    'Setujui & Izinkan Akses (Acc Access)',
+                    'Aktifkan Izin Akses Kontak & Log Telepon',
                     style: GoogleFonts.outfit(
-                      fontSize: 16,
+                      fontSize: 15.5,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
@@ -536,7 +536,7 @@ class _SearchScreenState extends State<SearchScreen> {
                     foregroundColor: AppColors.textSecondary,
                   ),
                   child: Text(
-                    'Nanti Saja (Batal)',
+                    'Lanjutkan Tanpa Izin',
                     style: GoogleFonts.outfit(
                       fontSize: 14.5,
                       fontWeight: FontWeight.w600,
@@ -2014,7 +2014,7 @@ class _SearchScreenState extends State<SearchScreen> {
                       Text(
                         _hasContactPermission && _hasCallLogPermission
                             ? 'Belum ada riwayat panggilan kontak nyata.'
-                            : 'Akses Kontak & Log Telepon Belum Diizinkan.\nKami tidak akan membaca atau menampilkan kontak Anda sampai Anda menyetujuinya.',
+                            : 'Izin Akses Kontak & Log Telepon Diperlukan\nKami menghormati privasi Anda dan tidak membaca kontak sampai Anda mengaktifkannya.',
                         textAlign: TextAlign.center,
                         style: GoogleFonts.outfit(
                           color: AppColors.textSecondary,
@@ -2028,7 +2028,7 @@ class _SearchScreenState extends State<SearchScreen> {
                           onPressed: _showContactAccessConsentModal,
                           icon: const Icon(Icons.shield_rounded, size: 16, color: AppColors.primaryLight),
                           label: Text(
-                            'Acc Access (Izinkan Kontak & Log Telepon)',
+                            'Aktifkan Izin Akses',
                             style: GoogleFonts.outfit(color: AppColors.primaryLight, fontSize: 13, fontWeight: FontWeight.w600),
                           ),
                         ),

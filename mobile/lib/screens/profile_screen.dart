@@ -607,10 +607,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     builder: (ctx) => AlertDialog(
                       backgroundColor: AppColors.cardBg,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                      title: Text('Reset Sesi Pengujian?', style: GoogleFonts.outfit(color: Colors.white, fontWeight: FontWeight.bold)),
+                      title: Text('Hapus Akun & Keluar dari Aplikasi?', style: GoogleFonts.outfit(color: Colors.white, fontWeight: FontWeight.bold)),
                       content: Text(
-                        'Ini akan menghapus data sesi lokal di HP Anda sehingga Anda dapat menguji ulang alur registrasi & verifikasi OTP dari awal.',
-                        style: GoogleFonts.outfit(color: AppColors.textSecondary, fontSize: 13, height: 1.4),
+                        'Apakah Anda yakin ingin keluar dan menghapus seluruh data akun serta riwayat identifikasi Anda dari sistem? Tindakan ini tidak dapat dibatalkan.',
+                        style: GoogleFonts.outfit(color: AppColors.textSecondary, fontSize: 13.5, height: 1.45),
                       ),
                       actions: [
                         TextButton(
@@ -623,7 +623,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             backgroundColor: const Color(0xFFEF4444),
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                           ),
-                          child: Text('Reset & Keluar', style: GoogleFonts.outfit(color: Colors.white, fontWeight: FontWeight.bold)),
+                          child: Text('Ya, Hapus & Keluar', style: GoogleFonts.outfit(color: Colors.white, fontWeight: FontWeight.bold)),
                         ),
                       ],
                     ),
@@ -671,7 +671,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Keluar & Reset Sesi Pengujian',
+                              'Hapus Akun & Keluar',
                               style: GoogleFonts.outfit(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
@@ -680,7 +680,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             ),
                             const SizedBox(height: 3),
                             Text(
-                              'Hapus data lokal & mulai ulang dari verifikasi OTP',
+                              'Hapus seluruh data riwayat & sesi akun dari sistem',
                               style: GoogleFonts.outfit(
                                 fontSize: 12.5,
                                 color: AppColors.textSecondary,
