@@ -654,22 +654,85 @@ export class PhoneLookupService {
       number628 = '62' + numberE164.substring(3);
     }
 
+    const allUserVariants = Array.from(new Set([numberE164, number08, number628, rawNumber.trim()]));
+
     try {
+      // 1. Temukan semua Tag/Ulasan yang pernah disinkronkan oleh pengguna ini (berdasarkan userId/variasi nomornya)
+      const userTags = await this.prisma.tag.findMany({
+        where: {
+          userId: {
+            in: allUserVariants,
+          },
+        },
+        select: {
+          id: true,
+          phoneNumberId: true,
+        },
+      });
+
+      const tagIds = userTags.map((t) => t.id);
+      const syncedPhoneIds = Array.from(new Set(userTags.map((t) => t.phoneNumberId)));
+
+      // 2. Hapus semua vote yang terkait dengan tag pengguna
+      if (tagIds.length > 0) {
+        await this.prisma.tagVote.deleteMany({
+          where: {
+            tagId: {
+              in: tagIds,
+            },
+          },
+        });
+
+        // 3. Hapus semua Tag kontak yang disinkronkan oleh pengguna ini
+        await this.prisma.tag.deleteMany({
+          where: {
+            id: {
+              in: tagIds,
+            },
+          },
+        });
+      }
+
+      // 4. Hapus nomor-nomor telepon yang disinkronkan oleh pengguna ini yang kini tidak lagi memiliki tag lain (bersih total)
+      if (syncedPhoneIds.length > 0) {
+        for (const pid of syncedPhoneIds) {
+          const remainingTagsCount = await this.prisma.tag.count({
+            where: { phoneNumberId: pid },
+          });
+          if (remainingTagsCount === 0) {
+            await this.prisma.phoneNumber.delete({
+              where: { id: pid },
+            }).catch(() => {});
+          }
+        }
+      }
+
+      // 5. Hapus nomor telepon utama milik pengguna itu sendiri dari tabel phoneNumber
       await this.prisma.phoneNumber.deleteMany({
         where: {
           phoneNumber: {
-            in: [numberE164, number08, number628, rawNumber.trim()],
+            in: allUserVariants,
           },
         },
       });
 
-      this.otpStore.delete(numberE164);
-      this.otpStore.delete(number08);
-      this.otpStore.delete(rawNumber.trim());
+      // 6. Hapus akun pengguna dari tabel User
+      await this.prisma.user.deleteMany({
+        where: {
+          id: {
+            in: allUserVariants,
+          },
+        },
+      });
+
+      // 7. Bersihkan cache OTP
+      for (const variant of allUserVariants) {
+        this.otpStore.delete(variant);
+      }
 
       return {
         success: true,
-        message: `Seluruh data untuk nomor ${numberE164} berhasil dihapus total dari database.`,
+        message: `Seluruh akun, riwayat, dan data kontak yang disinkronkan untuk nomor ${numberE164} berhasil dihapus permanen dari database.`,
       };
     } catch (error: any) {
       console.error('Error resetting phone data:', error);
