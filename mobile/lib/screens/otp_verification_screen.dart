@@ -78,7 +78,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
       widget.apiService.sendOtp(widget.phone);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Text('📨 Kode OTP baru telah dikirim ulang via WhatsApp Gateway.'),
+          content: const Text('📩 Kode OTP baru berhasil dikirim ulang ke nomor WhatsApp Anda.'),
           backgroundColor: AppColors.primary,
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -412,7 +412,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                       const SizedBox(width: 12),
                       Expanded(
                         child: Text(
-                          '🛡️ Keamanan Terjamin: Kode OTP dikirim melalui WhatsApp resmi. Jangan bagikan kode kepada siapa pun demi keamanan akun.',
+                          'Keamanan Terjamin: Kode OTP dikirim melalui WhatsApp resmi. Jangan bagikan kode kepada siapa pun demi keamanan akun.',
                           style: GoogleFonts.outfit(
                             color: AppColors.accentGreen,
                             fontSize: 12.5,
@@ -468,8 +468,8 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                   children: [
                     Text(
                       _secondsRemaining > 0
-                          ? 'Belum menerima kode? Kirim ulang dalam '
-                          : 'Belum menerima kode? ',
+                          ? 'Belum menerima kode OTP? Kirim ulang dalam '
+                          : 'Belum menerima kode OTP? ',
                       style: GoogleFonts.outfit(
                         color: AppColors.textSecondary,
                         fontSize: 13,
@@ -493,7 +493,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                           tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                         ),
                         child: Text(
-                          'Kirim Ulang via WhatsApp',
+                          'Kirim Ulang Kode OTP',
                           style: GoogleFonts.outfit(
                             color: AppColors.primaryLight,
                             fontWeight: FontWeight.bold,

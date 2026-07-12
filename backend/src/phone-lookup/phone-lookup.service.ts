@@ -569,12 +569,18 @@ export class PhoneLookupService {
     this.otpStore.set(number, recordData);
     this.otpStore.set(rawNumber.trim(), recordData);
 
+    // 💡 Selalu log ke console agar developer/user bisa langsung copy jika gateway WA tertunda/offline
+    console.log(`\n======================================================`);
+    console.log(`🔑 [KODE OTP] Untuk nomor: ${number}`);
+    console.log(`👉 KODE OTP ANDA: ${code}`);
+    console.log(`======================================================\n`);
+
     const token = process.env.FONNTE_TOKEN;
     if (!token) {
       console.warn('FONNTE_TOKEN is not set in .env. OTP stored locally for dev mode:', code);
       return {
         success: true,
-        message: 'Kode OTP dikirim (Mode Dev/Simulasi)',
+        message: 'Kode OTP berhasil dibuat (Mode Simulasi)',
       };
     }
 
@@ -600,13 +606,13 @@ export class PhoneLookupService {
       console.log('Fonnte response:', response.data);
       return {
         success: true,
-        message: 'Kode OTP berhasil dikirim ke WhatsApp Anda.',
+        message: 'Kode OTP berhasil dikirim ke nomor WhatsApp Anda.',
       };
     } catch (error: any) {
       console.error('Error sending OTP via Fonnte:', error?.response?.data || error.message);
       return {
         success: false,
-        message: 'Gagal mengirim pesan WhatsApp via Fonnte Gateway.',
+        message: 'Gagal mengirimkan kode OTP ke WhatsApp. Silakan coba lagi.',
       };
     }
   }
