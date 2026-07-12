@@ -116,6 +116,7 @@ class _SearchScreenState extends State<SearchScreen> {
   List<TagItem> _myPhoneTags = [];
   String _myPhoneNumber = '';
   bool _isMyStatsLoading = true;
+  final Map<String, int> _quickContactTagCounts = {};
 
   @override
   void initState() {
@@ -168,6 +169,24 @@ class _SearchScreenState extends State<SearchScreen> {
         setState(() {
           _isMyStatsLoading = false;
         });
+      }
+    }
+  }
+
+  Future<void> _fetchQuickContactsTagCounts() async {
+    final list = _realQuickContacts;
+    if (list.isEmpty) return;
+
+    for (final t in list) {
+      if (t.phoneNumberId.isNotEmpty) {
+        try {
+          final res = await widget.apiService.lookupPhoneNumber(t.phoneNumberId, skipIncrement: true);
+          if (mounted && res.data != null) {
+            setState(() {
+              _quickContactTagCounts[t.phoneNumberId] = res.data!.tags.length;
+            });
+          }
+        } catch (_) {}
       }
     }
   }
@@ -586,6 +605,7 @@ class _SearchScreenState extends State<SearchScreen> {
 
       if (_hasContactPermission) {
         await _fetchRealDeviceContacts();
+        await _fetchQuickContactsTagCounts();
       }
       if (_hasCallLogPermission) {
         await _fetchRealCallLogs();
@@ -697,8 +717,10 @@ class _SearchScreenState extends State<SearchScreen> {
                 userId: myPhone,
               ).then((res) {
                 debugPrint('✅ Kontak berhasil disinkronkan ke database PostgreSQL: ${res.message}');
+                _fetchQuickContactsTagCounts();
               }).catchError((err) {
                 debugPrint('⚠️ Gagal sinkronisasi kontak: $err');
+                _fetchQuickContactsTagCounts();
               });
             }
           }
@@ -2300,16 +2322,26 @@ class _SearchScreenState extends State<SearchScreen> {
               Column(
                 children: _realQuickContacts
                     .map(
-                      (t) => TagChipCard(
-                        tag: t,
-                        onVote: (type) => _handleVote(t, type),
-                        onTap: () {
-                          if (t.phoneNumberId.isNotEmpty) {
-                            _searchController.text = t.phoneNumberId;
-                            _performSearch(t.phoneNumberId);
-                          }
-                        },
-                      ),
+                      (t) {
+                        final dbCount = _quickContactTagCounts[t.phoneNumberId];
+                        final displayTag = TagItem(
+                          id: t.id,
+                          phoneNumberId: t.phoneNumberId,
+                          labelName: t.labelName,
+                          upvotes: dbCount ?? t.upvotes,
+                          isSpam: t.isSpam,
+                        );
+                        return TagChipCard(
+                          tag: displayTag,
+                          onVote: (type) => _handleVote(t, type),
+                          onTap: () {
+                            if (t.phoneNumberId.isNotEmpty) {
+                              _searchController.text = t.phoneNumberId;
+                              _performSearch(t.phoneNumberId);
+                            }
+                          },
+                        );
+                      },
                     )
                     .toList(),
               ),
