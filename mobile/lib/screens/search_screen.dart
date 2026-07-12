@@ -110,10 +110,18 @@ class _SearchScreenState extends State<SearchScreen> {
   // Daftar nyata tag nomor pengguna
   final List<String> _userTags = [];
 
+  // Statistik Real-Time Proteksi & Pencarian Nomor Pengguna Sendiri
+  int _myPhoneSearchCount = 0;
+  double _myPhoneTrustScore = 100.0;
+  List<TagItem> _myPhoneTags = [];
+  String _myPhoneNumber = '';
+  bool _isMyStatsLoading = true;
+
   @override
   void initState() {
     super.initState();
     _loadUserTagsFromPrefs();
+    _fetchMyPhoneSearchStats();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         // Berikan delay singkat agar Android merender frame pertama dan menutup splash screen terlebih dahulu
@@ -124,6 +132,235 @@ class _SearchScreenState extends State<SearchScreen> {
         });
       }
     });
+  }
+
+  Future<void> _fetchMyPhoneSearchStats() async {
+    final prefs = await SharedPreferences.getInstance();
+    final phone = prefs.getString('user_my_phone') ?? '';
+    if (phone.trim().isEmpty) {
+      if (mounted) {
+        setState(() {
+          _isMyStatsLoading = false;
+        });
+      }
+      return;
+    }
+
+    if (mounted) {
+      setState(() {
+        _myPhoneNumber = phone.trim();
+        _isMyStatsLoading = true;
+      });
+    }
+
+    try {
+      final res = await widget.apiService.lookupPhoneNumber(_myPhoneNumber);
+      if (mounted && res.data != null) {
+        setState(() {
+          _myPhoneSearchCount = res.data!.searchCount;
+          _myPhoneTrustScore = res.data!.trustScore;
+          _myPhoneTags = res.data!.tags;
+          _isMyStatsLoading = false;
+        });
+      }
+    } catch (_) {
+      if (mounted) {
+        setState(() {
+          _isMyStatsLoading = false;
+        });
+      }
+    }
+  }
+
+  void _showMyPhoneProtectionModal() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return Container(
+          padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
+          decoration: BoxDecoration(
+            color: const Color(0xFF10141D),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+            border: Border.all(color: const Color(0xFF20273C)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.6),
+                blurRadius: 24,
+                offset: const Offset(0, -8),
+              ),
+            ],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 44,
+                  height: 4.5,
+                  decoration: BoxDecoration(
+                    color: Colors.white24,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: AppColors.primaryLight.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: AppColors.primaryLight.withValues(alpha: 0.3)),
+                    ),
+                    child: const Icon(Icons.shield_rounded, color: AppColors.primaryLight, size: 28),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Laporan Reputasi & Proteksi',
+                          style: GoogleFonts.outfit(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          _myPhoneNumber.isNotEmpty ? _myPhoneNumber : 'Nomor Belum Terdaftar',
+                          style: GoogleFonts.outfit(
+                            color: AppColors.textSecondary,
+                            fontSize: 13.5,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 24),
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF161C2C),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: const Color(0xFF222B42)),
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Total Diperiksa / Dicari',
+                            style: GoogleFonts.outfit(color: AppColors.textSecondary, fontSize: 12),
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            '$_myPhoneSearchCount Kali',
+                            style: GoogleFonts.outfit(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Container(width: 1, height: 40, color: Colors.white12),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Skor Reputasi',
+                            style: GoogleFonts.outfit(color: AppColors.textSecondary, fontSize: 12),
+                          ),
+                          const SizedBox(height: 6),
+                          Row(
+                            children: [
+                              Text(
+                                '${_myPhoneTrustScore.toStringAsFixed(0)}%',
+                                style: GoogleFonts.outfit(color: AppColors.accentGreen, fontSize: 20, fontWeight: FontWeight.bold),
+                              ),
+                              const SizedBox(width: 6),
+                              Text('Aman', style: GoogleFonts.outfit(color: AppColors.accentGreen, fontSize: 12, fontWeight: FontWeight.w600)),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 20),
+              if (_myPhoneTags.isNotEmpty) ...[
+                Text(
+                  'Label Komunitas Terdeteksi (${_myPhoneTags.length})',
+                  style: GoogleFonts.outfit(color: Colors.white, fontSize: 14.5, fontWeight: FontWeight.w700),
+                ),
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: _myPhoneTags.map((t) => Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: t.isSpam ? AppColors.accentRed.withValues(alpha: 0.15) : AppColors.primary.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: t.isSpam ? AppColors.accentRed.withValues(alpha: 0.4) : AppColors.primaryLight.withValues(alpha: 0.4)),
+                    ),
+                    child: Text(
+                      t.labelName,
+                      style: GoogleFonts.outfit(
+                        color: t.isSpam ? AppColors.accentRed : AppColors.primaryLight,
+                        fontSize: 12.5,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  )).toList(),
+                ),
+                const SizedBox(height: 20),
+              ],
+              Text(
+                'Mengapa identitas pencari tidak ditampilkan?',
+                style: GoogleFonts.outfit(color: Colors.white, fontSize: 14.5, fontWeight: FontWeight.w700),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Sesuai regulasi privasi & keamanan siber Undang-Undang Perlindungan Data Pribadi (UU PDP No. 27/2022), identitas spesifik pencari dienkripsi dan tidak dipublikasikan untuk mencegah risiko stalking atau pelanggaran privasi.\n\nNamun, Sistem Proteksi PhoneRep secara aktif memantau pola pencarian. Jika terdeteksi aktivitas pemindaian massal (crawling) atau pelabelan spam terhadap nomor Anda, sistem proteksi AI otomatis memblokir dan mengirimkan notifikasi peringatan.',
+                style: GoogleFonts.outfit(color: Colors.white70, fontSize: 13, height: 1.5),
+              ),
+              const SizedBox(height: 24),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        _fetchMyPhoneSearchStats();
+                      },
+                      icon: const Icon(Icons.refresh_rounded, size: 18),
+                      label: Text('Perbarui Statistik', style: GoogleFonts.outfit(fontSize: 14, fontWeight: FontWeight.w600)),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: Colors.white,
+                        side: const BorderSide(color: Color(0xFF2D3754)),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   Future<void> _loadUserTagsFromPrefs() async {
@@ -1807,59 +2044,75 @@ class _SearchScreenState extends State<SearchScreen> {
             // -------------------------------------------------------------
             // 4. MEMUNCULKAN DAFTAR ORANG YANG MENCARI NOMOR PENGGUNA (Gambar 4 & 5)
             // -------------------------------------------------------------
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: const Color(0xFF141926),
+            Material(
+              color: const Color(0xFF141926),
+              borderRadius: BorderRadius.circular(20),
+              child: InkWell(
+                onTap: _showMyPhoneProtectionModal,
                 borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: const Color(0xFF20273C)),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        '1 orang telah mencari nomor Anda.',
-                        style: GoogleFonts.outfit(
-                          color: Colors.white,
-                          fontSize: 16.5,
-                          fontWeight: FontWeight.w800,
-                        ),
-                      ),
-                      const Icon(
-                        Icons.chevron_right_rounded,
-                        color: Colors.white54,
-                      ),
-                    ],
+                child: Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: const Color(0xFF20273C)),
                   ),
-                  const SizedBox(height: 16),
-                  Row(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      CircleAvatar(
-                        radius: 22,
-                        backgroundColor: Colors.white.withValues(alpha: 0.12),
-                        child: const Icon(
-                          Icons.person_outline_rounded,
-                          color: Colors.white60,
-                          size: 24,
-                        ),
-                      ),
-                      const SizedBox(width: 14),
-                      Expanded(
-                        child: Text(
-                          'Anda bisa mencari tahu siapapun yang mencari nomor Anda dengan menggunakan sistem proteksi PhoneRep Komunitas.',
-                          style: GoogleFonts.outfit(
-                            color: Colors.white70,
-                            fontSize: 13,
-                            height: 1.45,
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: Text(
+                              _isMyStatsLoading
+                                  ? 'Memeriksa status proteksi nomor Anda...'
+                                  : (_myPhoneSearchCount > 0
+                                      ? '$_myPhoneSearchCount aktivitas pencarian terhadap nomor Anda.'
+                                      : 'Nomor Anda dalam pemantauan proteksi aktif.'),
+                              style: GoogleFonts.outfit(
+                                color: Colors.white,
+                                fontSize: 16.5,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
                           ),
-                        ),
+                          const SizedBox(width: 8),
+                          const Icon(
+                            Icons.chevron_right_rounded,
+                            color: AppColors.primaryLight,
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      Row(
+                        children: [
+                          CircleAvatar(
+                            radius: 22,
+                            backgroundColor: AppColors.primaryLight.withValues(alpha: 0.15),
+                            child: const Icon(
+                              Icons.shield_outlined,
+                              color: AppColors.primaryLight,
+                              size: 24,
+                            ),
+                          ),
+                          const SizedBox(width: 14),
+                          Expanded(
+                            child: Text(
+                              _myPhoneSearchCount > 0
+                                  ? 'Reputasi saat ini: ${_myPhoneTrustScore.toStringAsFixed(0)}% Aman. Tekan di sini untuk melihat analisis detail aktivitas pencarian dan perlindungan privasi PhoneRep Komunitas.'
+                                  : 'Belum ada aktivitas pencarian mencurigakan terhadap nomor Anda. Tekan di sini untuk memeriksa status perlindungan & jejak digital Anda.',
+                              style: GoogleFonts.outfit(
+                                color: Colors.white70,
+                                fontSize: 13,
+                                height: 1.45,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
-                ],
+                ),
               ),
             ),
             const SizedBox(height: 80),
