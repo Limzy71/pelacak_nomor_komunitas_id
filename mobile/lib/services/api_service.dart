@@ -205,6 +205,24 @@ class ApiService extends ChangeNotifier {
     }
   }
 
+  Future<bool> resetUserData(String phoneNumber) async {
+    try {
+      final url = Uri.parse('$_baseUrl/phone-lookup/reset/${Uri.encodeComponent(phoneNumber)}');
+      final response = await http.delete(url, headers: _defaultHeaders).timeout(const Duration(seconds: 15));
+      return response.statusCode == 200 || response.statusCode == 201;
+    } catch (e) {
+      if (e.toString().contains('Connection refused') || e.toString().contains('SocketException') || e.toString().contains('TimeoutException')) {
+        final altUrl = _getAltUrl();
+        try {
+          final retryUri = Uri.parse('$altUrl/phone-lookup/reset/${Uri.encodeComponent(phoneNumber)}');
+          final retryRes = await http.delete(retryUri, headers: _defaultHeaders).timeout(const Duration(seconds: 10));
+          return retryRes.statusCode == 200 || retryRes.statusCode == 201;
+        } catch (_) {}
+      }
+      return false;
+    }
+  }
+
   Future<AnalyticsResponse> getAnalytics() async {
     try {
       final url = Uri.parse('$_baseUrl/phone-lookup/analytics');

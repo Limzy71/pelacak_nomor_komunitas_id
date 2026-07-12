@@ -635,4 +635,39 @@ export class PhoneLookupService {
       topSearchedNumbers,
     };
   }
+
+  async resetPhoneNumberData(rawNumber: string): Promise<{ success: boolean; message: string }> {
+    let number = rawNumber.trim().replace(/\s+/g, '').replace(/-/g, '');
+    if (number.startsWith('08')) {
+      number = '+62' + number.substring(1);
+    } else if (number.startsWith('628')) {
+      number = '+' + number;
+    }
+
+    try {
+      const phoneRecord = await this.prisma.phoneNumber.findUnique({
+        where: { phoneNumber: number },
+      });
+
+      if (phoneRecord) {
+        await this.prisma.phoneNumber.delete({
+          where: { id: phoneRecord.id },
+        });
+      }
+
+      this.otpStore.delete(number);
+      this.otpStore.delete(rawNumber.trim());
+
+      return {
+        success: true,
+        message: `Seluruh data untuk nomor ${number} berhasil dihapus dari database.`,
+      };
+    } catch (error: any) {
+      console.error('Error resetting phone data:', error);
+      return {
+        success: false,
+        message: `Gagal menghapus data: ${error.message}`,
+      };
+    }
+  }
 }

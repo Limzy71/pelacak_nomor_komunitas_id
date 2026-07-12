@@ -631,6 +631,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                   if (confirm == true && mounted) {
                     final prefs = await SharedPreferences.getInstance();
+                    final phone = prefs.getString('user_my_phone') ?? '';
+                    if (phone.trim().isNotEmpty) {
+                      try {
+                        await widget.apiService.resetUserData(phone.trim());
+                      } catch (_) {}
+                    }
                     await prefs.clear();
                     if (!context.mounted) return;
                     Navigator.of(context).pushAndRemoveUntil(
