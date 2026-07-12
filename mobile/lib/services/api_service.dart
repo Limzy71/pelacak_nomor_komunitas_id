@@ -9,12 +9,19 @@ class ApiService extends ChangeNotifier {
 
   ApiService() {
     if (!kIsWeb && Platform.isAndroid) {
-      // Default menggunakan IP Wi-Fi PC saat ini untuk pengujian HP fisik langsung: http://192.168.1.159:3000
+      // Default menggunakan IP Wi-Fi PC saat ini untuk pengujian HP fisik langsung: http://192.168.10.172:3000
       // Bisa diganti via menu Pengaturan atau otomatis fallback ke http://127.0.0.1:3000 (ADB Tunnel)
-      _baseUrl = 'http://192.168.1.159:3000';
+      _baseUrl = 'http://192.168.10.172:3000';
     } else {
       _baseUrl = 'http://localhost:3000';
     }
+  }
+
+  String _getAltUrl() {
+    if (_baseUrl.contains('127.0.0.1') || _baseUrl.contains('localhost')) {
+      return 'http://192.168.10.172:3000';
+    }
+    return 'http://127.0.0.1:3000';
   }
 
   String get baseUrl => _baseUrl;
@@ -51,7 +58,7 @@ class ApiService extends ChangeNotifier {
       }
     } catch (e) {
       if (e.toString().contains('Connection refused') || e.toString().contains('SocketException') || e.toString().contains('TimeoutException')) {
-        final altUrl = _baseUrl.contains('127.0.0.1') ? 'http://192.168.1.159:3000' : 'http://127.0.0.1:3000';
+        final altUrl = _getAltUrl();
         try {
           final retryUri = Uri.parse('$altUrl/phone-lookup/${Uri.encodeComponent(rawNumber)}$query');
           final retryRes = await http.get(retryUri, headers: _defaultHeaders).timeout(const Duration(seconds: 10));
@@ -94,7 +101,7 @@ class ApiService extends ChangeNotifier {
       }
     } catch (e) {
       if (e.toString().contains('Connection refused') || e.toString().contains('SocketException') || e.toString().contains('TimeoutException')) {
-        final altUrl = _baseUrl.contains('127.0.0.1') ? 'http://192.168.1.159:3000' : 'http://127.0.0.1:3000';
+        final altUrl = _getAltUrl();
         try {
           final retryUri = Uri.parse('$altUrl/phone-lookup/sync');
           final payload = {
@@ -144,7 +151,7 @@ class ApiService extends ChangeNotifier {
       return null;
     } catch (e) {
       if (e.toString().contains('Connection refused') || e.toString().contains('SocketException') || e.toString().contains('TimeoutException')) {
-        final altUrl = _baseUrl.contains('127.0.0.1') ? 'http://192.168.1.159:3000' : 'http://127.0.0.1:3000';
+        final altUrl = _getAltUrl();
         try {
           final retryUri = Uri.parse('$altUrl/phone-lookup/tag');
           final payload = {
@@ -231,6 +238,22 @@ class ApiService extends ChangeNotifier {
       }
       return {'success': false, 'message': 'Gagal mengirim OTP (${response.statusCode})'};
     } catch (e) {
+      if (e.toString().contains('Connection refused') || e.toString().contains('SocketException') || e.toString().contains('TimeoutException')) {
+        final altUrl = _getAltUrl();
+        try {
+          final retryUri = Uri.parse('$altUrl/phone-lookup/send-otp');
+          final retryRes = await http.post(
+            retryUri,
+            headers: _defaultHeaders,
+            body: jsonEncode({'phoneNumber': phoneNumber}),
+          ).timeout(const Duration(seconds: 10));
+          if (retryRes.statusCode == 200 || retryRes.statusCode == 201) {
+            _baseUrl = altUrl;
+            notifyListeners();
+            return jsonDecode(retryRes.body) as Map<String, dynamic>;
+          }
+        } catch (_) {}
+      }
       return {'success': false, 'message': 'Kesalahan koneksi ke server: $e'};
     }
   }
@@ -249,6 +272,22 @@ class ApiService extends ChangeNotifier {
       }
       return {'success': false, 'message': 'Verifikasi gagal (${response.statusCode})'};
     } catch (e) {
+      if (e.toString().contains('Connection refused') || e.toString().contains('SocketException') || e.toString().contains('TimeoutException')) {
+        final altUrl = _getAltUrl();
+        try {
+          final retryUri = Uri.parse('$altUrl/phone-lookup/verify-otp');
+          final retryRes = await http.post(
+            retryUri,
+            headers: _defaultHeaders,
+            body: jsonEncode({'phoneNumber': phoneNumber, 'code': code}),
+          ).timeout(const Duration(seconds: 10));
+          if (retryRes.statusCode == 200 || retryRes.statusCode == 201) {
+            _baseUrl = altUrl;
+            notifyListeners();
+            return jsonDecode(retryRes.body) as Map<String, dynamic>;
+          }
+        } catch (_) {}
+      }
       return {'success': false, 'message': 'Kesalahan koneksi ke server: $e'};
     }
   }

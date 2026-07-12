@@ -398,25 +398,26 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                   const SizedBox(height: 18),
                 ],
 
-                // Developer Tip Banner
+                // Security Trust Banner
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                   decoration: BoxDecoration(
-                    color: AppColors.primary.withValues(alpha: 0.15),
+                    color: AppColors.accentGreen.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: AppColors.primaryLight.withValues(alpha: 0.3)),
+                    border: Border.all(color: AppColors.accentGreen.withValues(alpha: 0.3)),
                   ),
                   child: Row(
                     children: [
-                      const Icon(Icons.lightbulb_outline_rounded, color: AppColors.primaryLight, size: 18),
-                      const SizedBox(width: 10),
+                      const Icon(Icons.shield_rounded, color: AppColors.accentGreen, size: 20),
+                      const SizedBox(width: 12),
                       Expanded(
                         child: Text(
-                          '💡 Mode Developer/Demo: Masukkan kode OTP 123456 untuk verifikasi lokal.',
+                          '🛡️ Keamanan Terjamin: Kode OTP dikirim melalui WhatsApp resmi. Jangan bagikan kode kepada siapa pun demi keamanan akun.',
                           style: GoogleFonts.outfit(
-                            color: AppColors.primaryLight,
+                            color: AppColors.accentGreen,
                             fontSize: 12.5,
                             fontWeight: FontWeight.w500,
+                            height: 1.35,
                           ),
                         ),
                       ),

@@ -558,14 +558,6 @@ export class PhoneLookupService {
   }
 
   async verifyOtp(rawNumber: string, code: string): Promise<{ success: boolean; message: string }> {
-    // Untuk kenyamanan testing lokal, izinkan 123456
-    if (code === '123456') {
-      return {
-        success: true,
-        message: 'Verifikasi berhasil (Mode Pengujian/Dev)',
-      };
-    }
-
     let number = rawNumber.trim().replace(/\s+/g, '').replace(/-/g, '');
     if (number.startsWith('08')) {
       number = '+62' + number.substring(1);
