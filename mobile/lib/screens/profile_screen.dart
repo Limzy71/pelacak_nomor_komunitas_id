@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../services/api_service.dart';
 import '../theme/app_theme.dart';
 import 'analytics_screen.dart';
+import 'setup_profile_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   final ApiService apiService;
@@ -594,6 +595,97 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                       ),
                       const Icon(Icons.arrow_forward_ios_rounded, color: AppColors.textSecondary, size: 16),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              InkWell(
+                onTap: () async {
+                  final confirm = await showDialog<bool>(
+                    context: context,
+                    builder: (ctx) => AlertDialog(
+                      backgroundColor: AppColors.cardBg,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                      title: Text('Reset Sesi Pengujian?', style: GoogleFonts.outfit(color: Colors.white, fontWeight: FontWeight.bold)),
+                      content: Text(
+                        'Ini akan menghapus data sesi lokal di HP Anda sehingga Anda dapat menguji ulang alur registrasi & verifikasi OTP dari awal.',
+                        style: GoogleFonts.outfit(color: AppColors.textSecondary, fontSize: 13, height: 1.4),
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(ctx, false),
+                          child: Text('Batal', style: GoogleFonts.outfit(color: AppColors.textSecondary)),
+                        ),
+                        ElevatedButton(
+                          onPressed: () => Navigator.pop(ctx, true),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFFEF4444),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                          ),
+                          child: Text('Reset & Keluar', style: GoogleFonts.outfit(color: Colors.white, fontWeight: FontWeight.bold)),
+                        ),
+                      ],
+                    ),
+                  );
+
+                  if (confirm == true && mounted) {
+                    final prefs = await SharedPreferences.getInstance();
+                    await prefs.clear();
+                    if (!context.mounted) return;
+                    Navigator.of(context).pushAndRemoveUntil(
+                      MaterialPageRoute(
+                        builder: (_) => SetupProfileScreen(apiService: widget.apiService),
+                      ),
+                      (route) => false,
+                    );
+                  }
+                },
+                borderRadius: BorderRadius.circular(16),
+                child: Container(
+                  padding: const EdgeInsets.all(18),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFEF4444).withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: const Color(0xFFEF4444).withValues(alpha: 0.3)),
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFEF4444).withValues(alpha: 0.2),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: const Icon(Icons.logout_rounded, color: Color(0xFFEF4444), size: 24),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Keluar & Reset Sesi Pengujian',
+                              style: GoogleFonts.outfit(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: const Color(0xFFEF4444),
+                              ),
+                            ),
+                            const SizedBox(height: 3),
+                            Text(
+                              'Hapus data lokal & mulai ulang dari verifikasi OTP',
+                              style: GoogleFonts.outfit(
+                                fontSize: 12.5,
+                                color: AppColors.textSecondary,
+                              ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
+                        ),
+                      ),
+                      const Icon(Icons.arrow_forward_ios_rounded, color: Color(0xFFEF4444), size: 16),
                     ],
                   ),
                 ),
