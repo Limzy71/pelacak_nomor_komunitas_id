@@ -387,8 +387,8 @@ class _SearchScreenState extends State<SearchScreen> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      isDismissible: false,
-      enableDrag: false,
+      isDismissible: true,
+      enableDrag: true,
       builder: (context) {
         return Container(
           padding: const EdgeInsets.fromLTRB(24, 28, 24, 32),
