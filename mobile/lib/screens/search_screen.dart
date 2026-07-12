@@ -2358,9 +2358,11 @@ class _SearchScreenState extends State<SearchScreen> {
                             child: Text(
                               _isMyStatsLoading
                                   ? 'Memeriksa status proteksi nomor Anda...'
-                                  : (_myPhoneSearchCount > 0
-                                      ? '$_myPhoneSearchCount aktivitas pencarian terhadap nomor Anda.'
-                                      : 'Nomor Anda dalam pemantauan proteksi aktif.'),
+                                  : (_myPhoneTags.isNotEmpty
+                                      ? '${_myPhoneTags.length} Label Penanda Komunitas Terdeteksi'
+                                      : (_myPhoneSearchCount > 0
+                                          ? '$_myPhoneSearchCount aktivitas pencarian terhadap nomor Anda.'
+                                          : 'Nomor Anda dalam pemantauan proteksi aktif.')),
                               style: GoogleFonts.outfit(
                                 color: Colors.white,
                                 fontSize: 16.5,
@@ -2390,9 +2392,11 @@ class _SearchScreenState extends State<SearchScreen> {
                           const SizedBox(width: 14),
                           Expanded(
                             child: Text(
-                              _myPhoneSearchCount > 0
-                                  ? 'Reputasi saat ini: ${_myPhoneTrustScore.toStringAsFixed(0)}% Aman. Tekan di sini untuk melihat analisis detail aktivitas pencarian dan perlindungan privasi PhoneRep Komunitas.'
-                                  : 'Belum ada aktivitas pencarian mencurigakan terhadap nomor Anda. Tekan di sini untuk memeriksa status perlindungan & jejak digital Anda.',
+                              _myPhoneTags.isNotEmpty
+                                  ? 'Terdeteksi ${_myPhoneTags.length} nama dari kontak komunitas (${_myPhoneTags.take(2).map((t) => '"${t.labelName}"').join(', ')}${_myPhoneTags.length > 2 ? ', dst' : ''}) • Diperiksa $_myPhoneSearchCount kali. Tekan untuk melihat analisis real-time.'
+                                  : (_myPhoneSearchCount > 0
+                                      ? 'Reputasi saat ini: ${_myPhoneTrustScore.toStringAsFixed(0)}% Aman. Tekan di sini untuk melihat analisis detail aktivitas pencarian dan perlindungan privasi PhoneRep Komunitas.'
+                                      : 'Belum ada aktivitas pencarian mencurigakan terhadap nomor Anda. Tekan di sini untuk memeriksa status perlindungan & jejak digital Anda.'),
                               style: GoogleFonts.outfit(
                                 color: Colors.white70,
                                 fontSize: 13,
