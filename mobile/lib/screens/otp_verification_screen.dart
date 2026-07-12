@@ -345,23 +345,28 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                 ),
                 const SizedBox(height: 24),
 
-                // Invisible TextField handling real keyboard input
+                // Invisible TextField handling real keyboard input (placed off-screen and disabled selection to prevent OS cursor handles)
                 Stack(
-                  alignment: Alignment.center,
+                  clipBehavior: Clip.none,
                   children: [
-                    SizedBox(
-                      width: 1,
-                      height: 1,
-                      child: TextField(
-                        controller: _otpController,
-                        focusNode: _focusNode,
-                        keyboardType: TextInputType.number,
-                        maxLength: 6,
-                        showCursor: false,
-                        style: const TextStyle(color: Colors.transparent),
-                        decoration: const InputDecoration(
-                          counterText: '',
-                          border: InputBorder.none,
+                    Positioned(
+                      left: -999,
+                      top: 0,
+                      child: SizedBox(
+                        width: 1,
+                        height: 1,
+                        child: TextField(
+                          controller: _otpController,
+                          focusNode: _focusNode,
+                          keyboardType: TextInputType.number,
+                          maxLength: 6,
+                          showCursor: false,
+                          enableInteractiveSelection: false, // 💡 Matikan selection handle / titik kursor OS
+                          style: const TextStyle(color: Colors.transparent),
+                          decoration: const InputDecoration(
+                            counterText: '',
+                            border: InputBorder.none,
+                          ),
                         ),
                       ),
                     ),
