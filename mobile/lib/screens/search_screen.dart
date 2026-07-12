@@ -382,8 +382,194 @@ class _SearchScreenState extends State<SearchScreen> {
     await prefs.setStringList('user_my_tags', _userTags);
   }
 
+  void _showContactAccessConsentModal() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      isDismissible: false,
+      enableDrag: false,
+      builder: (context) {
+        return Container(
+          padding: const EdgeInsets.fromLTRB(24, 28, 24, 32),
+          decoration: const BoxDecoration(
+            color: Color(0xFF131A29),
+            borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black54,
+                blurRadius: 20,
+                offset: Offset(0, -5),
+              ),
+            ],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 48,
+                height: 5,
+                decoration: BoxDecoration(
+                  color: Colors.white24,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              const SizedBox(height: 24),
+              Container(
+                width: 68,
+                height: 68,
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withValues(alpha: 0.15),
+                  shape: BoxShape.circle,
+                  border: Border.all(color: AppColors.primaryLight.withValues(alpha: 0.4), width: 1.5),
+                ),
+                child: const Icon(Icons.shield_rounded, color: AppColors.primaryLight, size: 36),
+              ),
+              const SizedBox(height: 20),
+              Text(
+                'Izin Akses & Keamanan Kontak',
+                style: GoogleFonts.outfit(
+                  color: Colors.white,
+                  fontSize: 21,
+                  fontWeight: FontWeight.w800,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 12),
+              Text(
+                'Untuk mendeteksi panggilan spam/penipuan secara real-time, mengidentifikasi nomor asing, dan melindungi kontak Anda dalam komunitas, aplikasi membutuhkan izin akses untuk membaca Kontak & Log Telepon Anda.',
+                style: GoogleFonts.outfit(
+                  color: AppColors.textSecondary,
+                  fontSize: 14,
+                  height: 1.45,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 20),
+              Container(
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF1E2636),
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(color: AppColors.primaryLight.withValues(alpha: 0.2)),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.verified_user_rounded, color: AppColors.accentGreen, size: 22),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        'Privasi Anda adalah prioritas utama. Data kontak Anda dienkripsi dan tidak akan pernah disebarkan tanpa izin.',
+                        style: GoogleFonts.outfit(
+                          color: Colors.white70,
+                          fontSize: 12.5,
+                          height: 1.35,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 28),
+              SizedBox(
+                width: double.infinity,
+                height: 52,
+                child: ElevatedButton(
+                  onPressed: () async {
+                    Navigator.pop(context);
+                    final prefs = await SharedPreferences.getInstance();
+                    await prefs.setBool('has_agreed_contact_access', true);
+                    setState(() => _isContactsLoading = true);
+                    final contactStatus = await Permission.contacts.request();
+                    final callStatus = await Permission.phone.request();
+                    if (mounted) {
+                      setState(() {
+                        _hasContactPermission = contactStatus.isGranted;
+                        _hasCallLogPermission = callStatus.isGranted;
+                      });
+                      if (_hasContactPermission) {
+                        await _fetchRealDeviceContacts();
+                      }
+                      if (_hasCallLogPermission) {
+                        await _fetchRealCallLogs();
+                      }
+                      setState(() => _isContactsLoading = false);
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    elevation: 6,
+                  ),
+                  child: Text(
+                    'Setujui & Izinkan Akses (Acc Access)',
+                    style: GoogleFonts.outfit(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+              SizedBox(
+                width: double.infinity,
+                height: 48,
+                child: TextButton(
+                  onPressed: () async {
+                    Navigator.pop(context);
+                    final prefs = await SharedPreferences.getInstance();
+                    await prefs.setBool('has_agreed_contact_access', false);
+                    if (mounted) {
+                      setState(() {
+                        _hasContactPermission = false;
+                        _hasCallLogPermission = false;
+                        _contacts = [];
+                        _callLogs = [];
+                        _isContactsLoading = false;
+                      });
+                    }
+                  },
+                  style: TextButton.styleFrom(
+                    foregroundColor: AppColors.textSecondary,
+                  ),
+                  child: Text(
+                    'Nanti Saja (Batal)',
+                    style: GoogleFonts.outfit(
+                      fontSize: 14.5,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   Future<void> _checkAndLoadContacts() async {
     try {
+      final prefs = await SharedPreferences.getInstance();
+      final bool hasAgreedContactAccess = prefs.getBool('has_agreed_contact_access') ?? false;
+
+      if (!hasAgreedContactAccess) {
+        if (mounted) {
+          setState(() {
+            _hasContactPermission = false;
+            _hasCallLogPermission = false;
+            _contacts = [];
+            _callLogs = [];
+            _isContactsLoading = false;
+          });
+          _showContactAccessConsentModal();
+        }
+        return;
+      }
+
       final contactStatus = await Permission.contacts.status;
       final callStatus = await Permission.phone.status;
 
@@ -410,6 +596,12 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 
   Future<void> _requestCallLogPermission() async {
+    final prefs = await SharedPreferences.getInstance();
+    final bool hasAgreed = prefs.getBool('has_agreed_contact_access') ?? false;
+    if (!hasAgreed) {
+      _showContactAccessConsentModal();
+      return;
+    }
     setState(() => _isContactsLoading = true);
     final status = await Permission.phone.request();
     if (status.isGranted) {
@@ -443,6 +635,12 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 
   Future<void> _requestContactPermission() async {
+    final prefs = await SharedPreferences.getInstance();
+    final bool hasAgreed = prefs.getBool('has_agreed_contact_access') ?? false;
+    if (!hasAgreed) {
+      _showContactAccessConsentModal();
+      return;
+    }
     setState(() => _isContactsLoading = true);
     final status = await Permission.contacts.request();
     if (status.isGranted) {
@@ -1768,7 +1966,16 @@ class _SearchScreenState extends State<SearchScreen> {
                   ),
                 ),
                 InkWell(
-                  onTap: _hasCallLogPermission ? _fetchRealCallLogs : _requestCallLogPermission,
+                  onTap: () {
+                    if (!_hasCallLogPermission) {
+                      _requestCallLogPermission();
+                    } else if (!_hasContactPermission) {
+                      _requestContactPermission();
+                    } else {
+                      _fetchRealCallLogs();
+                      _fetchRealDeviceContacts();
+                    }
+                  },
                   borderRadius: BorderRadius.circular(12),
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -1777,7 +1984,7 @@ class _SearchScreenState extends State<SearchScreen> {
                         Icon(Icons.refresh_rounded, size: 16, color: AppColors.primaryLight),
                         const SizedBox(width: 4),
                         Text(
-                          _hasCallLogPermission ? 'Perbarui' : 'Izin Log Telepon',
+                          _hasCallLogPermission && _hasContactPermission ? 'Perbarui' : 'Izin Log Telepon',
                           style: GoogleFonts.outfit(
                             color: AppColors.primaryLight,
                             fontSize: 13,
@@ -1791,18 +1998,42 @@ class _SearchScreenState extends State<SearchScreen> {
               ],
             ),
             const SizedBox(height: 12),
-            if (_realRecentCalls.isEmpty)
+            if (_realRecentCalls.isEmpty || !_hasCallLogPermission || !_hasContactPermission)
               Padding(
-                padding: const EdgeInsets.symmetric(vertical: 24),
+                padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
                 child: Center(
-                  child: Text(
-                    _hasContactPermission
-                        ? 'Belum ada riwayat panggilan kontak nyata.'
-                        : 'Izin kontak belum diaktifkan.',
-                    style: GoogleFonts.outfit(
-                      color: AppColors.textSecondary,
-                      fontSize: 13.5,
-                    ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        _hasContactPermission && _hasCallLogPermission ? Icons.phone_disabled_rounded : Icons.lock_outline_rounded,
+                        size: 38,
+                        color: AppColors.textSecondary.withValues(alpha: 0.6),
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        _hasContactPermission && _hasCallLogPermission
+                            ? 'Belum ada riwayat panggilan kontak nyata.'
+                            : 'Akses Kontak & Log Telepon Belum Diizinkan.\nKami tidak akan membaca atau menampilkan kontak Anda sampai Anda menyetujuinya.',
+                        textAlign: TextAlign.center,
+                        style: GoogleFonts.outfit(
+                          color: AppColors.textSecondary,
+                          fontSize: 13.5,
+                          height: 1.4,
+                        ),
+                      ),
+                      if (!_hasContactPermission || !_hasCallLogPermission) ...[
+                        const SizedBox(height: 16),
+                        TextButton.icon(
+                          onPressed: _showContactAccessConsentModal,
+                          icon: const Icon(Icons.shield_rounded, size: 16, color: AppColors.primaryLight),
+                          label: Text(
+                            'Acc Access (Izinkan Kontak & Log Telepon)',
+                            style: GoogleFonts.outfit(color: AppColors.primaryLight, fontSize: 13, fontWeight: FontWeight.w600),
+                          ),
+                        ),
+                      ],
+                    ],
                   ),
                 ),
               )
