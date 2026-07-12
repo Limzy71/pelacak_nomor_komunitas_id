@@ -8,7 +8,7 @@ import { SyncContactsDto } from './dto/sync-contacts.dto';
 export class PhoneLookupService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async lookupPhoneNumber(rawNumber: string) {
+  async lookupPhoneNumber(rawNumber: string, skipIncrement: boolean = false) {
     // Normalisasi nomor telepon: hapus spasi dan strip, serta ubah format 08/628 menjadi standar E.164 (+628)
     let number = rawNumber.trim().replace(/\s+/g, '').replace(/-/g, '');
     if (number.startsWith('08')) {
@@ -27,21 +27,23 @@ export class PhoneLookupService {
       },
     });
 
-    // Jika nomor ditemukan, tambahkan searchCount sebanyak 1
+    // Jika nomor ditemukan, tambahkan searchCount sebanyak 1 (kecuali skipIncrement aktif)
     if (record) {
-      const updatedRecord = await this.prisma.phoneNumber.update({
-        where: {
-          phoneNumber: number,
-        },
-        data: {
-          searchCount: {
-            increment: 1,
-          },
-        },
-        include: {
-          tags: true,
-        },
-      });
+      const updatedRecord = skipIncrement
+        ? record
+        : await this.prisma.phoneNumber.update({
+            where: {
+              phoneNumber: number,
+            },
+            data: {
+              searchCount: {
+                increment: 1,
+              },
+            },
+            include: {
+              tags: true,
+            },
+          });
 
       // Filter out tag sistem lama jika masih ada di database
       updatedRecord.tags = updatedRecord.tags

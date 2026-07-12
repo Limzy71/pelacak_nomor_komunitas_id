@@ -34,9 +34,10 @@ class ApiService extends ChangeNotifier {
     'x-phonerep-client-key': 'phonerep-mobile-v1-secret-token-2026',
   };
 
-  Future<LookupResponse> lookupPhoneNumber(String rawNumber) async {
+  Future<LookupResponse> lookupPhoneNumber(String rawNumber, {bool skipIncrement = false}) async {
+    final query = skipIncrement ? '?skipIncrement=true' : '';
     try {
-      final url = Uri.parse('$_baseUrl/phone-lookup/${Uri.encodeComponent(rawNumber)}');
+      final url = Uri.parse('$_baseUrl/phone-lookup/${Uri.encodeComponent(rawNumber)}$query');
       final response = await http.get(
         url,
         headers: _defaultHeaders,
@@ -52,7 +53,7 @@ class ApiService extends ChangeNotifier {
       if (e.toString().contains('Connection refused') || e.toString().contains('SocketException') || e.toString().contains('TimeoutException')) {
         final altUrl = _baseUrl.contains('127.0.0.1') ? 'http://192.168.1.159:3000' : 'http://127.0.0.1:3000';
         try {
-          final retryUri = Uri.parse('$altUrl/phone-lookup/${Uri.encodeComponent(rawNumber)}');
+          final retryUri = Uri.parse('$altUrl/phone-lookup/${Uri.encodeComponent(rawNumber)}$query');
           final retryRes = await http.get(retryUri, headers: _defaultHeaders).timeout(const Duration(seconds: 10));
           if (retryRes.statusCode == 200 || retryRes.statusCode == 201) {
             _baseUrl = altUrl;

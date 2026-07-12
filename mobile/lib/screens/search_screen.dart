@@ -154,7 +154,7 @@ class _SearchScreenState extends State<SearchScreen> {
     }
 
     try {
-      final res = await widget.apiService.lookupPhoneNumber(_myPhoneNumber);
+      final res = await widget.apiService.lookupPhoneNumber(_myPhoneNumber, skipIncrement: true);
       if (mounted && res.data != null) {
         setState(() {
           _myPhoneSearchCount = res.data!.searchCount;
