@@ -2474,16 +2474,35 @@ class _SearchScreenState extends State<SearchScreen> {
           const SizedBox(height: 12),
           if (_recentlyViewed.isEmpty)
             Padding(
-              padding: const EdgeInsets.all(32),
+              padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
               child: Center(
-                child: Text(
-                  _contacts.isNotEmpty
-                      ? 'Belum ada riwayat pencarian.'
-                      : 'Belum ada riwayat nomor yang baru saja dilihat.',
-                  style: GoogleFonts.outfit(
-                    color: AppColors.textSecondary,
-                    fontSize: 14,
-                  ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      _contacts.isNotEmpty
+                          ? 'Belum Ada Riwayat Pencarian'
+                          : 'Belum Ada Nomor Dilihat',
+                      textAlign: TextAlign.center,
+                      style: GoogleFonts.outfit(
+                        color: Colors.white,
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      _contacts.isNotEmpty
+                          ? 'Nomor yang Anda cari akan otomatis tercatat di sini.'
+                          : 'Riwayat nomor telepon yang baru saja Anda periksa akan muncul di sini.',
+                      textAlign: TextAlign.center,
+                      style: GoogleFonts.outfit(
+                        color: AppColors.textSecondary,
+                        fontSize: 13,
+                        height: 1.35,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             )
