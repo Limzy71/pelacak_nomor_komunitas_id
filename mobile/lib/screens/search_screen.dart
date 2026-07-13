@@ -620,29 +620,6 @@ class _SearchScreenState extends State<SearchScreen> {
     }
   }
 
-  Future<void> _requestCallLogPermission() async {
-    final prefs = await SharedPreferences.getInstance();
-    final bool hasAgreed = prefs.getBool('has_agreed_contact_access') ?? false;
-    if (!hasAgreed) {
-      _showContactAccessConsentModal();
-      return;
-    }
-    setState(() => _isContactsLoading = true);
-    final status = await Permission.phone.request();
-    if (status.isGranted) {
-      _hasCallLogPermission = true;
-      await _fetchRealCallLogs();
-    } else {
-      _hasCallLogPermission = false;
-      if (mounted && status.isPermanentlyDenied) {
-        openAppSettings();
-      }
-    }
-    if (mounted) {
-      setState(() => _isContactsLoading = false);
-    }
-  }
-
   Future<void> _fetchRealCallLogs() async {
     try {
       final Iterable<CallLogEntry> entries = await CallLog.get();
@@ -1980,69 +1957,7 @@ class _SearchScreenState extends State<SearchScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Promt Izin Kontak Nyata bila belum diberi izin
-            if (!_hasContactPermission)
-              Container(
-                width: double.infinity,
-                margin: const EdgeInsets.only(bottom: 24),
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF1F2637),
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
-                    color: AppColors.primary.withValues(alpha: 0.5),
-                  ),
-                ),
-                child: Column(
-                  children: [
-                    const Icon(
-                      Icons.contacts_rounded,
-                      color: AppColors.primaryLight,
-                      size: 36,
-                    ),
-                    const SizedBox(height: 10),
-                    Text(
-                      'Hubungkan Kontak Nyata Anda',
-                      style: GoogleFonts.outfit(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Beri izin akses kontak untuk memunculkan riwayat panggilan & kontak cepat asli dari HP Anda.',
-                      textAlign: TextAlign.center,
-                      style: GoogleFonts.outfit(
-                        color: AppColors.textSecondary,
-                        fontSize: 12.5,
-                        height: 1.35,
-                      ),
-                    ),
-                    const SizedBox(height: 14),
-                    ElevatedButton(
-                      onPressed: _requestContactPermission,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      child: Text(
-                        'Aktifkan Izin Kontak Asli',
-                        style: GoogleFonts.outfit(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
 
-            // ---------------------------------------------
-            // 1. PANGGILAN TERBARU & TOMBOL LIHAT SEMUA
-            // ---------------------------------------------
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -2054,76 +1969,130 @@ class _SearchScreenState extends State<SearchScreen> {
                     color: Colors.white,
                   ),
                 ),
-                InkWell(
-                  onTap: () {
-                    if (!_hasCallLogPermission) {
-                      _requestCallLogPermission();
-                    } else if (!_hasContactPermission) {
-                      _requestContactPermission();
-                    } else {
+                if (_hasCallLogPermission && _hasContactPermission)
+                  InkWell(
+                    onTap: () {
                       _fetchRealCallLogs();
                       _fetchRealDeviceContacts();
-                    }
-                  },
-                  borderRadius: BorderRadius.circular(12),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    child: Row(
-                      children: [
-                        Icon(Icons.refresh_rounded, size: 16, color: AppColors.primaryLight),
-                        const SizedBox(width: 4),
-                        Text(
-                          _hasCallLogPermission && _hasContactPermission ? 'Perbarui' : 'Izin Log Telepon',
-                          style: GoogleFonts.outfit(
-                            color: AppColors.primaryLight,
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
+                    },
+                    borderRadius: BorderRadius.circular(12),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      child: Row(
+                        children: [
+                          Icon(Icons.refresh_rounded, size: 16, color: AppColors.primaryLight),
+                          const SizedBox(width: 4),
+                          Text(
+                            'Perbarui',
+                            style: GoogleFonts.outfit(
+                              color: AppColors.primaryLight,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
-                ),
               ],
             ),
             const SizedBox(height: 12),
             if (_realRecentCalls.isEmpty || !_hasCallLogPermission || !_hasContactPermission)
               Padding(
-                padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+                padding: const EdgeInsets.symmetric(vertical: 8),
                 child: Center(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        _hasContactPermission && _hasCallLogPermission ? Icons.phone_disabled_rounded : Icons.lock_outline_rounded,
-                        size: 38,
-                        color: AppColors.textSecondary.withValues(alpha: 0.6),
-                      ),
-                      const SizedBox(height: 12),
-                      Text(
-                        _hasContactPermission && _hasCallLogPermission
-                            ? 'Belum ada riwayat panggilan kontak nyata.'
-                            : 'Izin Akses Kontak & Log Telepon Diperlukan\nKami menghormati privasi Anda dan tidak membaca kontak sampai Anda mengaktifkannya.',
-                        textAlign: TextAlign.center,
-                        style: GoogleFonts.outfit(
-                          color: AppColors.textSecondary,
-                          fontSize: 13.5,
-                          height: 1.4,
-                        ),
-                      ),
-                      if (!_hasContactPermission || !_hasCallLogPermission) ...[
-                        const SizedBox(height: 16),
-                        TextButton.icon(
-                          onPressed: _showContactAccessConsentModal,
-                          icon: const Icon(Icons.shield_rounded, size: 16, color: AppColors.primaryLight),
-                          label: Text(
-                            'Aktifkan Izin Akses',
-                            style: GoogleFonts.outfit(color: AppColors.primaryLight, fontSize: 13, fontWeight: FontWeight.w600),
+                  child: (!_hasContactPermission || !_hasCallLogPermission)
+                      ? Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF1A2035),
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(
+                              color: AppColors.primary.withValues(alpha: 0.35),
+                              width: 1.2,
+                            ),
                           ),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(14),
+                                decoration: BoxDecoration(
+                                  color: AppColors.primary.withValues(alpha: 0.12),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(
+                                  Icons.contacts_rounded,
+                                  color: AppColors.primaryLight,
+                                  size: 32,
+                                ),
+                              ),
+                              const SizedBox(height: 14),
+                              Text(
+                                'Izin Kontak Diperlukan',
+                                style: GoogleFonts.outfit(
+                                  color: Colors.white,
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                              const SizedBox(height: 6),
+                              Text(
+                                'Izinkan akses kontak & log panggilan untuk melihat riwayat panggilan asli dari HP Anda.',
+                                textAlign: TextAlign.center,
+                                style: GoogleFonts.outfit(
+                                  color: AppColors.textSecondary,
+                                  fontSize: 12.5,
+                                  height: 1.4,
+                                ),
+                              ),
+                              const SizedBox(height: 18),
+                              SizedBox(
+                                width: double.infinity,
+                                child: ElevatedButton(
+                                  onPressed: _showContactAccessConsentModal,
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: AppColors.primary,
+                                    padding: const EdgeInsets.symmetric(vertical: 13),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(14),
+                                    ),
+                                    elevation: 0,
+                                  ),
+                                  child: Text(
+                                    'Izinkan Akses Kontak',
+                                    style: GoogleFonts.outfit(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        )
+                      : Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.phone_disabled_rounded,
+                              size: 38,
+                              color: AppColors.textSecondary.withValues(alpha: 0.6),
+                            ),
+                            const SizedBox(height: 12),
+                            Text(
+                              'Belum ada riwayat panggilan kontak nyata.',
+                              textAlign: TextAlign.center,
+                              style: GoogleFonts.outfit(
+                                color: AppColors.textSecondary,
+                                fontSize: 13.5,
+                                height: 1.4,
+                              ),
+                            ),
+                          ],
                         ),
-                      ],
-                    ],
-                  ),
                 ),
               )
             else
