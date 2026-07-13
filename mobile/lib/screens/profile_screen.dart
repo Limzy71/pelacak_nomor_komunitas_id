@@ -5,7 +5,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/api_service.dart';
 import '../theme/app_theme.dart';
-import '../widgets/top_notification.dart';
+import '../widgets/app_toast.dart';
 import 'analytics_screen.dart';
 import 'setup_profile_screen.dart';
 
@@ -126,10 +126,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       setState(() {
                         _userPhotoPath = null;
                       });
-                      TopNotification.show(
+                      AppToast.show(
                         context,
                         message: 'Foto profil dihapus. Avatar kembali ke default huruf awal.',
-                        isSuccess: true,
+                        type: ToastType.success,
                       );
                     }
                   },
@@ -213,10 +213,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       _userName = newName;
                       _userPhone = newPhone;
                     });
-                    TopNotification.show(
+                    AppToast.show(
                       context,
                       message: 'Profil Anda berhasil diperbarui.',
-                      isSuccess: true,
+                      type: ToastType.success,
                     );
                   }
                 }

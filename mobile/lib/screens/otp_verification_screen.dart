@@ -4,7 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/api_service.dart';
 import '../theme/app_theme.dart';
-import '../widgets/top_notification.dart';
+import '../widgets/app_toast.dart';
 import 'home_screen.dart';
 
 class OtpVerificationScreen extends StatefulWidget {
@@ -77,10 +77,10 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
     if (_secondsRemaining == 0) {
       _startTimer();
       widget.apiService.sendOtp(widget.phone);
-      TopNotification.show(
+      AppToast.show(
         context,
         message: '📩 Kode OTP baru berhasil dikirim ulang ke nomor WhatsApp Anda.',
-        isSuccess: true,
+        type: ToastType.success,
       );
     }
   }

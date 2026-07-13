@@ -8,7 +8,7 @@ import '../models/phone_record.dart';
 import '../services/api_service.dart';
 import '../theme/app_theme.dart';
 import '../widgets/tag_chip_card.dart';
-import '../widgets/top_notification.dart';
+import '../widgets/app_toast.dart';
 import '../widgets/trust_meter.dart';
 
 class SearchScreen extends StatefulWidget {
@@ -905,10 +905,10 @@ class _SearchScreenState extends State<SearchScreen> {
   Future<void> _performSearch(String query) async {
     final cleanQuery = _formatQueryWithCountryCode(query);
     if (cleanQuery.isEmpty) {
-      TopNotification.show(
+      AppToast.show(
         context,
         message: 'Masukkan nomor telepon yang valid.',
-        isError: true,
+        type: ToastType.error,
       );
       return;
     }
@@ -977,10 +977,10 @@ class _SearchScreenState extends State<SearchScreen> {
     try {
       final success = await widget.apiService.voteTag(tag.id, voteType);
       if (success && mounted) {
-        TopNotification.show(
+        AppToast.show(
           context,
           message: 'Penilaian reputasi ($voteType) berhasil dicatat.',
-          isSuccess: true,
+          type: ToastType.success,
         );
         if (_phoneRecord != null) {
           _performSearch(_phoneRecord!.phoneNumber);
@@ -988,10 +988,10 @@ class _SearchScreenState extends State<SearchScreen> {
       }
     } catch (e) {
       if (mounted) {
-        TopNotification.show(
+        AppToast.show(
           context,
           message: e.toString().replaceAll('Exception: ', ''),
-          isError: true,
+          type: ToastType.error,
         );
       }
     }
@@ -1216,10 +1216,10 @@ class _SearchScreenState extends State<SearchScreen> {
                           setState(() => _userTags.add(label));
                           _saveUserTagsToPrefs();
                         }
-                        TopNotification.show(
+                        AppToast.show(
                           context,
                           message: 'Label "#$label" berhasil ditambahkan.',
-                          isSuccess: true,
+                          type: ToastType.success,
                         );
                         if (_phoneRecord != null) {
                           _performSearch(_phoneRecord!.phoneNumber);
@@ -1236,10 +1236,10 @@ class _SearchScreenState extends State<SearchScreen> {
                           setState(() => _userTags.add(label));
                           _saveUserTagsToPrefs();
                         }
-                        TopNotification.show(
+                        AppToast.show(
                           context,
                           message: 'Label "#$label" ditambahkan ke daftar Anda. (${e.toString().replaceAll('Exception: ', '')})',
-                          isSuccess: true,
+                          type: ToastType.success,
                         );
                         setState(() => _isLoading = false);
                       }
