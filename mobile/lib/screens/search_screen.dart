@@ -1414,6 +1414,39 @@ class SearchScreenState extends State<SearchScreen> {
     );
   }
 
+  void _onSearchContactIconTapped() async {
+    if (!_hasContactPermission) {
+      AppToast.show(
+        context,
+        message: 'Izin akses kontak diperlukan untuk memilih nomor dari kontak.',
+        type: ToastType.info,
+      );
+      _showContactAccessConsentModal();
+      return;
+    }
+
+    if (_contacts.isEmpty) {
+      AppToast.show(
+        context,
+        message: 'Memuat daftar kontak Anda...',
+        type: ToastType.info,
+      );
+      await _fetchRealDeviceContacts();
+      if (!mounted) return;
+    }
+
+    if (_contacts.isEmpty) {
+      AppToast.show(
+        context,
+        message: 'Daftar buku telepon Anda masih kosong.',
+        type: ToastType.info,
+      );
+      return;
+    }
+
+    _showAllContactsModal();
+  }
+
   void _showAllContactsModal() {
     String searchContactQuery = '';
     showModalBottomSheet(
@@ -1710,40 +1743,41 @@ class SearchScreenState extends State<SearchScreen> {
             const SizedBox(width: 4),
             InkWell(
               onTap: _showCountryCodeModal,
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(14),
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
                 decoration: BoxDecoration(
                   color: const Color(0xFF1F2637),
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(14),
                   border: Border.all(color: const Color(0xFF2E384D)),
                 ),
                 child: Row(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
                       _getFlagForCountryCode(_selectedCountryCode),
-                      style: const TextStyle(fontSize: 18),
+                      style: const TextStyle(fontSize: 16),
                     ),
-                    const SizedBox(width: 6),
+                    const SizedBox(width: 4),
                     Text(
                       _selectedCountryCode,
                       style: GoogleFonts.outfit(
                         color: Colors.white,
-                        fontSize: 14,
+                        fontSize: 13,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
-                    const SizedBox(width: 4),
+                    const SizedBox(width: 2),
                     const Icon(
                       Icons.keyboard_arrow_down_rounded,
                       color: Colors.white60,
-                      size: 18,
+                      size: 16,
                     ),
                   ],
                 ),
               ),
             ),
-            const SizedBox(width: 10),
+            const SizedBox(width: 6),
             Expanded(
               child: Container(
                 height: 44,
@@ -1791,10 +1825,16 @@ class SearchScreenState extends State<SearchScreen> {
                         ),
                       )
                     else
-                      const Icon(
-                        Icons.account_circle_outlined,
-                        color: Colors.white70,
-                        size: 22,
+                      GestureDetector(
+                        onTap: _onSearchContactIconTapped,
+                        child: const Padding(
+                          padding: EdgeInsets.all(4.0),
+                          child: Icon(
+                            Icons.account_circle_outlined,
+                            color: AppColors.primaryLight,
+                            size: 24,
+                          ),
+                        ),
                       ),
                   ],
                 ),
@@ -1912,9 +1952,9 @@ class SearchScreenState extends State<SearchScreen> {
             children: [
               InkWell(
                 onTap: _showCountryCodeModal,
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(10),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
                   decoration: BoxDecoration(
                     color: const Color(0xFF28324A),
                     borderRadius: BorderRadius.circular(10),
@@ -1922,17 +1962,17 @@ class SearchScreenState extends State<SearchScreen> {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(_getFlagForCountryCode(_selectedCountryCode), style: const TextStyle(fontSize: 16)),
-                      const SizedBox(width: 4),
+                      Text(_getFlagForCountryCode(_selectedCountryCode), style: const TextStyle(fontSize: 14)),
+                      const SizedBox(width: 3),
                       Text(
                         _selectedCountryCode,
-                        style: GoogleFonts.outfit(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
+                        style: GoogleFonts.outfit(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
                       ),
                     ],
                   ),
                 ),
               ),
-              const SizedBox(width: 10),
+              const SizedBox(width: 6),
               Expanded(
                 child: InkWell(
                   onTap: () {
@@ -1965,11 +2005,17 @@ class SearchScreenState extends State<SearchScreen> {
                   ),
                 ),
               ),
-              const SizedBox(width: 8),
-              const Icon(
-                Icons.account_circle_outlined,
-                color: Colors.white70,
-                size: 24,
+              const SizedBox(width: 6),
+              GestureDetector(
+                onTap: _onSearchContactIconTapped,
+                child: const Padding(
+                  padding: EdgeInsets.all(4.0),
+                  child: Icon(
+                    Icons.account_circle_outlined,
+                    color: AppColors.primaryLight,
+                    size: 24,
+                  ),
+                ),
               ),
             ],
           ),

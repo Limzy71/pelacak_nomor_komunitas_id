@@ -25,7 +25,7 @@ class AppToast {
     BuildContext context, {
     required String message,
     ToastType type = ToastType.success,
-    Duration duration = const Duration(milliseconds: 2500),
+    Duration duration = const Duration(seconds: 2),
   }) {
     if (!context.mounted) return;
 
