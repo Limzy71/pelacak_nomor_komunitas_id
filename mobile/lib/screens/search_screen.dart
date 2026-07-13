@@ -636,27 +636,6 @@ class _SearchScreenState extends State<SearchScreen> {
     }
   }
 
-  Future<void> _requestContactPermission() async {
-    final prefs = await SharedPreferences.getInstance();
-    final bool hasAgreed = prefs.getBool('has_agreed_contact_access') ?? false;
-    if (!hasAgreed) {
-      _showContactAccessConsentModal();
-      return;
-    }
-    setState(() => _isContactsLoading = true);
-    final status = await Permission.contacts.request();
-    if (status.isGranted) {
-      _hasContactPermission = true;
-      await _fetchRealDeviceContacts();
-    } else {
-      _hasContactPermission = false;
-      setState(() => _isContactsLoading = false);
-      if (mounted && status.isPermanentlyDenied) {
-        openAppSettings();
-      }
-    }
-  }
-
   Future<void> _fetchRealDeviceContacts() async {
     try {
       if (await FlutterContacts.requestPermission(readonly: true)) {
@@ -2279,71 +2258,70 @@ class _SearchScreenState extends State<SearchScreen> {
               ),
             ),
             const SizedBox(height: 12),
-            if (_realQuickContacts.isEmpty)
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 24),
-                child: Center(
-                  child: Text(
-                    _hasContactPermission
-                        ? 'Tidak ada kontak untuk ditampilkan.'
-                        : 'Hubungkan kontak perangkat untuk melihat Kontak Cepat asli.',
-                    style: GoogleFonts.outfit(
-                      color: AppColors.textSecondary,
-                      fontSize: 13.5,
+            if (_hasContactPermission) ...
+              [
+                if (_realQuickContacts.isEmpty)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 24),
+                    child: Center(
+                      child: Text(
+                        'Tidak ada kontak untuk ditampilkan.',
+                        style: GoogleFonts.outfit(
+                          color: AppColors.textSecondary,
+                          fontSize: 13.5,
+                        ),
+                      ),
+                    ),
+                  )
+                else
+                  Column(
+                    children: _realQuickContacts
+                        .map(
+                          (t) {
+                            final dbCount = _quickContactTagCounts[t.phoneNumberId];
+                            final displayTag = TagItem(
+                              id: t.id,
+                              phoneNumberId: t.phoneNumberId,
+                              labelName: t.labelName,
+                              upvotes: dbCount ?? t.upvotes,
+                              isSpam: t.isSpam,
+                            );
+                            return TagChipCard(
+                              tag: displayTag,
+                              onVote: (type) => _handleVote(t, type),
+                              onTap: () {
+                                if (t.phoneNumberId.isNotEmpty) {
+                                  _searchController.text = t.phoneNumberId;
+                                  _performSearch(t.phoneNumberId);
+                                }
+                              },
+                            );
+                          },
+                        )
+                        .toList(),
+                  ),
+                if (_contacts.isNotEmpty) ...[
+                  const SizedBox(height: 14),
+                  Center(
+                    child: TextButton.icon(
+                      onPressed: _showAllContactsModal,
+                      icon: Text(
+                        'Tampilkan Semua (${_contacts.length} Orang)',
+                        style: GoogleFonts.outfit(
+                          color: const Color(0xFF2B8CFF),
+                          fontSize: 14.5,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      label: const Icon(
+                        Icons.chevron_right_rounded,
+                        color: Color(0xFF2B8CFF),
+                        size: 18,
+                      ),
                     ),
                   ),
-                ),
-              )
-            else
-              Column(
-                children: _realQuickContacts
-                    .map(
-                      (t) {
-                        final dbCount = _quickContactTagCounts[t.phoneNumberId];
-                        final displayTag = TagItem(
-                          id: t.id,
-                          phoneNumberId: t.phoneNumberId,
-                          labelName: t.labelName,
-                          upvotes: dbCount ?? t.upvotes,
-                          isSpam: t.isSpam,
-                        );
-                        return TagChipCard(
-                          tag: displayTag,
-                          onVote: (type) => _handleVote(t, type),
-                          onTap: () {
-                            if (t.phoneNumberId.isNotEmpty) {
-                              _searchController.text = t.phoneNumberId;
-                              _performSearch(t.phoneNumberId);
-                            }
-                          },
-                        );
-                      },
-                    )
-                    .toList(),
-              ),
-            const SizedBox(height: 14),
-            Center(
-              child: TextButton.icon(
-                onPressed: _contacts.isNotEmpty
-                    ? _showAllContactsModal
-                    : _requestContactPermission,
-                icon: Text(
-                  _contacts.isNotEmpty
-                      ? 'Tampilkan Semua (${_contacts.length} Orang)'
-                      : 'Tampilkan Semua',
-                  style: GoogleFonts.outfit(
-                    color: const Color(0xFF2B8CFF),
-                    fontSize: 14.5,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                label: const Icon(
-                  Icons.chevron_right_rounded,
-                  color: Color(0xFF2B8CFF),
-                  size: 18,
-                ),
-              ),
-            ),
+                ],
+              ],
             const SizedBox(height: 32),
 
             // -------------------------------------------------------------
