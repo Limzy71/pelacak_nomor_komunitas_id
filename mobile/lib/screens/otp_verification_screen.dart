@@ -148,18 +148,12 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
       }
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('✅ Verifikasi WhatsApp berhasil! Kepemilikan nomor terverifikasi.'),
-            backgroundColor: AppColors.accentGreen,
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-          ),
-        );
-
         Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(
-            builder: (_) => HomeScreen(apiService: widget.apiService),
+            builder: (_) => HomeScreen(
+              apiService: widget.apiService,
+              showSuccessBanner: true,
+            ),
           ),
           (route) => false,
         );
