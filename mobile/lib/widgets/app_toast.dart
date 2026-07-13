@@ -258,25 +258,6 @@ class _AppToastWidgetState extends State<_AppToastWidget>
               ),
             ),
           ),
-          const SizedBox(width: 8),
-
-          // ─── Tombol Tutup ───
-          GestureDetector(
-            onTap: dismiss,
-            behavior: HitTestBehavior.opaque,
-            child: Container(
-              padding: const EdgeInsets.all(6),
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.08),
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(
-                Icons.close_rounded,
-                color: Colors.white54,
-                size: 15,
-              ),
-            ),
-          ),
         ],
       ),
     );
