@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Delete, Body, Param, Query } from '@nestjs/common';
+import { Controller, Get, Post, Delete, Body, Param, Query, Headers, Ip } from '@nestjs/common';
 import { PhoneLookupService } from './phone-lookup.service';
 import { SyncContactsDto } from './dto/sync-contacts.dto';
 
@@ -51,8 +51,16 @@ export class PhoneLookupController {
   async lookup(
     @Param('number') number: string,
     @Query('skipIncrement') skipIncrement?: string,
+    @Headers('x-device-id') deviceId?: string,
+    @Headers('x-has-contact-access') hasContactAccess?: string,
+    @Ip() ip?: string,
   ) {
-    return await this.phoneLookupService.lookupPhoneNumber(number, skipIncrement === 'true');
+    return await this.phoneLookupService.lookupPhoneNumber(
+      number,
+      skipIncrement === 'true',
+      deviceId || ip || 'unknown-device',
+      hasContactAccess === 'true',
+    );
   }
 
   @Delete('reset/:number')

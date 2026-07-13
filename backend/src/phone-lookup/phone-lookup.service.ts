@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { VoteType } from '../../generated/prisma/client';
 import * as truecallerjs from 'truecallerjs';
@@ -8,7 +8,56 @@ import { SyncContactsDto } from './dto/sync-contacts.dto';
 export class PhoneLookupService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async lookupPhoneNumber(rawNumber: string, skipIncrement: boolean = false) {
+  async lookupPhoneNumber(
+    rawNumber: string,
+    skipIncrement: boolean = false,
+    deviceId: string = 'unknown-device',
+    hasContactAccess: boolean = true,
+  ) {
+    // 0. Anti-Abuse Quota Enforcement for devices without contact access
+    if (!skipIncrement && !hasContactAccess) {
+      const todayString = new Date().toISOString().slice(0, 10);
+      const log = await this.prisma.deviceSearchLog.findUnique({
+        where: {
+          deviceId_dateString: {
+            deviceId: deviceId,
+            dateString: todayString,
+          },
+        },
+      });
+
+      if (log && log.searchCount >= 3) {
+        throw new HttpException(
+          {
+            code: 'QUOTA_EXCEEDED',
+            message: 'Limit pencarian gratis harian (3x) telah habis.',
+            quota: 3,
+            used: log.searchCount,
+          },
+          HttpStatus.FORBIDDEN,
+        );
+      }
+
+      await this.prisma.deviceSearchLog.upsert({
+        where: {
+          deviceId_dateString: {
+            deviceId: deviceId,
+            dateString: todayString,
+          },
+        },
+        create: {
+          deviceId: deviceId,
+          dateString: todayString,
+          searchCount: 1,
+        },
+        update: {
+          searchCount: {
+            increment: 1,
+          },
+        },
+      });
+    }
+
     // Normalisasi nomor telepon: hapus spasi dan strip, serta ubah format 08/628 menjadi standar E.164 (+628)
     let number = rawNumber.trim().replace(/\s+/g, '').replace(/-/g, '');
     if (number.startsWith('08')) {

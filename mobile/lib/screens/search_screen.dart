@@ -163,7 +163,7 @@ class SearchScreenState extends State<SearchScreen> {
     }
 
     try {
-      final res = await widget.apiService.lookupPhoneNumber(_myPhoneNumber, skipIncrement: true);
+      final res = await widget.apiService.lookupPhoneNumber(_myPhoneNumber, skipIncrement: true, hasContactAccess: _hasContactPermission);
       if (mounted && res.data != null) {
         setState(() {
           _myPhoneSearchCount = res.data!.searchCount;
@@ -188,7 +188,7 @@ class SearchScreenState extends State<SearchScreen> {
     for (final t in list) {
       if (t.phoneNumberId.isNotEmpty) {
         try {
-          final res = await widget.apiService.lookupPhoneNumber(t.phoneNumberId, skipIncrement: true);
+          final res = await widget.apiService.lookupPhoneNumber(t.phoneNumberId, skipIncrement: true, hasContactAccess: _hasContactPermission);
           if (mounted && res.data != null) {
             setState(() {
               _quickContactTagCounts[t.phoneNumberId] = res.data!.tags.length;
@@ -582,6 +582,160 @@ class SearchScreenState extends State<SearchScreen> {
     );
   }
 
+  void _showQuotaExceededModal() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      isDismissible: true,
+      enableDrag: true,
+      builder: (context) {
+        return Container(
+          padding: const EdgeInsets.fromLTRB(24, 28, 24, 32),
+          decoration: const BoxDecoration(
+            color: Color(0xFF131A29),
+            borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black54,
+                blurRadius: 20,
+                offset: Offset(0, -5),
+              ),
+            ],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 48,
+                height: 5,
+                decoration: BoxDecoration(
+                  color: Colors.white24,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              const SizedBox(height: 24),
+              Container(
+                width: 68,
+                height: 68,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFBBF24).withValues(alpha: 0.15),
+                  shape: BoxShape.circle,
+                  border: Border.all(color: const Color(0xFFFBBF24).withValues(alpha: 0.4), width: 1.5),
+                ),
+                child: const Icon(Icons.lock_clock_rounded, color: Color(0xFFFBBF24), size: 36),
+              ),
+              const SizedBox(height: 20),
+              Text(
+                'Batas Gratis 3x Habis',
+                style: GoogleFonts.outfit(
+                  color: Colors.white,
+                  fontSize: 22,
+                  fontWeight: FontWeight.w800,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 12),
+              Text(
+                'Anda telah menggunakan 3x kesempatan pencarian gratis hari ini untuk perangkat ini.\n\nAktifkan izin akses kontak untuk mendapatkan pencarian nomor tanpa batas & mengaktifkan proteksi dari nomor penipuan/spam secara penuh!',
+                style: GoogleFonts.outfit(
+                  color: AppColors.textSecondary,
+                  fontSize: 14,
+                  height: 1.45,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 28),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () async {
+                    Navigator.pop(context);
+                    final prefs = await SharedPreferences.getInstance();
+                    await prefs.setBool('has_agreed_contact_access', true);
+                    setState(() => _isContactsLoading = true);
+                    final contactStatus = await Permission.contacts.request();
+                    final callStatus = await Permission.phone.request();
+                    if (mounted) {
+                      setState(() {
+                        _hasContactPermission = contactStatus.isGranted;
+                        _hasCallLogPermission = callStatus.isGranted;
+                      });
+                      if (_hasContactPermission) {
+                        await _fetchRealDeviceContacts();
+                        if (!context.mounted) return;
+                        AppToast.show(
+                          context,
+                          message: 'Pencarian tanpa batas telah aktif!',
+                          type: ToastType.success,
+                        );
+                        if (_searchController.text.isNotEmpty) {
+                          _performSearch(_searchController.text);
+                        }
+                      } else {
+                        if (!context.mounted) return;
+                        AppToast.show(
+                          context,
+                          message: 'Izin kontak belum diberikan. Batas 3x tetap berlaku.',
+                          type: ToastType.info,
+                        );
+                      }
+                      if (_hasCallLogPermission) {
+                        await _fetchRealCallLogs();
+                        if (!context.mounted) return;
+                      }
+                      if (mounted) {
+                        setState(() => _isContactsLoading = false);
+                      }
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFFFBBF24),
+                    foregroundColor: const Color(0xFF131A29),
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    elevation: 6,
+                  ),
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      'Aktifkan Izin & Buka Batas (Gratis)',
+                      maxLines: 1,
+                      style: GoogleFonts.outfit(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 10),
+              SizedBox(
+                width: double.infinity,
+                child: TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  style: TextButton.styleFrom(
+                    foregroundColor: AppColors.textSecondary,
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                  ),
+                  child: Text(
+                    'Tutup',
+                    style: GoogleFonts.outfit(
+                      fontSize: 14.5,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   Future<void> _checkAndLoadContacts() async {
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -885,7 +1039,10 @@ class SearchScreenState extends State<SearchScreen> {
     });
 
     try {
-      final res = await widget.apiService.lookupPhoneNumber(cleanQuery);
+      final res = await widget.apiService.lookupPhoneNumber(
+        cleanQuery,
+        hasContactAccess: _hasContactPermission,
+      );
       if (mounted) {
         setState(() {
           _phoneRecord = res.data;
@@ -928,10 +1085,19 @@ class SearchScreenState extends State<SearchScreen> {
       }
     } catch (e) {
       if (mounted) {
-        _showAutoDismissStatus(null, error: e.toString().replaceAll('Exception: ', ''));
         setState(() {
           _isLoading = false;
         });
+        if (e is QuotaExceededException || e.toString().contains('Limit pencarian gratis')) {
+          AppToast.show(
+            context,
+            message: 'Limit gratis harian (3x) telah habis.',
+            type: ToastType.info,
+          );
+          _showQuotaExceededModal();
+        } else {
+          _showAutoDismissStatus(null, error: e.toString().replaceAll('Exception: ', ''));
+        }
       }
     }
   }
@@ -1164,7 +1330,7 @@ class SearchScreenState extends State<SearchScreen> {
                       String phoneId = _phoneRecord?.id ?? '';
                       // Jika menambah dari Beranda/Tag Saya dan ada nomor telepon yang dimasukkan
                       if (phoneId.isEmpty && numTarget.isNotEmpty) {
-                        final lookupRes = await widget.apiService.lookupPhoneNumber(numTarget);
+                        final lookupRes = await widget.apiService.lookupPhoneNumber(numTarget, hasContactAccess: _hasContactPermission);
                         if (lookupRes.found && lookupRes.data != null) {
                           phoneId = lookupRes.data!.id;
                         }

@@ -2,10 +2,19 @@ import 'dart:convert';
 import 'dart:io' show Platform;
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
+import 'package:device_info_plus/device_info_plus.dart';
 import '../models/phone_record.dart';
+
+class QuotaExceededException implements Exception {
+  final String message;
+  QuotaExceededException(this.message);
+  @override
+  String toString() => message;
+}
 
 class ApiService extends ChangeNotifier {
   late String _baseUrl;
+  static String? _cachedDeviceId;
 
   ApiService() {
     if (!kIsWeb && Platform.isAndroid) {
@@ -15,6 +24,20 @@ class ApiService extends ChangeNotifier {
     } else {
       _baseUrl = 'http://localhost:3000';
     }
+  }
+
+  static Future<String> getDeviceId() async {
+    if (_cachedDeviceId != null) return _cachedDeviceId!;
+    try {
+      final deviceInfo = DeviceInfoPlugin();
+      if (!kIsWeb && Platform.isAndroid) {
+        final androidInfo = await deviceInfo.androidInfo;
+        _cachedDeviceId = androidInfo.id;
+        return _cachedDeviceId!;
+      }
+    } catch (_) {}
+    _cachedDeviceId = 'unknown-device';
+    return _cachedDeviceId!;
   }
 
   String _getAltUrl() {
@@ -41,34 +64,68 @@ class ApiService extends ChangeNotifier {
     'x-phonerep-client-key': 'phonerep-mobile-v1-secret-token-2026',
   };
 
-  Future<LookupResponse> lookupPhoneNumber(String rawNumber, {bool skipIncrement = false}) async {
+  Future<LookupResponse> lookupPhoneNumber(
+    String rawNumber, {
+    bool skipIncrement = false,
+    bool hasContactAccess = true,
+  }) async {
     final query = skipIncrement ? '?skipIncrement=true' : '';
+    final deviceId = await getDeviceId();
+    final headers = {
+      ..._defaultHeaders,
+      'x-device-id': deviceId,
+      'x-has-contact-access': hasContactAccess ? 'true' : 'false',
+    };
+
     try {
       final url = Uri.parse('$_baseUrl/phone-lookup/${Uri.encodeComponent(rawNumber)}$query');
       final response = await http.get(
         url,
-        headers: _defaultHeaders,
+        headers: headers,
       ).timeout(const Duration(seconds: 15));
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         final decoded = jsonDecode(response.body) as Map<String, dynamic>;
         return LookupResponse.fromJson(decoded);
+      } else if (response.statusCode == 403) {
+        try {
+          final decoded = jsonDecode(response.body) as Map<String, dynamic>;
+          if (decoded['code'] == 'QUOTA_EXCEEDED') {
+            throw QuotaExceededException('Limit pencarian gratis harian (3x) telah habis.');
+          }
+        } catch (e) {
+          if (e is QuotaExceededException) rethrow;
+        }
+        throw QuotaExceededException('Limit pencarian gratis harian (3x) telah habis.');
       } else {
         throw Exception('Server error: ${response.statusCode}');
       }
     } catch (e) {
+      if (e is QuotaExceededException) rethrow;
       if (e.toString().contains('Connection refused') || e.toString().contains('SocketException') || e.toString().contains('TimeoutException')) {
         final altUrl = _getAltUrl();
         try {
           final retryUri = Uri.parse('$altUrl/phone-lookup/${Uri.encodeComponent(rawNumber)}$query');
-          final retryRes = await http.get(retryUri, headers: _defaultHeaders).timeout(const Duration(seconds: 10));
+          final retryRes = await http.get(retryUri, headers: headers).timeout(const Duration(seconds: 10));
           if (retryRes.statusCode == 200 || retryRes.statusCode == 201) {
             _baseUrl = altUrl;
             notifyListeners();
             final decoded = jsonDecode(retryRes.body) as Map<String, dynamic>;
             return LookupResponse.fromJson(decoded);
+          } else if (retryRes.statusCode == 403) {
+            try {
+              final decoded = jsonDecode(retryRes.body) as Map<String, dynamic>;
+              if (decoded['code'] == 'QUOTA_EXCEEDED') {
+                throw QuotaExceededException('Limit pencarian gratis harian (3x) telah habis.');
+              }
+            } catch (err) {
+              if (err is QuotaExceededException) rethrow;
+            }
+            throw QuotaExceededException('Limit pencarian gratis harian (3x) telah habis.');
           }
-        } catch (_) {}
+        } catch (err) {
+          if (err is QuotaExceededException) rethrow;
+        }
       }
       throw Exception('Gagal menghubungi server: $e');
     }

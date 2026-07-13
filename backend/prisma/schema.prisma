@@ -71,3 +71,15 @@ enum VoteType {
   UPVOTE
   DOWNVOTE
 }
+
+// 5. Tabel Log Pencarian Perangkat untuk Kuota Harian (Anti-Abuse)
+model DeviceSearchLog {
+  id          String   @id @default(uuid())
+  deviceId    String   @map("device_id")
+  dateString  String   @map("date_string") // e.g., "2026-07-14"
+  searchCount Int      @default(1) @map("search_count")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@unique([deviceId, dateString])
+  @@map("device_search_logs")
+}
