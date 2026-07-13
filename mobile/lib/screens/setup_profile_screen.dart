@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import '../services/api_service.dart';
 import '../theme/app_theme.dart';
+import '../widgets/top_notification.dart';
 import 'otp_verification_screen.dart';
 
 class SetupProfileScreen extends StatefulWidget {
@@ -123,12 +124,10 @@ class _SetupProfileScreenState extends State<SetupProfileScreen> {
                       setState(() {
                         _profilePhotoPath = null;
                       });
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: const Text('Foto profil dihapus. Avatar kembali ke default huruf awal.'),
-                          backgroundColor: AppColors.accentGreen,
-                          behavior: SnackBarBehavior.floating,
-                        ),
+                      TopNotification.show(
+                        context,
+                        message: 'Foto profil dihapus. Avatar kembali ke default huruf awal.',
+                        isSuccess: true,
                       );
                     }
                   },

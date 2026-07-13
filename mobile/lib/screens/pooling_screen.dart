@@ -5,6 +5,7 @@ import 'package:permission_handler/permission_handler.dart';
 import '../models/phone_record.dart';
 import '../services/api_service.dart';
 import '../theme/app_theme.dart';
+import '../widgets/top_notification.dart';
 
 class PoolingScreen extends StatefulWidget {
   final ApiService apiService;
@@ -146,8 +147,10 @@ class _PoolingScreenState extends State<PoolingScreen> {
 
   Future<void> _performSync() async {
     if (_contacts.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Tidak ada kontak dengan nomor telepon untuk disinkronkan.')),
+      TopNotification.show(
+        context,
+        message: 'Tidak ada kontak dengan nomor telepon untuk disinkronkan.',
+        isError: true,
       );
       return;
     }
@@ -177,11 +180,10 @@ class _PoolingScreenState extends State<PoolingScreen> {
           _lastSyncResult = res;
           _isLoading = false;
         });
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(res.message),
-            backgroundColor: AppColors.accentGreen,
-          ),
+        TopNotification.show(
+          context,
+          message: res.message,
+          isSuccess: true,
         );
       }
     } catch (e) {

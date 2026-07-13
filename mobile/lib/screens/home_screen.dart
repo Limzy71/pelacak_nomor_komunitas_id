@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../services/api_service.dart';
 import '../theme/app_theme.dart';
+import '../widgets/top_notification.dart';
 import 'pooling_screen.dart';
 import 'profile_screen.dart';
 import 'search_screen.dart';
@@ -74,18 +75,11 @@ class _HomeScreenState extends State<HomeScreen> {
         now.difference(_lastBackPress!) > const Duration(seconds: 2)) {
       _lastBackPress = now;
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text(
-              'Tekan sekali lagi untuk keluar',
-              style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
-            ),
-            duration: const Duration(seconds: 2),
-            backgroundColor: const Color(0xFF1E2536),
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            margin: const EdgeInsets.fromLTRB(24, 0, 24, 16),
-          ),
+        TopNotification.show(
+          context,
+          message: 'Tekan sekali lagi untuk keluar',
+          isSuccess: false,
+          duration: const Duration(seconds: 2),
         );
       }
       return;

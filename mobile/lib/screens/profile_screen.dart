@@ -5,6 +5,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/api_service.dart';
 import '../theme/app_theme.dart';
+import '../widgets/top_notification.dart';
 import 'analytics_screen.dart';
 import 'setup_profile_screen.dart';
 
@@ -125,12 +126,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       setState(() {
                         _userPhotoPath = null;
                       });
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: const Text('Foto profil dihapus. Avatar kembali ke default huruf awal.'),
-                          backgroundColor: AppColors.accentGreen,
-                          behavior: SnackBarBehavior.floating,
-                        ),
+                      TopNotification.show(
+                        context,
+                        message: 'Foto profil dihapus. Avatar kembali ke default huruf awal.',
+                        isSuccess: true,
                       );
                     }
                   },
@@ -214,12 +213,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       _userName = newName;
                       _userPhone = newPhone;
                     });
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: const Text('Profil Anda berhasil diperbarui.'),
-                        backgroundColor: AppColors.accentGreen,
-                        behavior: SnackBarBehavior.floating,
-                      ),
+                    TopNotification.show(
+                      context,
+                      message: 'Profil Anda berhasil diperbarui.',
+                      isSuccess: true,
                     );
                   }
                 }

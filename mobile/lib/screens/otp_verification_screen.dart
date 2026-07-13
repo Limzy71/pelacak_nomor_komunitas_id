@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/api_service.dart';
 import '../theme/app_theme.dart';
+import '../widgets/top_notification.dart';
 import 'home_screen.dart';
 
 class OtpVerificationScreen extends StatefulWidget {
@@ -76,13 +77,10 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
     if (_secondsRemaining == 0) {
       _startTimer();
       widget.apiService.sendOtp(widget.phone);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text('📩 Kode OTP baru berhasil dikirim ulang ke nomor WhatsApp Anda.'),
-          backgroundColor: AppColors.primary,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        ),
+      TopNotification.show(
+        context,
+        message: '📩 Kode OTP baru berhasil dikirim ulang ke nomor WhatsApp Anda.',
+        isSuccess: true,
       );
     }
   }

@@ -8,6 +8,7 @@ import '../models/phone_record.dart';
 import '../services/api_service.dart';
 import '../theme/app_theme.dart';
 import '../widgets/tag_chip_card.dart';
+import '../widgets/top_notification.dart';
 import '../widgets/trust_meter.dart';
 
 class SearchScreen extends StatefulWidget {
@@ -904,8 +905,10 @@ class _SearchScreenState extends State<SearchScreen> {
   Future<void> _performSearch(String query) async {
     final cleanQuery = _formatQueryWithCountryCode(query);
     if (cleanQuery.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Masukkan nomor telepon yang valid.')),
+      TopNotification.show(
+        context,
+        message: 'Masukkan nomor telepon yang valid.',
+        isError: true,
       );
       return;
     }
@@ -974,12 +977,10 @@ class _SearchScreenState extends State<SearchScreen> {
     try {
       final success = await widget.apiService.voteTag(tag.id, voteType);
       if (success && mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Penilaian reputasi ($voteType) berhasil dicatat.'),
-            backgroundColor: AppColors.primary,
-            behavior: SnackBarBehavior.floating,
-          ),
+        TopNotification.show(
+          context,
+          message: 'Penilaian reputasi ($voteType) berhasil dicatat.',
+          isSuccess: true,
         );
         if (_phoneRecord != null) {
           _performSearch(_phoneRecord!.phoneNumber);
@@ -987,12 +988,10 @@ class _SearchScreenState extends State<SearchScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(e.toString().replaceAll('Exception: ', '')),
-            backgroundColor: AppColors.accentRed,
-            behavior: SnackBarBehavior.floating,
-          ),
+        TopNotification.show(
+          context,
+          message: e.toString().replaceAll('Exception: ', ''),
+          isError: true,
         );
       }
     }
@@ -1217,12 +1216,10 @@ class _SearchScreenState extends State<SearchScreen> {
                           setState(() => _userTags.add(label));
                           _saveUserTagsToPrefs();
                         }
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text('Label "#$label" berhasil ditambahkan.'),
-                            backgroundColor: AppColors.accentGreen,
-                            behavior: SnackBarBehavior.floating,
-                          ),
+                        TopNotification.show(
+                          context,
+                          message: 'Label "#$label" berhasil ditambahkan.',
+                          isSuccess: true,
                         );
                         if (_phoneRecord != null) {
                           _performSearch(_phoneRecord!.phoneNumber);
@@ -1239,12 +1236,10 @@ class _SearchScreenState extends State<SearchScreen> {
                           setState(() => _userTags.add(label));
                           _saveUserTagsToPrefs();
                         }
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text('Label "#$label" ditambahkan ke daftar Anda. (${e.toString().replaceAll('Exception: ', '')})'),
-                            backgroundColor: AppColors.accentGreen,
-                            behavior: SnackBarBehavior.floating,
-                          ),
+                        TopNotification.show(
+                          context,
+                          message: 'Label "#$label" ditambahkan ke daftar Anda. (${e.toString().replaceAll('Exception: ', '')})',
+                          isSuccess: true,
                         );
                         setState(() => _isLoading = false);
                       }

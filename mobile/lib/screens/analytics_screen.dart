@@ -4,6 +4,7 @@ import '../models/phone_record.dart';
 import '../services/api_service.dart';
 import '../theme/app_theme.dart';
 import '../widgets/glass_card.dart';
+import '../widgets/top_notification.dart';
 
 
 class AnalyticsScreen extends StatefulWidget {
@@ -168,11 +169,10 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                           ElevatedButton(
                             onPressed: () {
                               widget.apiService.setBaseUrl(_urlController.text);
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text('URL Server diperbarui menjadi ${widget.apiService.baseUrl}'),
-                                  backgroundColor: AppColors.primary,
-                                ),
+                              TopNotification.show(
+                                context,
+                                message: 'URL Server diperbarui menjadi ${widget.apiService.baseUrl}',
+                                isSuccess: true,
                               );
                               _loadAnalytics();
                             },
@@ -381,11 +381,10 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
       onTap: () {
         _urlController.text = url;
         widget.apiService.setBaseUrl(url);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('URL diatur ke $label ($url)'),
-            backgroundColor: AppColors.primary,
-          ),
+        TopNotification.show(
+          context,
+          message: 'URL diatur ke $label ($url)',
+          isSuccess: true,
         );
         _loadAnalytics();
       },
