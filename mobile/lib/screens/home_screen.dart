@@ -25,6 +25,7 @@ class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
   final Set<int> _loadedTabs = {0};
   DateTime? _lastBackPress;
+  final GlobalKey<SearchScreenState> _searchScreenKey = GlobalKey<SearchScreenState>();
 
   Widget _getScreen(int index) {
     if (!_loadedTabs.contains(index)) {
@@ -32,7 +33,7 @@ class _HomeScreenState extends State<HomeScreen> {
     }
     switch (index) {
       case 0:
-        return SearchScreen(apiService: widget.apiService);
+        return SearchScreen(key: _searchScreenKey, apiService: widget.apiService);
       case 1:
         return PoolingScreen(apiService: widget.apiService);
       case 2:
@@ -61,12 +62,13 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _onWillPop() async {
-    // Jika bukan di tab Beranda → pindah ke tab Beranda terlebih dahulu
+    // Jika bukan di tab Beranda → pindah ke tab Beranda terlebih dahulu dan refresh
     if (_currentIndex != 0) {
       setState(() {
         _currentIndex = 0;
         _loadedTabs.add(0);
       });
+      _searchScreenKey.currentState?.refreshHomeData();
       return;
     }
 
@@ -127,6 +129,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 _currentIndex = idx;
                 _loadedTabs.add(idx);
               });
+              if (idx == 0) {
+                // Otomatis refresh beranda saat user kembali ke tab Beranda atau menekan ulang ikon Beranda
+                _searchScreenKey.currentState?.refreshHomeData();
+              }
             },
             backgroundColor: Colors.transparent,
             elevation: 0,

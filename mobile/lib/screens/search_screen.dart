@@ -17,10 +17,10 @@ class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key, required this.apiService});
 
   @override
-  State<SearchScreen> createState() => _SearchScreenState();
+  State<SearchScreen> createState() => SearchScreenState();
 }
 
-class _SearchScreenState extends State<SearchScreen> {
+class SearchScreenState extends State<SearchScreen> {
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _searchFocusNode = FocusNode();
 
@@ -118,6 +118,13 @@ class _SearchScreenState extends State<SearchScreen> {
   String _myPhoneNumber = '';
   bool _isMyStatsLoading = true;
   final Map<String, int> _quickContactTagCounts = {};
+
+  void refreshHomeData() {
+    if (!mounted) return;
+    _loadUserTagsFromPrefs();
+    _fetchMyPhoneSearchStats();
+    _checkAndLoadContacts();
+  }
 
   @override
   void initState() {
