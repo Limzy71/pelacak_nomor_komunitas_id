@@ -94,8 +94,12 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
           _errorMessage = null; // Bersihkan error blokir setelah waktu habis
         });
         timer.cancel();
-        // Minta fokus kembali secara otomatis setelah pemblokiran selesai
         _focusNode.requestFocus();
+        AppToast.show(
+          context,
+          message: 'Masa blokir selesai. Masukkan kembali kode OTP atau klik Kirim Ulang.',
+          type: ToastType.info,
+        );
       }
     });
   }

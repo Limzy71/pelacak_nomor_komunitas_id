@@ -721,6 +721,10 @@ export class PhoneLookupService {
         message: `Percobaan salah 5x. Nomor diblokir sementara ${remainingSec}s lagi.`,
         lockoutUntil: record.lockoutUntil,
       } as any;
+    } else if (record.lockoutUntil && Date.now() >= record.lockoutUntil) {
+      // Jika masa blokir 3 menit sudah selesai, reset jumlah percobaan agar pengguna tidak langsung terblokir lagi
+      record.attempts = 0;
+      delete record.lockoutUntil;
     }
 
     // Cek kedaluwarsa OTP
