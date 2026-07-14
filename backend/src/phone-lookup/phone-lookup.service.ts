@@ -636,7 +636,7 @@ export class PhoneLookupService {
       const remainingSec = Math.ceil((existing.lockoutUntil - Date.now()) / 1000);
       return {
         success: false,
-        message: `Nomor Anda diblokir sementara karena 5 kali percobaan salah. Silakan tunggu ${remainingSec} detik lagi.`,
+        message: `Percobaan salah 5x. Nomor diblokir sementara ${remainingSec}s lagi.`,
         lockoutUntil: existing.lockoutUntil,
       } as any;
     }
@@ -718,7 +718,7 @@ export class PhoneLookupService {
       const remainingSec = Math.ceil((record.lockoutUntil - Date.now()) / 1000);
       return {
         success: false,
-        message: `Terlalu banyak percobaan salah. Nomor Anda diblokir sementara selama ${remainingSec} detik lagi.`,
+        message: `Percobaan salah 5x. Nomor diblokir sementara ${remainingSec}s lagi.`,
         lockoutUntil: record.lockoutUntil,
       } as any;
     }
@@ -741,7 +741,7 @@ export class PhoneLookupService {
         record.lockoutUntil = Date.now() + 3 * 60 * 1000;
         return {
           success: false,
-          message: 'Anda telah 5 kali salah memasukkan kode OTP. Nomor Anda diblokir sementara selama 3 menit demi keamanan.',
+          message: 'Percobaan salah 5x. Nomor diblokir sementara 180s lagi.',
           lockoutUntil: record.lockoutUntil,
         } as any;
       }

@@ -85,7 +85,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
       if (_lockoutUntil != null && _lockoutUntil!.isAfter(now)) {
         setState(() {
           _lockoutSecondsRemaining = _lockoutUntil!.difference(now).inSeconds;
-          _errorMessage = 'Terlalu banyak percobaan salah. Nomor Anda diblokir sementara selama $_lockoutSecondsRemaining detik lagi.';
+          _errorMessage = 'Percobaan salah 5x. Nomor diblokir sementara ${_lockoutSecondsRemaining}s lagi.';
         });
       } else {
         setState(() {
@@ -271,8 +271,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
           _focusNode.requestFocus();
         }
       },
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
+      child: Container(
         width: 48,
         height: 56,
         alignment: Alignment.center,
@@ -361,7 +360,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                     ),
                     child: const Center(
                       child: Icon(
-                        Icons.mark_email_read_rounded,
+                        Icons.mobile_friendly_rounded,
                         size: 44,
                         color: AppColors.primaryLight,
                       ),
@@ -449,10 +448,15 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                         ),
                       ),
                     ),
-                    // Visual 6 digit boxes
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: List.generate(6, (index) => _buildDigitBox(index)),
+                    // Visual 6 digit boxes updated instantly without delay
+                    ValueListenableBuilder<TextEditingValue>(
+                      valueListenable: _otpController,
+                      builder: (context, value, _) {
+                        return Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: List.generate(6, (index) => _buildDigitBox(index)),
+                        );
+                      },
                     ),
                   ],
                 ),
