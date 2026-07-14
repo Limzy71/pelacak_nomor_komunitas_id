@@ -52,7 +52,7 @@ class _HomeScreenState extends State<HomeScreen> {
         if (mounted) {
           AppToast.show(
             context,
-            message: 'Verifikasi WhatsApp berhasil!',
+            message: 'Nomor HP berhasil diverifikasi!',
             type: ToastType.success,
             duration: const Duration(seconds: 5),
           );
