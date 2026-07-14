@@ -104,7 +104,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
       if (mounted) {
         setState(() {
           _isLoading = false;
-          _errorMessage = verifyRes['message']?.toString() ?? '❌ Kode OTP salah. Silakan periksa kembali pesan WhatsApp Anda.';
+          _errorMessage = verifyRes['message']?.toString() ?? 'Kode OTP salah. Silakan periksa kembali pesan WhatsApp Anda.';
         });
       }
       return;

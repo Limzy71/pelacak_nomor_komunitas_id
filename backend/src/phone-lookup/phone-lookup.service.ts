@@ -26,12 +26,12 @@ export class PhoneLookupService {
         },
       });
 
-      if (log && log.searchCount >= 3) {
+      if (log && log.searchCount >= 1) {
         throw new HttpException(
           {
             code: 'QUOTA_EXCEEDED',
-            message: 'Limit pencarian gratis harian (3x) telah habis.',
-            quota: 3,
+            message: 'Limit pencarian gratis harian (1x) telah habis.',
+            quota: 1,
             used: log.searchCount,
           },
           HttpStatus.FORBIDDEN,
@@ -714,7 +714,7 @@ export class PhoneLookupService {
       }
       return {
         success: false,
-        message: `❌ Kode OTP salah (${record.attempts}/5 percobaan). Silakan periksa kembali pesan WhatsApp Anda.`,
+        message: `Kode OTP salah (${record.attempts}/5 percobaan). Silakan periksa kembali pesan WhatsApp Anda.`,
       };
     }
 

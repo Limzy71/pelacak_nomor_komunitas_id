@@ -91,12 +91,12 @@ class ApiService extends ChangeNotifier {
         try {
           final decoded = jsonDecode(response.body) as Map<String, dynamic>;
           if (decoded['code'] == 'QUOTA_EXCEEDED') {
-            throw QuotaExceededException('Limit pencarian gratis harian (3x) telah habis.');
+            throw QuotaExceededException('Limit pencarian gratis harian (1x) telah habis.');
           }
         } catch (e) {
           if (e is QuotaExceededException) rethrow;
         }
-        throw QuotaExceededException('Limit pencarian gratis harian (3x) telah habis.');
+        throw QuotaExceededException('Limit pencarian gratis harian (1x) telah habis.');
       } else {
         throw Exception('Server error: ${response.statusCode}');
       }
@@ -116,12 +116,12 @@ class ApiService extends ChangeNotifier {
             try {
               final decoded = jsonDecode(retryRes.body) as Map<String, dynamic>;
               if (decoded['code'] == 'QUOTA_EXCEEDED') {
-                throw QuotaExceededException('Limit pencarian gratis harian (3x) telah habis.');
+                throw QuotaExceededException('Limit pencarian gratis harian (1x) telah habis.');
               }
             } catch (err) {
               if (err is QuotaExceededException) rethrow;
             }
-            throw QuotaExceededException('Limit pencarian gratis harian (3x) telah habis.');
+            throw QuotaExceededException('Limit pencarian gratis harian (1x) telah habis.');
           }
         } catch (err) {
           if (err is QuotaExceededException) rethrow;

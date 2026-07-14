@@ -627,7 +627,7 @@ class SearchScreenState extends State<SearchScreen> {
               ),
               const SizedBox(height: 20),
               Text(
-                'Batas Gratis 3x Habis',
+                'Batas Gratis 1x Habis',
                 style: GoogleFonts.outfit(
                   color: Colors.white,
                   fontSize: 22,
@@ -637,7 +637,7 @@ class SearchScreenState extends State<SearchScreen> {
               ),
               const SizedBox(height: 12),
               Text(
-                'Anda telah menggunakan 3x kesempatan pencarian gratis hari ini untuk perangkat ini.\n\nAktifkan izin akses kontak untuk mendapatkan pencarian nomor tanpa batas & mengaktifkan proteksi dari nomor penipuan/spam secara penuh!',
+                'Anda telah menggunakan 1x kesempatan pencarian gratis hari ini untuk perangkat ini.\n\nAktifkan izin akses kontak untuk mendapatkan pencarian nomor tanpa batas & mengaktifkan proteksi dari nomor penipuan/spam secara penuh!',
                 style: GoogleFonts.outfit(
                   color: AppColors.textSecondary,
                   fontSize: 14,
@@ -676,7 +676,7 @@ class SearchScreenState extends State<SearchScreen> {
                         if (!context.mounted) return;
                         AppToast.show(
                           context,
-                          message: 'Izin kontak belum diberikan. Batas 3x tetap berlaku.',
+                          message: 'Izin kontak belum diberikan. Batas 1x tetap berlaku.',
                           type: ToastType.info,
                         );
                       }
@@ -1091,7 +1091,7 @@ class SearchScreenState extends State<SearchScreen> {
         if (e is QuotaExceededException || e.toString().contains('Limit pencarian gratis')) {
           AppToast.show(
             context,
-            message: 'Limit gratis harian (3x) telah habis.',
+            message: 'Limit gratis harian (1x) telah habis.',
             type: ToastType.info,
           );
           _showQuotaExceededModal();
