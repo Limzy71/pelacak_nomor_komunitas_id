@@ -107,9 +107,15 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
         setState(() {
           _isLoading = false;
           _errorMessage = verifyRes['message']?.toString() ?? 'Kode OTP salah. Silakan periksa kembali pesan WhatsApp Anda.';
-          _otpController.clear();
+          _otpController.value = const TextEditingValue(
+            text: '',
+            selection: TextSelection.collapsed(offset: 0),
+          );
         });
-        _focusNode.requestFocus();
+        _focusNode.unfocus();
+        Future.delayed(const Duration(milliseconds: 60), () {
+          if (mounted) _focusNode.requestFocus();
+        });
       }
       return;
     }
@@ -185,7 +191,16 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
     final bool isActive = index == text.length || (index == 5 && text.length == 6);
 
     return GestureDetector(
-      onTap: () => _focusNode.requestFocus(),
+      onTap: () {
+        if (_focusNode.hasFocus) {
+          _focusNode.unfocus();
+          Future.delayed(const Duration(milliseconds: 50), () {
+            if (mounted) _focusNode.requestFocus();
+          });
+        } else {
+          _focusNode.requestFocus();
+        }
+      },
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         width: 48,
@@ -345,12 +360,9 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                 Stack(
                   clipBehavior: Clip.none,
                   children: [
-                    Positioned(
-                      left: -999,
-                      top: 0,
-                      child: SizedBox(
-                        width: 1,
-                        height: 1,
+                    Positioned.fill(
+                      child: Opacity(
+                        opacity: 0,
                         child: TextField(
                           controller: _otpController,
                           focusNode: _focusNode,
