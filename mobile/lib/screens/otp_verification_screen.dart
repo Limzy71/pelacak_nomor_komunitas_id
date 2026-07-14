@@ -33,14 +33,70 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
   bool _isLoading = false;
   String? _errorMessage;
 
+  DateTime? _lockoutUntil;
+  Timer? _lockoutTimer;
+  int _lockoutSecondsRemaining = 0;
+
   @override
   void initState() {
     super.initState();
     _startTimer();
     _otpController.addListener(_onOtpChanged);
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       _focusNode.requestFocus();
-      widget.apiService.sendOtp(widget.phone);
+      final res = await widget.apiService.sendOtp(widget.phone);
+      if (mounted) {
+        _checkAndStartLockout(res);
+      }
+    });
+  }
+
+  void _checkAndStartLockout(Map<String, dynamic> response) {
+    if (response['lockoutUntil'] != null) {
+      final timestamp = response['lockoutUntil'] as num;
+      final lockoutTime = DateTime.fromMillisecondsSinceEpoch(timestamp.toInt());
+      if (lockoutTime.isAfter(DateTime.now())) {
+        setState(() {
+          _lockoutUntil = lockoutTime;
+          _lockoutSecondsRemaining = lockoutTime.difference(DateTime.now()).inSeconds;
+          _errorMessage = response['message']?.toString().replaceAll('🔒 ', '');
+          
+          // Hapus input untuk mencegah submission
+          _otpController.value = const TextEditingValue(
+            text: '',
+            selection: TextSelection.collapsed(offset: 0),
+          );
+        });
+        _focusNode.unfocus(); // Tutup keyboard jika diblokir
+        _startLockoutCountdown();
+      }
+    }
+  }
+
+  void _startLockoutCountdown() {
+    _lockoutTimer?.cancel();
+    _lockoutTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (!mounted) {
+        timer.cancel();
+        return;
+      }
+      
+      final now = DateTime.now();
+      if (_lockoutUntil != null && _lockoutUntil!.isAfter(now)) {
+        setState(() {
+          _lockoutSecondsRemaining = _lockoutUntil!.difference(now).inSeconds;
+          _errorMessage = 'Terlalu banyak percobaan salah. Nomor Anda diblokir sementara selama $_lockoutSecondsRemaining detik lagi.';
+        });
+      } else {
+        setState(() {
+          _lockoutUntil = null;
+          _lockoutSecondsRemaining = 0;
+          _errorMessage = null; // Bersihkan error blokir setelah waktu habis
+        });
+        timer.cancel();
+        // Minta fokus kembali secara otomatis setelah pemblokiran selesai
+        _focusNode.requestFocus();
+      }
     });
   }
 
@@ -64,26 +120,31 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
 
   void _onOtpChanged() {
     if (mounted) {
-      if (_errorMessage != null && _otpController.text.isNotEmpty) {
+      if (_errorMessage != null && _otpController.text.isNotEmpty && _lockoutUntil == null) {
         setState(() {
           _errorMessage = null;
         });
       }
-      if (_otpController.text.length == 6 && !_isLoading) {
+      if (_otpController.text.length == 6 && !_isLoading && _lockoutUntil == null) {
         _verifyAndProceed();
       }
     }
   }
 
-  void _resendCode() {
-    if (_secondsRemaining == 0) {
+  void _resendCode() async {
+    if (_secondsRemaining == 0 && _lockoutUntil == null) {
       _startTimer();
-      widget.apiService.sendOtp(widget.phone);
-      AppToast.show(
-        context,
-        message: 'Kode OTP baru berhasil dikirim ulang.',
-        type: ToastType.success,
-      );
+      final res = await widget.apiService.sendOtp(widget.phone);
+      if (mounted) {
+        _checkAndStartLockout(res);
+        if (_lockoutUntil == null) {
+          AppToast.show(
+            context,
+            message: 'Kode OTP baru berhasil dikirim ulang.',
+            type: ToastType.success,
+          );
+        }
+      }
     }
   }
 
@@ -104,18 +165,25 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
     final verifyRes = await widget.apiService.verifyOtp(widget.phone, code);
     if (verifyRes['success'] != true) {
       if (mounted) {
-        setState(() {
-          _isLoading = false;
-          _errorMessage = verifyRes['message']?.toString() ?? 'Kode OTP salah. Silakan periksa kembali pesan WhatsApp Anda.';
-          _otpController.value = const TextEditingValue(
-            text: '',
-            selection: TextSelection.collapsed(offset: 0),
-          );
-        });
-        _focusNode.unfocus();
-        Future.delayed(const Duration(milliseconds: 60), () {
-          if (mounted) _focusNode.requestFocus();
-        });
+        _checkAndStartLockout(verifyRes);
+        if (_lockoutUntil == null) {
+          setState(() {
+            _isLoading = false;
+            _errorMessage = verifyRes['message']?.toString() ?? 'Kode OTP salah. Silakan periksa kembali pesan WhatsApp Anda.';
+            _otpController.value = const TextEditingValue(
+              text: '',
+              selection: TextSelection.collapsed(offset: 0),
+            );
+          });
+          _focusNode.unfocus();
+          Future.delayed(const Duration(milliseconds: 60), () {
+            if (mounted) _focusNode.requestFocus();
+          });
+        } else {
+          setState(() {
+            _isLoading = false;
+          });
+        }
       }
       return;
     }
@@ -179,6 +247,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
   @override
   void dispose() {
     _timer?.cancel();
+    _lockoutTimer?.cancel();
     _otpController.removeListener(_onOtpChanged);
     _otpController.dispose();
     _focusNode.dispose();
@@ -192,6 +261,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
 
     return GestureDetector(
       onTap: () {
+        if (_lockoutUntil != null) return; // Jangan izinkan fokus jika diblokir
         if (_focusNode.hasFocus) {
           _focusNode.unfocus();
           Future.delayed(const Duration(milliseconds: 50), () {
@@ -366,6 +436,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                         child: TextField(
                           controller: _otpController,
                           focusNode: _focusNode,
+                          enabled: _lockoutUntil == null, // Nonaktifkan input jika terblokir
                           keyboardType: TextInputType.number,
                           maxLength: 6,
                           showCursor: false,
@@ -444,7 +515,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                   width: double.infinity,
                   height: 52,
                   child: ElevatedButton(
-                    onPressed: _isLoading ? null : _verifyAndProceed,
+                    onPressed: (_isLoading || _lockoutUntil != null) ? null : _verifyAndProceed,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primary,
                       foregroundColor: Colors.white,
@@ -499,7 +570,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                       )
                     else
                       TextButton(
-                        onPressed: _resendCode,
+                        onPressed: _lockoutUntil != null ? null : _resendCode,
                         style: TextButton.styleFrom(
                           padding: EdgeInsets.zero,
                           minimumSize: Size.zero,
