@@ -62,7 +62,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
         setState(() {
           _lockoutUntil = lockoutTime;
           _lockoutSecondsRemaining = lockoutTime.difference(DateTime.now()).inSeconds;
-          _errorMessage = 'Percobaan salah 5x. Nomor diblokir sementara ${_lockoutSecondsRemaining}s lagi.';
+          _errorMessage = 'Kode OTP salah 5 kali. Silakan coba kembali dalam $_lockoutSecondsRemaining detik.';
           
           // Hapus input untuk mencegah submission
           _otpController.value = const TextEditingValue(
@@ -88,7 +88,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
       if (_lockoutUntil != null && _lockoutUntil!.isAfter(now)) {
         setState(() {
           _lockoutSecondsRemaining = _lockoutUntil!.difference(now).inSeconds;
-          _errorMessage = 'Percobaan salah 5x. Nomor diblokir sementara ${_lockoutSecondsRemaining}s lagi.';
+          _errorMessage = 'Kode OTP salah 5 kali. Silakan coba kembali dalam $_lockoutSecondsRemaining detik.';
         });
       } else {
         setState(() {
