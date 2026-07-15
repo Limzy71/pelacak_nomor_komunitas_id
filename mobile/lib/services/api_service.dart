@@ -299,13 +299,13 @@ class ApiService extends ChangeNotifier {
     }
   }
 
-  Future<Map<String, dynamic>> sendOtp(String phoneNumber) async {
+  Future<Map<String, dynamic>> sendOtp(String phoneNumber, {bool isResend = false}) async {
     try {
       final url = Uri.parse('$_baseUrl/phone-lookup/send-otp');
       final response = await http.post(
         url,
         headers: _defaultHeaders,
-        body: jsonEncode({'phoneNumber': phoneNumber}),
+        body: jsonEncode({'phoneNumber': phoneNumber, 'isResend': isResend}),
       ).timeout(const Duration(seconds: 15));
 
       if (response.statusCode == 200 || response.statusCode == 201) {
@@ -320,7 +320,7 @@ class ApiService extends ChangeNotifier {
           final retryRes = await http.post(
             retryUri,
             headers: _defaultHeaders,
-            body: jsonEncode({'phoneNumber': phoneNumber}),
+            body: jsonEncode({'phoneNumber': phoneNumber, 'isResend': isResend}),
           ).timeout(const Duration(seconds: 10));
           if (retryRes.statusCode == 200 || retryRes.statusCode == 201) {
             _baseUrl = altUrl;

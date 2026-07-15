@@ -620,9 +620,9 @@ export class PhoneLookupService {
     };
   }
 
-  private otpStore = new Map<string, { code: string; expiresAt: number; attempts: number; lockoutUntil?: number }>();
+  private otpStore = new Map<string, { code: string; expiresAt: number; attempts: number; lockoutUntil?: number; lastSentAt?: number }>();
 
-  async sendOtp(rawNumber: string): Promise<{ success: boolean; message: string }> {
+  async sendOtp(rawNumber: string, isResend = false): Promise<{ success: boolean; message: string; resendAvailableAt?: number }> {
     let number = rawNumber.trim().replace(/\s+/g, '').replace(/-/g, '');
     if (number.startsWith('08')) {
       number = '+62' + number.substring(1);
@@ -641,11 +641,21 @@ export class PhoneLookupService {
       } as any;
     }
 
+    // Jika bukan resend paksa, OTP masih baru (kurang dari 60 detik) dan belum expired, kembalikan OTP yang sama beserta sisa waktu cooldown agar tidak restart waktu 60 detik saat bolak-balik halaman
+    if (!isResend && existing && existing.lastSentAt && Date.now() < existing.lastSentAt + 60000 && Date.now() < existing.expiresAt) {
+      return {
+        success: true,
+        message: 'Kode OTP sebelumnya masih aktif.',
+        resendAvailableAt: existing.lastSentAt + 60000,
+      };
+    }
+
     // Generate 6-digit random code
     const code = Math.floor(100000 + Math.random() * 900000).toString();
     const expiresAt = Date.now() + 5 * 60 * 1000; // 5 minutes
+    const lastSentAt = Date.now();
 
-    const recordData = { code, expiresAt, attempts: 0 };
+    const recordData = { code, expiresAt, lastSentAt, attempts: existing ? existing.attempts : 0 };
     this.otpStore.set(number, recordData);
     this.otpStore.set(rawNumber.trim(), recordData);
 
@@ -661,6 +671,7 @@ export class PhoneLookupService {
       return {
         success: true,
         message: 'Kode OTP berhasil dibuat (Mode Simulasi)',
+        resendAvailableAt: lastSentAt + 60000,
       };
     }
 
@@ -687,6 +698,7 @@ export class PhoneLookupService {
       return {
         success: true,
         message: 'Kode OTP berhasil dikirim ke nomor WhatsApp Anda.',
+        resendAvailableAt: lastSentAt + 60000,
       };
     } catch (error: any) {
       console.error('Error sending OTP via Fonnte:', error?.response?.data || error.message);

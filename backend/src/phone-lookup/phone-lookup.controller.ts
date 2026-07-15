@@ -30,8 +30,8 @@ export class PhoneLookupController {
   }
 
   @Post('send-otp')
-  async sendOtp(@Body('phoneNumber') phoneNumber: string) {
-    return await this.phoneLookupService.sendOtp(phoneNumber);
+  async sendOtp(@Body('phoneNumber') phoneNumber: string, @Body('isResend') isResend?: boolean) {
+    return await this.phoneLookupService.sendOtp(phoneNumber, isResend);
   }
 
   @Post('verify-otp')

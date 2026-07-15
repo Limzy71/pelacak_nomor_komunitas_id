@@ -41,7 +41,6 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
   @override
   void initState() {
     super.initState();
-    _startTimer();
     _otpController.addListener(_onOtpChanged);
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final res = await widget.apiService.sendOtp(widget.phone);
@@ -76,8 +75,27 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
         });
         _focusNode.unfocus(); // Tutup keyboard jika diblokir
         _startLockoutCountdown();
+        _timer?.cancel(); // Hentikan hitung mundur kirim ulang saat terblokir
+        setState(() {
+          _secondsRemaining = 0;
+        });
+        return;
       }
     }
+
+    // Jika tidak terblokir, atur timer hitung mundur dari resendAvailableAt jika masih aktif
+    if (response['resendAvailableAt'] != null) {
+      final resendTimestamp = response['resendAvailableAt'] as num;
+      final resendTime = DateTime.fromMillisecondsSinceEpoch(resendTimestamp.toInt());
+      if (resendTime.isAfter(DateTime.now())) {
+        _secondsRemaining = resendTime.difference(DateTime.now()).inSeconds;
+      } else {
+        _secondsRemaining = 60;
+      }
+    } else {
+      _secondsRemaining = 60;
+    }
+    _startTimer();
   }
 
   void _startLockoutCountdown() {
@@ -143,9 +161,18 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
   }
 
   void _resendCode() async {
+    if (_lockoutUntil != null) {
+      AppToast.show(
+        context,
+        message: 'Nomor diblokir sementara. Tunggu masa blokir selesai untuk kirim ulang.',
+        type: ToastType.error,
+      );
+      return;
+    }
     if (_secondsRemaining == 0 && _lockoutUntil == null) {
+      _secondsRemaining = 60;
       _startTimer();
-      final res = await widget.apiService.sendOtp(widget.phone);
+      final res = await widget.apiService.sendOtp(widget.phone, isResend: true);
       if (mounted) {
         _checkAndStartLockout(res);
         if (_lockoutUntil == null) {
@@ -580,19 +607,34 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                         const SizedBox(height: 14),
 
                         // Countdown / Resend
+                        // Countdown / Resend
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Text(
-                              _secondsRemaining > 0
-                                  ? 'Belum menerima kode OTP? Kirim ulang dalam '
-                                  : 'Belum menerima kode OTP? ',
-                              style: GoogleFonts.outfit(
-                                color: AppColors.textSecondary,
-                                fontSize: 12.5,
+                            if (_lockoutUntil != null) ...[
+                              Text(
+                                'Belum menerima kode OTP? ',
+                                style: GoogleFonts.outfit(
+                                  color: AppColors.textSecondary,
+                                  fontSize: 12.5,
+                                ),
                               ),
-                            ),
-                            if (_secondsRemaining > 0)
+                              Text(
+                                'Kirim ulang dikunci (${_lockoutSecondsRemaining}s)',
+                                style: GoogleFonts.outfit(
+                                  color: AppColors.textSecondary.withValues(alpha: 0.6),
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 12.5,
+                                ),
+                              ),
+                            ] else if (_secondsRemaining > 0) ...[
+                              Text(
+                                'Belum menerima kode OTP? Kirim ulang dalam ',
+                                style: GoogleFonts.outfit(
+                                  color: AppColors.textSecondary,
+                                  fontSize: 12.5,
+                                ),
+                              ),
                               Text(
                                 '0:${_secondsRemaining.toString().padLeft(2, '0')}',
                                 style: GoogleFonts.outfit(
@@ -600,10 +642,17 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                                   fontWeight: FontWeight.bold,
                                   fontSize: 12.5,
                                 ),
-                              )
-                            else
+                              ),
+                            ] else ...[
+                              Text(
+                                'Belum menerima kode OTP? ',
+                                style: GoogleFonts.outfit(
+                                  color: AppColors.textSecondary,
+                                  fontSize: 12.5,
+                                ),
+                              ),
                               TextButton(
-                                onPressed: _lockoutUntil != null ? null : _resendCode,
+                                onPressed: _resendCode,
                                 style: TextButton.styleFrom(
                                   padding: EdgeInsets.zero,
                                   minimumSize: Size.zero,
@@ -618,6 +667,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                                   ),
                                 ),
                               ),
+                            ],
                           ],
                         ),
                       ],
