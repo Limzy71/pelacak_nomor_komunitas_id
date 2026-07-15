@@ -31,6 +31,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
   int _secondsRemaining = 60;
   Timer? _timer;
   bool _isLoading = false;
+  bool _isInitializing = true;
   String? _errorMessage;
 
   DateTime? _lockoutUntil;
@@ -46,6 +47,9 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
       final res = await widget.apiService.sendOtp(widget.phone);
       if (mounted) {
         _checkAndStartLockout(res);
+        setState(() {
+          _isInitializing = false;
+        });
         // Minta fokus keyboard hanya jika nomor tidak sedang diblokir
         if (_lockoutUntil == null) {
           _focusNode.requestFocus();
@@ -181,10 +185,6 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
               text: '',
               selection: TextSelection.collapsed(offset: 0),
             );
-          });
-          _focusNode.unfocus();
-          Future.delayed(const Duration(milliseconds: 60), () {
-            if (mounted) _focusNode.requestFocus();
           });
         } else {
           setState(() {
@@ -548,7 +548,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                           width: double.infinity,
                           height: 48,
                           child: ElevatedButton(
-                            onPressed: (_isLoading || _lockoutUntil != null) ? null : _verifyAndProceed,
+                            onPressed: (_isInitializing || _isLoading || _lockoutUntil != null) ? null : _verifyAndProceed,
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppColors.primary,
                               foregroundColor: Colors.white,
