@@ -2716,85 +2716,32 @@ class SearchScreenState extends State<SearchScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Expanded(
-                            child: Row(
-                              children: [
-                                Container(
-                                  padding: const EdgeInsets.all(10),
-                                  decoration: BoxDecoration(
-                                    color: AppColors.primaryLight.withValues(alpha: 0.15),
-                                    borderRadius: BorderRadius.circular(14),
-                                    border: Border.all(color: AppColors.primaryLight.withValues(alpha: 0.3)),
-                                  ),
-                                  child: const Icon(
-                                    Icons.person_search_rounded,
-                                    color: AppColors.primaryLight,
-                                    size: 22,
-                                  ),
+                          Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(10),
+                                decoration: BoxDecoration(
+                                  color: AppColors.primaryLight.withValues(alpha: 0.15),
+                                  borderRadius: BorderRadius.circular(14),
+                                  border: Border.all(color: AppColors.primaryLight.withValues(alpha: 0.3)),
                                 ),
-                                const SizedBox(width: 14),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      if (_isMyStatsLoading)
-                                        Text(
-                                          'Memeriksa aktivitas...',
-                                          style: GoogleFonts.outfit(
-                                            color: AppColors.primaryLight,
-                                            fontSize: 15,
-                                            fontWeight: FontWeight.w700,
-                                          ),
-                                          maxLines: 2,
-                                        )
-                                      else if (_myPhoneSearchCount > 0) ...[
-                                        Text(
-                                          '$_myPhoneSearchCount Kali Diperiksa Orang Lain',
-                                          style: GoogleFonts.outfit(
-                                            color: Colors.white,
-                                            fontSize: 15.5,
-                                            fontWeight: FontWeight.w800,
-                                          ),
-                                          maxLines: 2,
-                                        ),
-                                        const SizedBox(height: 3),
-                                        Text(
-                                          'Aktivitas Pencarian Nomor Anda',
-                                          style: GoogleFonts.outfit(
-                                            color: AppColors.primaryLight,
-                                            fontSize: 12.5,
-                                            fontWeight: FontWeight.w600,
-                                          ),
-                                          maxLines: 2,
-                                        ),
-                                      ] else ...[
-                                        Text(
-                                          'Aktivitas Pencarian Nomor Anda',
-                                          style: GoogleFonts.outfit(
-                                            color: AppColors.primaryLight,
-                                            fontSize: 15.5,
-                                            fontWeight: FontWeight.w700,
-                                          ),
-                                          maxLines: 2,
-                                        ),
-                                        const SizedBox(height: 3),
-                                        Text(
-                                          'Belum ada pengguna atau nomor asing yang mencari nomor Anda.',
-                                          style: GoogleFonts.outfit(
-                                            color: AppColors.textSecondary,
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.normal,
-                                          ),
-                                          maxLines: 2,
-                                        ),
-                                      ],
-                                    ],
-                                  ),
+                                child: const Icon(
+                                  Icons.person_search_rounded,
+                                  color: AppColors.primaryLight,
+                                  size: 22,
                                 ),
-                              ],
-                            ),
+                              ),
+                              const SizedBox(width: 14),
+                              Text(
+                                'Aktivitas Pencarian Nomor Anda',
+                                style: GoogleFonts.outfit(
+                                  color: AppColors.primaryLight,
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            ],
                           ),
-                          const SizedBox(width: 10),
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                             decoration: BoxDecoration(
@@ -2824,6 +2771,34 @@ class SearchScreenState extends State<SearchScreen> {
                           ),
                         ],
                       ),
+                      const SizedBox(height: 14),
+                      if (_isMyStatsLoading)
+                        Text(
+                          'Memeriksa aktivitas pencarian...',
+                          style: GoogleFonts.outfit(
+                            color: Colors.white,
+                            fontSize: 14.5,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        )
+                      else if (_myPhoneSearchCount > 0)
+                        Text(
+                          '$_myPhoneSearchCount Kali Diperiksa Orang Lain',
+                          style: GoogleFonts.outfit(
+                            color: Colors.white,
+                            fontSize: 16.5,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        )
+                      else
+                        Text(
+                          'Belum ada aktivitas pencarian dari nomor asing pada profil Anda saat ini.',
+                          style: GoogleFonts.outfit(
+                            color: AppColors.textSecondary,
+                            fontSize: 13.5,
+                            height: 1.45,
+                          ),
+                        ),
 
                     ],
                   ),
@@ -2838,7 +2813,7 @@ class SearchScreenState extends State<SearchScreen> {
   }
 
   // =========================================================================
-  // TAMPILAN SAAT TOMBOL SEARCH DIPENCET (Persis Gambar ke-5: "Baru Saja Dilihat")
+  // TAMPILAN SAAT TOMBOL SEARCH DIPENCET (Persis Gambar ke-5: "Baru Saja Dilihat"
   // =========================================================================
   Widget _buildSearchExpandedView() {
     return SingleChildScrollView(

@@ -132,97 +132,171 @@ class _MyPhoneSearchersScreenState extends State<MyPhoneSearchersScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-            decoration: BoxDecoration(
-              color: const Color(0xFF161C2C),
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: const Color(0xFF222B42)),
-            ),
-            child: Row(
-              children: [
-                const Icon(Icons.info_outline_rounded, color: Color(0xFF007AFF), size: 20),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    'Ditemukan $_searchCount orang yang telah mencari atau memeriksa profil nomor Anda.',
-                    style: GoogleFonts.outfit(
-                      color: Colors.white.withValues(alpha: 0.9),
-                      fontSize: 13.5,
-                      height: 1.4,
+          if (_searchCount == 0) ...[
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              decoration: BoxDecoration(
+                color: const Color(0xFF161C2C),
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: const Color(0xFF222B42)),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.info_outline_rounded, color: Color(0xFF007AFF), size: 20),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      'Belum ada orang yang mencari atau memeriksa profil nomor Anda.',
+                      style: GoogleFonts.outfit(
+                        color: Colors.white.withValues(alpha: 0.9),
+                        fontSize: 13.5,
+                        height: 1.4,
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          const SizedBox(height: 20),
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(18),
-            decoration: BoxDecoration(
-              color: const Color(0xFF161C2C),
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: const Color(0xFF222B42)),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildSearcherItem(
-                  icon: Icons.person_search_rounded,
-                  iconBg: AppColors.primaryLight.withValues(alpha: 0.15),
-                  iconColor: AppColors.primaryLight,
-                  phoneNumber: 'Pengguna Anonim (+62 812-****-****)',
-                  timeAgo: 'Memeriksa nomor Anda • Baru-baru ini',
-                  externalTag: widget.myPhoneTags.isNotEmpty
-                      ? widget.myPhoneTags.first.labelName
-                      : 'Penelusuran Kontak',
-                ),
-                if (_searchCount > 1) ...[
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    child: Divider(color: Colors.white.withValues(alpha: 0.08), height: 1),
+            const SizedBox(height: 20),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 38),
+              decoration: BoxDecoration(
+                color: const Color(0xFF161C2C),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: const Color(0xFF222B42)),
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: AppColors.primaryLight.withValues(alpha: 0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      Icons.person_search_outlined,
+                      size: 44,
+                      color: AppColors.primaryLight.withValues(alpha: 0.8),
+                    ),
                   ),
-                  _buildSearcherItem(
-                    icon: Icons.manage_search_rounded,
-                    iconBg: AppColors.accentCyan.withValues(alpha: 0.15),
-                    iconColor: AppColors.accentCyan,
-                    phoneNumber: 'Pengguna Anonim (+62 878-****-****)',
-                    timeAgo: 'Memeriksa nomor Anda • 2 hari lalu',
-                    externalTag: widget.myPhoneTags.length > 1
-                        ? widget.myPhoneTags[1].labelName
-                        : 'Pengecekan Rutin',
+                  const SizedBox(height: 18),
+                  Text(
+                    'Belum Ada Aktivitas Pencarian',
+                    style: GoogleFonts.outfit(
+                      color: Colors.white,
+                      fontSize: 17,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Saat ini belum ada pengguna atau nomor asing yang mencari profil nomor Anda.\n\nJika nanti ada nomor yang memeriksa atau menyimpan tag untuk Anda, aktivitasnya akan langsung muncul di sini.',
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.outfit(
+                      color: AppColors.textSecondary,
+                      fontSize: 13.5,
+                      height: 1.5,
+                    ),
                   ),
                 ],
-                if (_searchCount > 2) ...[
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    child: Divider(color: Colors.white.withValues(alpha: 0.08), height: 1),
-                  ),
-                  Row(
-                    children: [
-                      Icon(Icons.more_horiz_rounded, color: AppColors.textSecondary, size: 20),
-                      const SizedBox(width: 8),
-                      Text(
-                        '+${_searchCount - 2} pemeriksaan oleh nomor asing lainnya',
-                        style: GoogleFonts.outfit(color: AppColors.textSecondary, fontSize: 13),
+              ),
+            ),
+          ] else ...[
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              decoration: BoxDecoration(
+                color: const Color(0xFF161C2C),
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: const Color(0xFF222B42)),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.info_outline_rounded, color: Color(0xFF007AFF), size: 20),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      'Ditemukan $_searchCount orang yang telah mencari atau memeriksa profil nomor Anda.',
+                      style: GoogleFonts.outfit(
+                        color: Colors.white.withValues(alpha: 0.9),
+                        fontSize: 13.5,
+                        height: 1.4,
                       ),
-                    ],
+                    ),
                   ),
                 ],
-              ],
+              ),
             ),
-          ),
-          const SizedBox(height: 12),
-          Text(
-            '* Demi menjaga privasi pengguna, digit tengah nomor pencari disembunyikan.',
-            style: GoogleFonts.outfit(
-              color: AppColors.textSecondary,
-              fontSize: 11.5,
-              fontStyle: FontStyle.italic,
+            const SizedBox(height: 20),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(18),
+              decoration: BoxDecoration(
+                color: const Color(0xFF161C2C),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: const Color(0xFF222B42)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildSearcherItem(
+                    icon: Icons.person_search_rounded,
+                    iconBg: AppColors.primaryLight.withValues(alpha: 0.15),
+                    iconColor: AppColors.primaryLight,
+                    phoneNumber: 'Pengguna Anonim (+62 812-****-****)',
+                    timeAgo: 'Memeriksa nomor Anda • Baru-baru ini',
+                    externalTag: widget.myPhoneTags.isNotEmpty
+                        ? widget.myPhoneTags.first.labelName
+                        : 'Penelusuran Kontak',
+                  ),
+                  if (_searchCount > 1) ...[
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      child: Divider(color: Colors.white.withValues(alpha: 0.08), height: 1),
+                    ),
+                    _buildSearcherItem(
+                      icon: Icons.manage_search_rounded,
+                      iconBg: AppColors.accentCyan.withValues(alpha: 0.15),
+                      iconColor: AppColors.accentCyan,
+                      phoneNumber: 'Pengguna Anonim (+62 878-****-****)',
+                      timeAgo: 'Memeriksa nomor Anda • 2 hari lalu',
+                      externalTag: widget.myPhoneTags.length > 1
+                          ? widget.myPhoneTags[1].labelName
+                          : 'Pengecekan Rutin',
+                    ),
+                  ],
+                  if (_searchCount > 2) ...[
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      child: Divider(color: Colors.white.withValues(alpha: 0.08), height: 1),
+                    ),
+                    Row(
+                      children: [
+                        Icon(Icons.more_horiz_rounded, color: AppColors.textSecondary, size: 20),
+                        const SizedBox(width: 8),
+                        Text(
+                          '+${_searchCount - 2} pemeriksaan oleh nomor asing lainnya',
+                          style: GoogleFonts.outfit(color: AppColors.textSecondary, fontSize: 13),
+                        ),
+                      ],
+                    ),
+                  ],
+                ],
+              ),
             ),
-          ),
+            const SizedBox(height: 12),
+            Text(
+              '* Demi menjaga privasi pengguna, digit tengah nomor pencari disembunyikan.',
+              style: GoogleFonts.outfit(
+                color: AppColors.textSecondary,
+                fontSize: 11.5,
+                fontStyle: FontStyle.italic,
+              ),
+            ),
+          ],
           const SizedBox(height: 30),
         ],
       ),
