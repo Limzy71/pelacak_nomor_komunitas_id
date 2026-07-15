@@ -2606,74 +2606,214 @@ class SearchScreenState extends State<SearchScreen> {
             // 4. MEMUNCULKAN DAFTAR ORANG YANG MENCARI NOMOR PENGGUNA (Gambar 4 & 5)
             // -------------------------------------------------------------
             Material(
-              color: const Color(0xFF141926),
-              borderRadius: BorderRadius.circular(20),
+              color: Colors.transparent,
+              borderRadius: BorderRadius.circular(24),
               child: InkWell(
                 onTap: _showMyPhoneProtectionModal,
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(24),
                 child: Container(
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: const Color(0xFF20273C)),
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFF1D2640), Color(0xFF131A2E)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(24),
+                    border: Border.all(
+                      color: AppColors.primaryLight.withValues(alpha: 0.35),
+                      width: 1.2,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.primary.withValues(alpha: 0.2),
+                        blurRadius: 20,
+                        offset: const Offset(0, 8),
+                      ),
+                    ],
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      // Header Card
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Expanded(
-                            child: Text(
-                              _isMyStatsLoading
-                                  ? 'Memeriksa status proteksi nomor Anda...'
-                                  : (_allMyTagNames.isNotEmpty
-                                      ? '${_allMyTagNames.length} Label Penanda Terdeteksi'
-                                      : (_myPhoneSearchCount > 0
-                                          ? '$_myPhoneSearchCount aktivitas pencarian terhadap nomor Anda.'
-                                          : 'Nomor Anda dalam pemantauan proteksi aktif.')),
-                              style: GoogleFonts.outfit(
-                                color: Colors.white,
-                                fontSize: 16.5,
-                                fontWeight: FontWeight.w800,
+                          Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(10),
+                                decoration: BoxDecoration(
+                                  color: AppColors.primaryLight.withValues(alpha: 0.15),
+                                  borderRadius: BorderRadius.circular(14),
+                                  border: Border.all(color: AppColors.primaryLight.withValues(alpha: 0.3)),
+                                ),
+                                child: const Icon(
+                                  Icons.local_offer_rounded,
+                                  color: AppColors.primaryLight,
+                                  size: 22,
+                                ),
                               ),
-                            ),
+                              const SizedBox(width: 14),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    _isMyStatsLoading
+                                        ? 'Memeriksa status...'
+                                        : (_allMyTagNames.isNotEmpty
+                                            ? '${_allMyTagNames.length} Label Penanda Nomor'
+                                            : 'Proteksi Nomor Aktif'),
+                                    style: GoogleFonts.outfit(
+                                      color: Colors.white,
+                                      fontSize: 17,
+                                      fontWeight: FontWeight.w800,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    'Reputasi & Identitas Komunitas',
+                                    style: GoogleFonts.outfit(
+                                      color: AppColors.primaryLight,
+                                      fontSize: 12.5,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
                           ),
-                          const SizedBox(width: 8),
-                          const Icon(
-                            Icons.chevron_right_rounded,
-                            color: AppColors.primaryLight,
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                            decoration: BoxDecoration(
+                              color: AppColors.primary.withValues(alpha: 0.25),
+                              borderRadius: BorderRadius.circular(20),
+                              border: Border.all(color: AppColors.primaryLight.withValues(alpha: 0.4)),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  'Detail',
+                                  style: GoogleFonts.outfit(
+                                    color: Colors.white,
+                                    fontSize: 12.5,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                                const SizedBox(width: 4),
+                                const Icon(
+                                  Icons.arrow_forward_rounded,
+                                  color: Colors.white,
+                                  size: 14,
+                                ),
+                              ],
+                            ),
                           ),
                         ],
                       ),
-                      const SizedBox(height: 16),
-                      Row(
-                        children: [
-                          CircleAvatar(
-                            radius: 22,
-                            backgroundColor: AppColors.primaryLight.withValues(alpha: 0.15),
-                            child: const Icon(
-                              Icons.shield_outlined,
-                              color: AppColors.primaryLight,
-                              size: 24,
+
+                      // Visual Chips / Pills untuk Tag
+                      if (_allMyTagNames.isNotEmpty) ...[
+                        const SizedBox(height: 18),
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: _allMyTagNames.take(5).map((tagName) {
+                            final isSpamTag = _myPhoneTags.any((t) => t.labelName == tagName && t.isSpam);
+                            return Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                              decoration: BoxDecoration(
+                                color: isSpamTag
+                                    ? AppColors.accentRed.withValues(alpha: 0.15)
+                                    : const Color(0xFF222C4A),
+                                borderRadius: BorderRadius.circular(16),
+                                border: Border.all(
+                                  color: isSpamTag
+                                      ? AppColors.accentRed.withValues(alpha: 0.4)
+                                      : AppColors.primaryLight.withValues(alpha: 0.4),
+                                ),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    isSpamTag ? Icons.warning_amber_rounded : Icons.tag_rounded,
+                                    size: 16,
+                                    color: isSpamTag ? AppColors.accentRed : AppColors.primaryLight,
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Flexible(
+                                    child: Text(
+                                      tagName,
+                                      style: GoogleFonts.outfit(
+                                        color: isSpamTag ? AppColors.accentRed : Colors.white,
+                                        fontSize: 13.5,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          }).toList()
+                            ..addAll(_allMyTagNames.length > 5
+                                ? [
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                      decoration: BoxDecoration(
+                                        color: Colors.white.withValues(alpha: 0.1),
+                                        borderRadius: BorderRadius.circular(16),
+                                      ),
+                                      child: Text(
+                                        '+${_allMyTagNames.length - 5} lainnya',
+                                        style: GoogleFonts.outfit(
+                                          color: Colors.white70,
+                                          fontSize: 12.5,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ),
+                                  ]
+                                : []),
+                        ),
+                      ],
+
+                      const SizedBox(height: 18),
+
+                      // Footer Kotak Info Ringkas & Bersih
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                        decoration: BoxDecoration(
+                          color: Colors.black.withValues(alpha: 0.25),
+                          borderRadius: BorderRadius.circular(14),
+                          border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(
+                              Icons.verified_user_outlined,
+                              color: AppColors.accentGreen,
+                              size: 20,
                             ),
-                          ),
-                          const SizedBox(width: 14),
-                          Expanded(
-                            child: Text(
-                              _allMyTagNames.isNotEmpty
-                                  ? 'Nomor Anda telah ditandai dengan label ${_allMyTagNames.take(3).map((t) => '"$t"').join(', ')}${_allMyTagNames.length > 3 ? ', dan lainnya' : ''}. ${_myPhoneSearchCount > 0 ? 'Telah diperiksa sebanyak $_myPhoneSearchCount kali oleh pengguna lain.' : 'Belum ada riwayat pemeriksaan oleh pengguna lain.'} Tekan untuk melihat analisis detail.'
-                                  : (_myPhoneSearchCount > 0
-                                      ? 'Reputasi saat ini: ${_myPhoneTrustScore.toStringAsFixed(0)}% Aman. Tekan di sini untuk melihat analisis detail aktivitas pencarian dan perlindungan privasi.'
-                                      : 'Belum ada aktivitas pencarian mencurigakan terhadap nomor Anda. Tekan di sini untuk memeriksa status perlindungan & jejak digital Anda.'),
-                              style: GoogleFonts.outfit(
-                                color: Colors.white70,
-                                fontSize: 13,
-                                height: 1.45,
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Text(
+                                _allMyTagNames.isNotEmpty
+                                    ? 'Nomor Anda teridentifikasi dengan ${_allMyTagNames.length} penanda di komunitas. ${_myPhoneSearchCount > 0 ? 'Telah diperiksa $_myPhoneSearchCount kali oleh pengguna lain.' : 'Belum ada riwayat pemeriksaan dari luar.'}'
+                                    : (_myPhoneSearchCount > 0
+                                        ? 'Reputasi saat ini: ${_myPhoneTrustScore.toStringAsFixed(0)}% Aman. Telah diperiksa $_myPhoneSearchCount kali.'
+                                        : 'Belum ada aktivitas mencurigakan terhadap nomor Anda.'),
+                                style: GoogleFonts.outfit(
+                                  color: Colors.white.withValues(alpha: 0.85),
+                                  fontSize: 13,
+                                  height: 1.4,
+                                ),
                               ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ],
                   ),
