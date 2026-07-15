@@ -86,7 +86,7 @@ class _SetupProfileScreenState extends State<SetupProfileScreen> {
             children: [
               Text(
                 'Kelola Foto Profil',
-                style: GoogleFonts.outfit(
+                style: GoogleFonts.sora(
                   color: Colors.white,
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -102,7 +102,7 @@ class _SetupProfileScreenState extends State<SetupProfileScreen> {
                   ),
                   child: const Icon(Icons.photo_library_rounded, color: AppColors.primaryLight),
                 ),
-                title: Text('Pilih dari Galeri', style: GoogleFonts.outfit(color: Colors.white, fontWeight: FontWeight.w600)),
+                title: Text('Pilih dari Galeri', style: GoogleFonts.plusJakartaSans(color: Colors.white, fontWeight: FontWeight.w600)),
                 onTap: () {
                   Navigator.pop(ctx);
                   _pickProfilePhoto();
@@ -118,7 +118,7 @@ class _SetupProfileScreenState extends State<SetupProfileScreen> {
                     ),
                     child: const Icon(Icons.delete_rounded, color: Color(0xFFEF4444)),
                   ),
-                  title: Text('Hapus Foto Profil', style: GoogleFonts.outfit(color: const Color(0xFFEF4444), fontWeight: FontWeight.w600)),
+                  title: Text('Hapus Foto Profil', style: GoogleFonts.plusJakartaSans(color: const Color(0xFFEF4444), fontWeight: FontWeight.w600)),
                   onTap: () {
                     Navigator.pop(ctx);
                     if (mounted) {
@@ -287,16 +287,16 @@ class _SetupProfileScreenState extends State<SetupProfileScreen> {
                                         ),
                                         shape: BoxShape.circle,
                                       ),
-                                      child: Center(
-                                        child: Text(
-                                          _getInitials(_nameController.text),
-                                          style: GoogleFonts.outfit(
-                                            fontSize: 38,
-                                            fontWeight: FontWeight.w800,
-                                            color: Colors.white,
+                                        child: Center(
+                                          child: Text(
+                                            _getInitials(_nameController.text),
+                                            style: GoogleFonts.sora(
+                                              fontSize: 38,
+                                              fontWeight: FontWeight.w800,
+                                              color: Colors.white,
+                                            ),
                                           ),
                                         ),
-                                      ),
                                     ),
                             ),
                           ),
@@ -331,7 +331,7 @@ class _SetupProfileScreenState extends State<SetupProfileScreen> {
                   const SizedBox(height: 12),
                   Text(
                     'Ketuk untuk memilih foto profil Anda',
-                    style: GoogleFonts.outfit(
+                    style: GoogleFonts.plusJakartaSans(
                       fontSize: 12,
                       color: AppColors.primaryLight.withValues(alpha: 0.85),
                       fontWeight: FontWeight.w500,
@@ -341,7 +341,7 @@ class _SetupProfileScreenState extends State<SetupProfileScreen> {
                 Text(
                   'Profil & Identitas Saya',
                   textAlign: TextAlign.center,
-                  style: GoogleFonts.outfit(
+                  style: GoogleFonts.sora(
                     fontSize: 26,
                     fontWeight: FontWeight.w800,
                     color: Colors.white,
@@ -352,7 +352,7 @@ class _SetupProfileScreenState extends State<SetupProfileScreen> {
                 Text(
                   'Daftarkan identitas resmi dan nomor telepon aktif Anda untuk mengakses sistem perlindungan PhoneRep.',
                   textAlign: TextAlign.center,
-                  style: GoogleFonts.outfit(
+                  style: GoogleFonts.plusJakartaSans(
                     fontSize: 14,
                     color: AppColors.textSecondary,
                     height: 1.5,
@@ -380,7 +380,7 @@ class _SetupProfileScreenState extends State<SetupProfileScreen> {
                     children: [
                       Text(
                         'Nama Lengkap Anda',
-                        style: GoogleFonts.outfit(
+                        style: GoogleFonts.plusJakartaSans(
                           fontSize: 13,
                           fontWeight: FontWeight.w600,
                           color: Colors.white70,
@@ -389,10 +389,10 @@ class _SetupProfileScreenState extends State<SetupProfileScreen> {
                       const SizedBox(height: 8),
                       TextField(
                         controller: _nameController,
-                        style: GoogleFonts.outfit(color: Colors.white, fontSize: 16),
+                        style: GoogleFonts.plusJakartaSans(color: Colors.white, fontSize: 16),
                         decoration: InputDecoration(
                           hintText: 'Contoh: Budi Santoso',
-                          hintStyle: GoogleFonts.outfit(color: Colors.white38),
+                          hintStyle: GoogleFonts.plusJakartaSans(color: Colors.white38),
                           prefixIcon: const Icon(
                             Icons.person_outline_rounded,
                             color: AppColors.textSecondary,
@@ -408,7 +408,7 @@ class _SetupProfileScreenState extends State<SetupProfileScreen> {
                       const SizedBox(height: 20),
                       Text(
                         'Nomor Telepon Aktif',
-                        style: GoogleFonts.outfit(
+                        style: GoogleFonts.plusJakartaSans(
                           fontSize: 13,
                           fontWeight: FontWeight.w600,
                           color: Colors.white70,
@@ -418,10 +418,10 @@ class _SetupProfileScreenState extends State<SetupProfileScreen> {
                       TextField(
                         controller: _phoneController,
                         keyboardType: TextInputType.phone,
-                        style: GoogleFonts.outfit(color: Colors.white, fontSize: 16),
+                        style: GoogleFonts.plusJakartaSans(color: Colors.white, fontSize: 16),
                         decoration: InputDecoration(
                           hintText: 'Contoh: 081234567890',
-                          hintStyle: GoogleFonts.outfit(color: Colors.white38),
+                          hintStyle: GoogleFonts.plusJakartaSans(color: Colors.white38),
                           prefixIcon: const Icon(
                             Icons.phone_android_rounded,
                             color: AppColors.textSecondary,
@@ -463,7 +463,7 @@ class _SetupProfileScreenState extends State<SetupProfileScreen> {
                           )
                         : Text(
                             'SIMPAN & LANJUTKAN',
-                            style: GoogleFonts.outfit(
+                            style: GoogleFonts.sora(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
                               letterSpacing: 0.5,
@@ -475,7 +475,7 @@ class _SetupProfileScreenState extends State<SetupProfileScreen> {
                 Text(
                   'Data identitas Anda disimpan secara aman di perangkat dan dienkripsi untuk keperluan verifikasi keamanan nomor.',
                   textAlign: TextAlign.center,
-                  style: GoogleFonts.outfit(
+                  style: GoogleFonts.plusJakartaSans(
                     fontSize: 12,
                     color: Colors.white38,
                   ),

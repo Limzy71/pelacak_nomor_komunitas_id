@@ -56,7 +56,7 @@ class TagChipCard extends StatelessWidget {
               backgroundColor: _getAvatarColor(avatarText),
               child: Text(
                 avatarText,
-                style: GoogleFonts.outfit(
+                style: GoogleFonts.sora(
                   color: Colors.white,
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
@@ -74,7 +74,7 @@ class TagChipCard extends StatelessWidget {
                       Flexible(
                         child: Text(
                           tag.labelName,
-                          style: GoogleFonts.outfit(
+                          style: GoogleFonts.plusJakartaSans(
                             color: Colors.white,
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
@@ -91,7 +91,7 @@ class TagChipCard extends StatelessWidget {
                           ),
                           child: Text(
                             'SPAM',
-                            style: GoogleFonts.outfit(
+                            style: GoogleFonts.plusJakartaSans(
                               color: const Color(0xFFEF4444),
                               fontSize: 10,
                               fontWeight: FontWeight.bold,
@@ -104,7 +104,7 @@ class TagChipCard extends StatelessWidget {
                   const SizedBox(height: 4),
                   Text(
                     isPhoneNumber(tag.phoneNumberId) ? tag.phoneNumberId : 'Saran Nama Kontak',
-                    style: GoogleFonts.outfit(
+                    style: GoogleFonts.plusJakartaSans(
                       color: Colors.white54,
                       fontSize: 12.5,
                     ),
@@ -125,7 +125,7 @@ class TagChipCard extends StatelessWidget {
                 ),
                 child: Text(
                   '# $badgeNumber',
-                  style: GoogleFonts.outfit(
+                  style: GoogleFonts.sora(
                     color: Colors.white,
                     fontSize: 13,
                     fontWeight: FontWeight.bold,

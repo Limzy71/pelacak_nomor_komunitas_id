@@ -50,7 +50,7 @@ class TrustMeter extends StatelessWidget {
             children: [
               Text(
                 'SKOR REPUTASI',
-                style: GoogleFonts.outfit(
+                style: GoogleFonts.plusJakartaSans(
                   color: AppColors.textSecondary,
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
@@ -65,7 +65,7 @@ class TrustMeter extends StatelessWidget {
                 ),
                 child: Text(
                   _getScoreLabel(),
-                  style: GoogleFonts.outfit(
+                  style: GoogleFonts.plusJakartaSans(
                     color: scoreColor,
                     fontSize: 11,
                     fontWeight: FontWeight.bold,
@@ -81,7 +81,7 @@ class TrustMeter extends StatelessWidget {
             children: [
               Text(
                 score.toStringAsFixed(1),
-                style: GoogleFonts.outfit(
+                style: GoogleFonts.sora(
                   color: Colors.white,
                   fontSize: 42,
                   fontWeight: FontWeight.w800,
@@ -90,7 +90,7 @@ class TrustMeter extends StatelessWidget {
               const SizedBox(width: 4),
               Text(
                 '/ 100',
-                style: GoogleFonts.outfit(
+                style: GoogleFonts.plusJakartaSans(
                   color: AppColors.textSecondary,
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
@@ -102,7 +102,7 @@ class TrustMeter extends StatelessWidget {
                 children: [
                   Text(
                     '$searchCount Kali',
-                    style: GoogleFonts.outfit(
+                    style: GoogleFonts.sora(
                       color: AppColors.accentCyan,
                       fontSize: 16,
                       fontWeight: FontWeight.w700,
@@ -110,7 +110,7 @@ class TrustMeter extends StatelessWidget {
                   ),
                   Text(
                     'Total Pencarian',
-                    style: GoogleFonts.outfit(
+                    style: GoogleFonts.plusJakartaSans(
                       color: AppColors.textSecondary,
                       fontSize: 11,
                     ),

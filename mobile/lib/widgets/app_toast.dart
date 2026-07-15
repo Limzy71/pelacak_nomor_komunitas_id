@@ -250,7 +250,7 @@ class _AppToastWidgetState extends State<_AppToastWidget>
               widget.message,
               maxLines: 3,
               overflow: TextOverflow.ellipsis,
-              style: GoogleFonts.outfit(
+              style: GoogleFonts.plusJakartaSans(
                 color: Colors.white,
                 fontSize: 13.0,
                 fontWeight: FontWeight.w600,

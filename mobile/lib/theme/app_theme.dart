@@ -47,21 +47,21 @@ class AppTheme {
         surface: AppColors.cardBg,
         error: AppColors.accentRed,
       ),
-      textTheme: GoogleFonts.outfitTextTheme(ThemeData.dark().textTheme).copyWith(
-        displayLarge: GoogleFonts.outfit(color: AppColors.textPrimary, fontWeight: FontWeight.bold),
-        displayMedium: GoogleFonts.outfit(color: AppColors.textPrimary, fontWeight: FontWeight.bold),
-        headlineLarge: GoogleFonts.outfit(color: AppColors.textPrimary, fontWeight: FontWeight.bold),
-        headlineMedium: GoogleFonts.outfit(color: AppColors.textPrimary, fontWeight: FontWeight.w600),
-        titleLarge: GoogleFonts.outfit(color: AppColors.textPrimary, fontWeight: FontWeight.w600),
-        titleMedium: GoogleFonts.outfit(color: AppColors.textPrimary, fontWeight: FontWeight.w500),
-        bodyLarge: GoogleFonts.outfit(color: AppColors.textPrimary),
-        bodyMedium: GoogleFonts.outfit(color: AppColors.textSecondary),
+      textTheme: GoogleFonts.plusJakartaSansTextTheme(ThemeData.dark().textTheme).copyWith(
+        displayLarge: GoogleFonts.sora(color: AppColors.textPrimary, fontWeight: FontWeight.bold),
+        displayMedium: GoogleFonts.sora(color: AppColors.textPrimary, fontWeight: FontWeight.bold),
+        headlineLarge: GoogleFonts.sora(color: AppColors.textPrimary, fontWeight: FontWeight.bold),
+        headlineMedium: GoogleFonts.sora(color: AppColors.textPrimary, fontWeight: FontWeight.w600),
+        titleLarge: GoogleFonts.sora(color: AppColors.textPrimary, fontWeight: FontWeight.w600),
+        titleMedium: GoogleFonts.plusJakartaSans(color: AppColors.textPrimary, fontWeight: FontWeight.w600),
+        bodyLarge: GoogleFonts.plusJakartaSans(color: AppColors.textPrimary),
+        bodyMedium: GoogleFonts.plusJakartaSans(color: AppColors.textSecondary),
       ),
       appBarTheme: AppBarTheme(
         backgroundColor: Colors.transparent,
         elevation: 0,
         centerTitle: true,
-        titleTextStyle: GoogleFonts.outfit(
+        titleTextStyle: GoogleFonts.sora(
           color: AppColors.textPrimary,
           fontSize: 20,
           fontWeight: FontWeight.w600,
@@ -92,7 +92,7 @@ class AppTheme {
           borderRadius: BorderRadius.circular(16),
           borderSide: const BorderSide(color: AppColors.primary, width: 2),
         ),
-        hintStyle: GoogleFonts.outfit(color: AppColors.textSecondary),
+        hintStyle: GoogleFonts.plusJakartaSans(color: AppColors.textSecondary),
       ),
     );
   }

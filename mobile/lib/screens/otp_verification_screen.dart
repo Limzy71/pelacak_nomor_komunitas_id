@@ -334,7 +334,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
         ),
         child: Text(
           hasChar ? text[index] : '',
-          style: GoogleFonts.outfit(
+          style: GoogleFonts.plusJakartaSans(
             fontSize: 24,
             fontWeight: FontWeight.w800,
             color: Colors.white,
@@ -410,7 +410,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                         const SizedBox(height: 14),
                         Text(
                           'Verifikasi Keamanan OTP',
-                          style: GoogleFonts.outfit(
+                          style: GoogleFonts.sora(
                             fontSize: 22,
                             fontWeight: FontWeight.w800,
                             color: Colors.white,
@@ -422,7 +422,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                         RichText(
                           textAlign: TextAlign.center,
                           text: TextSpan(
-                            style: GoogleFonts.outfit(
+                            style: GoogleFonts.plusJakartaSans(
                               fontSize: 13.5,
                               color: AppColors.textSecondary,
                               height: 1.35,
@@ -433,7 +433,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                               ),
                               TextSpan(
                                 text: 'WhatsApp',
-                                style: GoogleFonts.outfit(
+                                style: GoogleFonts.plusJakartaSans(
                                   color: AppColors.primaryLight,
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -441,7 +441,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                               const TextSpan(text: ' ke nomor telepon Anda:\n'),
                               TextSpan(
                                 text: widget.phone,
-                                style: GoogleFonts.outfit(
+                                style: GoogleFonts.plusJakartaSans(
                                   color: Colors.white,
                                   fontWeight: FontWeight.w800,
                                   fontSize: 15.5,
@@ -459,7 +459,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                           icon: const Icon(Icons.edit_rounded, size: 14, color: AppColors.primaryLight),
                           label: Text(
                             'Ganti Nomor Telepon',
-                            style: GoogleFonts.outfit(
+                            style: GoogleFonts.plusJakartaSans(
                               fontSize: 13,
                               color: AppColors.primaryLight,
                               fontWeight: FontWeight.w600,
@@ -524,7 +524,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                                 Expanded(
                                   child: Text(
                                     _errorMessage!,
-                                    style: GoogleFonts.outfit(
+                                    style: GoogleFonts.plusJakartaSans(
                                       color: Colors.redAccent,
                                       fontSize: 12.5,
                                       fontWeight: FontWeight.w500,
@@ -557,7 +557,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                               Expanded(
                                 child: Text(
                                   'Keamanan Terjamin: Kode OTP dikirim via WhatsApp resmi. Jangan bagikan kepada siapapun demi keamanan.',
-                                  style: GoogleFonts.outfit(
+                                  style: GoogleFonts.plusJakartaSans(
                                     color: AppColors.accentGreen,
                                     fontSize: 12.5,
                                     fontWeight: FontWeight.w500,
@@ -596,7 +596,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                                   )
                                 : Text(
                                     'Verifikasi Sekarang',
-                                    style: GoogleFonts.outfit(
+                                    style: GoogleFonts.sora(
                                       fontSize: 15.5,
                                       fontWeight: FontWeight.w700,
                                       letterSpacing: 0.3,
@@ -614,14 +614,14 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                             if (_lockoutUntil != null) ...[
                               Text(
                                 'Belum menerima kode OTP? ',
-                                style: GoogleFonts.outfit(
+                                style: GoogleFonts.plusJakartaSans(
                                   color: AppColors.textSecondary,
                                   fontSize: 12.5,
                                 ),
                               ),
                               Text(
                                 'Kirim ulang dikunci (${_lockoutSecondsRemaining}s)',
-                                style: GoogleFonts.outfit(
+                                style: GoogleFonts.plusJakartaSans(
                                   color: AppColors.textSecondary.withValues(alpha: 0.6),
                                   fontWeight: FontWeight.w600,
                                   fontSize: 12.5,
@@ -630,14 +630,14 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                             ] else if (_secondsRemaining > 0) ...[
                               Text(
                                 'Belum menerima kode OTP? Kirim ulang dalam ',
-                                style: GoogleFonts.outfit(
+                                style: GoogleFonts.plusJakartaSans(
                                   color: AppColors.textSecondary,
                                   fontSize: 12.5,
                                 ),
                               ),
                               Text(
                                 '0:${_secondsRemaining.toString().padLeft(2, '0')}',
-                                style: GoogleFonts.outfit(
+                                style: GoogleFonts.plusJakartaSans(
                                   color: AppColors.primaryLight,
                                   fontWeight: FontWeight.bold,
                                   fontSize: 12.5,
@@ -646,7 +646,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                             ] else ...[
                               Text(
                                 'Belum menerima kode OTP? ',
-                                style: GoogleFonts.outfit(
+                                style: GoogleFonts.plusJakartaSans(
                                   color: AppColors.textSecondary,
                                   fontSize: 12.5,
                                 ),
@@ -660,7 +660,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                                 ),
                                 child: Text(
                                   'Kirim Ulang Kode OTP',
-                                  style: GoogleFonts.outfit(
+                                  style: GoogleFonts.plusJakartaSans(
                                     color: AppColors.primaryLight,
                                     fontWeight: FontWeight.bold,
                                     fontSize: 12.5,
