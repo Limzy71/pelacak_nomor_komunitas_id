@@ -3055,29 +3055,47 @@ class SearchScreenState extends State<SearchScreen> {
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      Text(
-                                        _isMyStatsLoading
-                                            ? 'Memeriksa aktivitas...'
-                                            : (_myPhoneSearchCount > 0
-                                                ? '$_myPhoneSearchCount Kali Diperiksa Orang Lain'
-                                                : 'Belum Ada Pemeriksaan Asing'),
-                                        style: GoogleFonts.outfit(
-                                          color: Colors.white,
-                                          fontSize: 15.5,
-                                          fontWeight: FontWeight.w800,
+                                      if (_isMyStatsLoading)
+                                        Text(
+                                          'Memeriksa aktivitas...',
+                                          style: GoogleFonts.outfit(
+                                            color: AppColors.primaryLight,
+                                            fontSize: 15,
+                                            fontWeight: FontWeight.w700,
+                                          ),
+                                          maxLines: 2,
+                                        )
+                                      else if (_myPhoneSearchCount > 0) ...[
+                                        Text(
+                                          '$_myPhoneSearchCount Kali Diperiksa Orang Lain',
+                                          style: GoogleFonts.outfit(
+                                            color: Colors.white,
+                                            fontSize: 15.5,
+                                            fontWeight: FontWeight.w800,
+                                          ),
+                                          maxLines: 2,
                                         ),
-                                        maxLines: 2,
-                                      ),
-                                      const SizedBox(height: 3),
-                                      Text(
-                                        'Aktivitas Pencarian Nomor Anda',
-                                        style: GoogleFonts.outfit(
-                                          color: AppColors.primaryLight,
-                                          fontSize: 12.5,
-                                          fontWeight: FontWeight.w600,
+                                        const SizedBox(height: 3),
+                                        Text(
+                                          'Aktivitas Pencarian Nomor Anda',
+                                          style: GoogleFonts.outfit(
+                                            color: AppColors.primaryLight,
+                                            fontSize: 12.5,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                          maxLines: 2,
                                         ),
-                                        maxLines: 2,
-                                      ),
+                                      ] else ...[
+                                        Text(
+                                          'Aktivitas Pencarian Nomor Anda',
+                                          style: GoogleFonts.outfit(
+                                            color: AppColors.primaryLight,
+                                            fontSize: 15.5,
+                                            fontWeight: FontWeight.w700,
+                                          ),
+                                          maxLines: 2,
+                                        ),
+                                      ],
                                     ],
                                   ),
                                 ),
