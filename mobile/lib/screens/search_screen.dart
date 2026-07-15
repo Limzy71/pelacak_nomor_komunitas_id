@@ -1909,35 +1909,36 @@ class SearchScreenState extends State<SearchScreen> {
             const SizedBox(width: 4),
             InkWell(
               onTap: _showCountryCodeModal,
-              borderRadius: BorderRadius.circular(14),
+              borderRadius: BorderRadius.circular(10),
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                height: 32,
+                padding: const EdgeInsets.symmetric(horizontal: 6),
                 decoration: BoxDecoration(
                   color: const Color(0xFF1F2637),
-                  borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: const Color(0xFF2E384D)),
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: const Color(0xFF2E384D), width: 0.8),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
                       _getFlagForCountryCode(_selectedCountryCode),
-                      style: const TextStyle(fontSize: 16),
+                      style: const TextStyle(fontSize: 13),
                     ),
-                    const SizedBox(width: 4),
+                    const SizedBox(width: 3),
                     Text(
                       _selectedCountryCode,
                       style: GoogleFonts.outfit(
                         color: Colors.white,
-                        fontSize: 13,
+                        fontSize: 12,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
-                    const SizedBox(width: 2),
+                    const SizedBox(width: 1),
                     const Icon(
                       Icons.keyboard_arrow_down_rounded,
                       color: Colors.white60,
-                      size: 16,
+                      size: 13,
                     ),
                   ],
                 ),
@@ -2118,21 +2119,28 @@ class SearchScreenState extends State<SearchScreen> {
             children: [
               InkWell(
                 onTap: _showCountryCodeModal,
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: BorderRadius.circular(8),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                  height: 28,
+                  padding: const EdgeInsets.symmetric(horizontal: 6),
                   decoration: BoxDecoration(
                     color: const Color(0xFF28324A),
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(8),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(_getFlagForCountryCode(_selectedCountryCode), style: const TextStyle(fontSize: 14)),
+                      Text(_getFlagForCountryCode(_selectedCountryCode), style: const TextStyle(fontSize: 13)),
                       const SizedBox(width: 3),
                       Text(
                         _selectedCountryCode,
-                        style: GoogleFonts.outfit(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+                        style: GoogleFonts.outfit(color: Colors.white, fontSize: 11.5, fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(width: 1),
+                      const Icon(
+                        Icons.keyboard_arrow_down_rounded,
+                        color: Colors.white60,
+                        size: 13,
                       ),
                     ],
                   ),
