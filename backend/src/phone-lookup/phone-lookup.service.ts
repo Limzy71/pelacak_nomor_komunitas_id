@@ -641,11 +641,20 @@ export class PhoneLookupService {
       } as any;
     }
 
-    // Jika bukan resend paksa, OTP masih baru (kurang dari 60 detik) dan belum expired, kembalikan OTP yang sama beserta sisa waktu cooldown agar tidak restart waktu 60 detik saat bolak-balik halaman
-    if (!isResend && existing && existing.lastSentAt && Date.now() < existing.lastSentAt + 60000 && Date.now() < existing.expiresAt) {
+    // Jika bukan klik Kirim Ulang paksa (!isResend) DAN OTP sebelumnya belum expired, gunakan kembali OTP tersebut! Ini mencegah spam pesan WA & mencegah reset kesalahan (attempts) saat bolak-balik ke halaman daftar.
+    if (!isResend && existing && Date.now() < existing.expiresAt) {
       return {
         success: true,
         message: 'Kode OTP sebelumnya masih aktif.',
+        resendAvailableAt: existing.lastSentAt ? existing.lastSentAt + 60000 : Date.now() + 60000,
+      };
+    }
+
+    // Jika pengguna menekan tombol Kirim Ulang (isResend == true), cek apakah cooldown 60 detik sudah terpenuhi
+    if (isResend && existing && existing.lastSentAt && Date.now() < existing.lastSentAt + 60000) {
+      return {
+        success: true,
+        message: 'Harap tunggu hingga waktu jeda kirim ulang selesai.',
         resendAvailableAt: existing.lastSentAt + 60000,
       };
     }
@@ -655,6 +664,7 @@ export class PhoneLookupService {
     const expiresAt = Date.now() + 5 * 60 * 1000; // 5 minutes
     const lastSentAt = Date.now();
 
+    // 💡 Penting: Selalu pertahankan jumlah percobaan salah (existing.attempts) agar tidak bisa dicheat dengan minta kode baru atau bolak-balik halaman pendaftaran!
     const recordData = { code, expiresAt, lastSentAt, attempts: existing ? existing.attempts : 0 };
     this.otpStore.set(number, recordData);
     this.otpStore.set(rawNumber.trim(), recordData);

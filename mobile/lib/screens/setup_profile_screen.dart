@@ -19,6 +19,7 @@ class SetupProfileScreen extends StatefulWidget {
 class _SetupProfileScreenState extends State<SetupProfileScreen> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
   bool _isLoading = false;
   String? _errorMessage;
   String? _profilePhotoPath;
@@ -35,6 +36,7 @@ class _SetupProfileScreenState extends State<SetupProfileScreen> {
   void dispose() {
     _nameController.dispose();
     _phoneController.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -152,6 +154,8 @@ class _SetupProfileScreenState extends State<SetupProfileScreen> {
       return;
     }
 
+    FocusScope.of(context).unfocus();
+
     setState(() {
       _isLoading = true;
       _errorMessage = null;
@@ -165,7 +169,7 @@ class _SetupProfileScreenState extends State<SetupProfileScreen> {
         _isLoading = false;
       });
 
-      Navigator.of(context).push(
+      await Navigator.of(context).push(
         MaterialPageRoute(
           builder: (_) => OtpVerificationScreen(
             apiService: widget.apiService,
@@ -175,11 +179,25 @@ class _SetupProfileScreenState extends State<SetupProfileScreen> {
           ),
         ),
       );
+
+      if (mounted && _scrollController.hasClients) {
+        _scrollController.jumpTo(0);
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    if (_scrollController.hasClients &&
+        MediaQuery.of(context).viewInsets.bottom == 0 &&
+        _scrollController.offset > 0) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (_scrollController.hasClients && _scrollController.offset > 0) {
+          _scrollController.jumpTo(0);
+        }
+      });
+    }
+
     return Scaffold(
       body: Container(
         width: double.infinity,
@@ -197,12 +215,18 @@ class _SetupProfileScreenState extends State<SetupProfileScreen> {
           ),
         ),
         child: SafeArea(
-          child: Center(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 24),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              return SingleChildScrollView(
+                controller: _scrollController,
+                padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 24),
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    minHeight: constraints.maxHeight - 48,
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
                   GestureDetector(
                     onTap: _showPhotoOptionsModal,
                     child: Stack(
@@ -485,9 +509,11 @@ class _SetupProfileScreenState extends State<SetupProfileScreen> {
               ],
             ),
           ),
+        );
+      },
+    ),
         ),
       ),
-    ),
     );
   }
 }
