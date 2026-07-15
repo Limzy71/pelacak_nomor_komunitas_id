@@ -2799,7 +2799,7 @@ class SearchScreenState extends State<SearchScreen> {
                         )
                       else
                         Text(
-                          'Belum ada aktivitas pencarian dari nomor asing pada nomor Anda saat ini.',
+                          'Belum tercatat aktivitas pemeriksaan atau penelusuran pada profil nomor Anda.',
                           style: GoogleFonts.outfit(
                             color: AppColors.textSecondary,
                             fontSize: 13.5,
