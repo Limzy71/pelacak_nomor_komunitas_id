@@ -3095,6 +3095,16 @@ class SearchScreenState extends State<SearchScreen> {
                                           ),
                                           maxLines: 2,
                                         ),
+                                        const SizedBox(height: 3),
+                                        Text(
+                                          'Belum ada pengguna atau nomor asing yang mencari nomor Anda.',
+                                          style: GoogleFonts.outfit(
+                                            color: AppColors.textSecondary,
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.normal,
+                                          ),
+                                          maxLines: 2,
+                                        ),
                                       ],
                                     ],
                                   ),
@@ -3133,10 +3143,9 @@ class SearchScreenState extends State<SearchScreen> {
                         ],
                       ),
 
-                      const SizedBox(height: 16),
-
                       // Daftar aktivitas / log orang yang mencari nomor kita
                       if (_myPhoneSearchCount > 0) ...[
+                        const SizedBox(height: 16),
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                           margin: const EdgeInsets.only(bottom: 10),
@@ -3207,41 +3216,6 @@ class SearchScreenState extends State<SearchScreen> {
                               ],
                             ),
                           ),
-                      ] else ...[
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF1E2636),
-                            borderRadius: BorderRadius.circular(14),
-                            border: Border.all(color: const Color(0xFF2D3754)),
-                          ),
-                          child: Row(
-                            children: [
-                              CircleAvatar(
-                                radius: 18,
-                                backgroundColor: AppColors.accentGreen.withValues(alpha: 0.15),
-                                child: const Icon(Icons.shield_rounded, color: AppColors.accentGreen, size: 20),
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'Belum Ada Riwayat Pemeriksaan',
-                                      style: GoogleFonts.outfit(color: Colors.white, fontSize: 14.5, fontWeight: FontWeight.w600),
-                                    ),
-                                    const SizedBox(height: 2),
-                                    Text(
-                                      'Belum ada pengguna atau nomor asing yang mencari nomor Anda dalam 365 hari terakhir.',
-                                      style: GoogleFonts.outfit(color: AppColors.textSecondary, fontSize: 12.5, height: 1.35),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
                       ],
                     ],
                   ),

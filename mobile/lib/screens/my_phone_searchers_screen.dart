@@ -111,7 +111,7 @@ class _MyPhoneSearchersScreenState extends State<MyPhoneSearchersScreen> {
             ),
             const SizedBox(height: 10),
             Text(
-              'Belum ada orang atau nomor asing yang mencari nomor Anda dalam 365 hari terakhir.',
+              'Belum ada orang atau nomor asing yang mencari nomor Anda.',
               textAlign: TextAlign.center,
               style: GoogleFonts.outfit(
                 color: AppColors.textSecondary,
