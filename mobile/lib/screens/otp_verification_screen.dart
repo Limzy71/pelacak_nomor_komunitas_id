@@ -48,6 +48,9 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
         _checkAndStartLockout(res);
         setState(() {
           _isInitializing = false;
+          if (res['success'] != true && _lockoutUntil == null) {
+            _errorMessage = res['message']?.toString() ?? 'Gagal mengirimkan kode OTP. Silakan periksa koneksi Anda.';
+          }
         });
         // Minta fokus keyboard hanya jika nomor tidak sedang diblokir
         if (_lockoutUntil == null) {
@@ -90,12 +93,16 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
       if (resendTime.isAfter(DateTime.now())) {
         _secondsRemaining = resendTime.difference(DateTime.now()).inSeconds;
       } else {
-        _secondsRemaining = 60;
+        _secondsRemaining = 0;
       }
     } else {
       _secondsRemaining = 60;
     }
-    _startTimer();
+    if (_secondsRemaining > 0) {
+      _startTimer();
+    } else {
+      _timer?.cancel();
+    }
   }
 
   void _startLockoutCountdown() {
@@ -176,11 +183,19 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
       if (mounted) {
         _checkAndStartLockout(res);
         if (_lockoutUntil == null) {
-          AppToast.show(
-            context,
-            message: 'Kode OTP baru berhasil dikirim ulang.',
-            type: ToastType.success,
-          );
+          if (res['success'] == true) {
+            AppToast.show(
+              context,
+              message: res['message']?.toString() ?? 'Kode OTP baru berhasil dikirim ulang.',
+              type: ToastType.success,
+            );
+          } else {
+            AppToast.show(
+              context,
+              message: res['message']?.toString() ?? 'Gagal mengirim ulang kode OTP. Silakan coba lagi.',
+              type: ToastType.error,
+            );
+          }
         }
       }
     }

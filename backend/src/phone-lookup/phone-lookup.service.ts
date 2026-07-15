@@ -639,6 +639,10 @@ export class PhoneLookupService {
         message: `Kode OTP salah 5 kali. Silakan coba kembali dalam ${remainingSec} detik.`,
         lockoutUntil: existing.lockoutUntil,
       } as any;
+    } else if (existing && existing.lockoutUntil && Date.now() >= existing.lockoutUntil) {
+      // Jika masa blokir 3 menit sudah selesai, reset jumlah percobaan agar pengguna tidak terblokir lagi pada kesalahan pertama
+      existing.attempts = 0;
+      delete existing.lockoutUntil;
     }
 
     // Jika bukan klik Kirim Ulang paksa (!isResend) DAN OTP sebelumnya belum expired, gunakan kembali OTP tersebut! Ini mencegah spam pesan WA & mencegah reset kesalahan (attempts) saat bolak-balik ke halaman daftar.
