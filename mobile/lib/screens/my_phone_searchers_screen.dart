@@ -59,12 +59,16 @@ class _MyPhoneSearchersScreenState extends State<MyPhoneSearchersScreen> {
           icon: const Icon(Icons.arrow_back_rounded, color: Colors.white, size: 24),
           onPressed: () => Navigator.pop(context),
         ),
-        title: Text(
-          'Siapa yang Mencari Nomor Saya',
-          style: GoogleFonts.outfit(
-            color: Colors.white,
-            fontSize: 18.5,
-            fontWeight: FontWeight.w800,
+        title: FittedBox(
+          fit: BoxFit.scaleDown,
+          alignment: Alignment.centerLeft,
+          child: Text(
+            'Siapa yang Mencari Nomor Saya',
+            style: GoogleFonts.outfit(
+              color: Colors.white,
+              fontSize: 17.5,
+              fontWeight: FontWeight.w800,
+            ),
           ),
         ),
         centerTitle: false,
@@ -76,10 +80,11 @@ class _MyPhoneSearchersScreenState extends State<MyPhoneSearchersScreen> {
           ),
         ],
       ),
-      body: _searchCount == 0 ? _buildEmptyState() : _buildSearchersList(),
+      body: _buildSearchersList(),
     );
   }
 
+  // ignore: unused_element
   Widget _buildEmptyState() {
     return Center(
       child: Padding(
