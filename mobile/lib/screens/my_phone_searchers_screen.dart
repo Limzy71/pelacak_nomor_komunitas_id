@@ -127,12 +127,19 @@ class _MyPhoneSearchersScreenState extends State<MyPhoneSearchersScreen> {
   }
 
   Widget _buildSearchersList() {
+    // TODO(USER-REVIEW): Flag sementara (hardcode preview) agar USER bisa me-review desain card daftar pencari nomor.
+    // Jika sudah pas & disetujui, ubah isPreviewingHardcode menjadi false untuk menggunakan data dinamis database.
+    const bool isPreviewingHardcode = true;
+    // ignore: dead_code
+    final int displayCount = isPreviewingHardcode ? 3 : _searchCount;
+
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (_searchCount == 0) ...[
+          // ignore: dead_code
+          if (displayCount == 0 && !isPreviewingHardcode) ...[
             Container(
               width: double.infinity,
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
@@ -219,7 +226,7 @@ class _MyPhoneSearchersScreenState extends State<MyPhoneSearchersScreen> {
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(
-                      'Ditemukan $_searchCount orang yang telah mencari atau memeriksa profil nomor Anda.',
+                      'Ditemukan $displayCount orang yang telah mencari atau memeriksa profil nomor Anda.',
                       style: GoogleFonts.outfit(
                         color: Colors.white.withValues(alpha: 0.9),
                         fontSize: 13.5,
@@ -231,63 +238,33 @@ class _MyPhoneSearchersScreenState extends State<MyPhoneSearchersScreen> {
               ),
             ),
             const SizedBox(height: 20),
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(18),
-              decoration: BoxDecoration(
-                color: const Color(0xFF161C2C),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: const Color(0xFF222B42)),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildSearcherItem(
-                    icon: Icons.person_search_rounded,
-                    iconBg: AppColors.primaryLight.withValues(alpha: 0.15),
-                    iconColor: AppColors.primaryLight,
-                    phoneNumber: 'Pengguna Anonim (+62 812-****-****)',
-                    timeAgo: 'Memeriksa nomor Anda • Baru-baru ini',
-                    externalTag: widget.myPhoneTags.isNotEmpty
-                        ? widget.myPhoneTags.first.labelName
-                        : 'Penelusuran Kontak',
-                  ),
-                  if (_searchCount > 1) ...[
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      child: Divider(color: Colors.white.withValues(alpha: 0.08), height: 1),
-                    ),
-                    _buildSearcherItem(
-                      icon: Icons.manage_search_rounded,
-                      iconBg: AppColors.accentCyan.withValues(alpha: 0.15),
-                      iconColor: AppColors.accentCyan,
-                      phoneNumber: 'Pengguna Anonim (+62 878-****-****)',
-                      timeAgo: 'Memeriksa nomor Anda • 2 hari lalu',
-                      externalTag: widget.myPhoneTags.length > 1
-                          ? widget.myPhoneTags[1].labelName
-                          : 'Pengecekan Rutin',
-                    ),
-                  ],
-                  if (_searchCount > 2) ...[
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      child: Divider(color: Colors.white.withValues(alpha: 0.08), height: 1),
-                    ),
-                    Row(
-                      children: [
-                        Icon(Icons.more_horiz_rounded, color: AppColors.textSecondary, size: 20),
-                        const SizedBox(width: 8),
-                        Text(
-                          '+${_searchCount - 2} pemeriksaan oleh nomor asing lainnya',
-                          style: GoogleFonts.outfit(color: AppColors.textSecondary, fontSize: 13),
-                        ),
-                      ],
-                    ),
-                  ],
-                ],
-              ),
+            _buildSearcherItem(
+              initials: 'SM',
+              avatarColor: AppColors.primaryLight,
+              profileName: 'Siska Marketing',
+              phoneNumber: '+62 812-****-7890',
+              timeAgo: 'Memeriksa nomor Anda • 2 jam yang lalu',
+              communityTags: const ['#Rekan Kerja', '#Sales Corporate', '#Marketing Office'],
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 14),
+            _buildSearcherItem(
+              initials: 'BS',
+              avatarColor: AppColors.accentCyan,
+              profileName: 'Budi Santoso (Kurir JNE)',
+              phoneNumber: '+62 878-****-3312',
+              timeAgo: 'Memeriksa nomor Anda • Kemarin, 14:20 WIB',
+              communityTags: const ['#Kurir Paket', '#JNE Express', '#Antar Barang'],
+            ),
+            const SizedBox(height: 14),
+            _buildSearcherItem(
+              initials: 'AP',
+              avatarColor: const Color(0xFF34D399),
+              profileName: 'Aditya Pratama',
+              phoneNumber: '+62 856-****-9011',
+              timeAgo: 'Memeriksa nomor Anda • 3 hari yang lalu',
+              communityTags: const ['#Mitra Bisnis', '#Klien Surabaya'],
+            ),
+            const SizedBox(height: 16),
             Text(
               '* Demi menjaga privasi pengguna, digit tengah nomor pencari disembunyikan.',
               style: GoogleFonts.outfit(
@@ -304,65 +281,144 @@ class _MyPhoneSearchersScreenState extends State<MyPhoneSearchersScreen> {
   }
 
   Widget _buildSearcherItem({
-    required IconData icon,
-    required Color iconBg,
-    required Color iconColor,
+    required String initials,
+    required Color avatarColor,
+    required String profileName,
     required String phoneNumber,
     required String timeAgo,
-    required String externalTag,
+    required List<String> communityTags,
   }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            CircleAvatar(
-              radius: 16,
-              backgroundColor: iconBg,
-              child: Icon(icon, color: iconColor, size: 18),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    phoneNumber,
-                    style: GoogleFonts.outfit(color: Colors.white, fontSize: 14.5, fontWeight: FontWeight.bold),
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: const Color(0xFF161C2C),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: const Color(0xFF222B42)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 46,
+                height: 46,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: avatarColor.withValues(alpha: 0.18),
+                  shape: BoxShape.circle,
+                  border: Border.all(color: avatarColor.withValues(alpha: 0.4)),
+                ),
+                child: Text(
+                  initials,
+                  style: GoogleFonts.outfit(
+                    color: avatarColor,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w800,
                   ),
-                  const SizedBox(height: 2),
-                  Text(
-                    timeAgo,
-                    style: GoogleFonts.outfit(color: AppColors.textSecondary, fontSize: 12),
+                ),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            profileName,
+                            style: GoogleFonts.outfit(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: avatarColor.withValues(alpha: 0.15),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            'Pencari',
+                            style: GoogleFonts.outfit(
+                              color: avatarColor,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    Row(
+                      children: [
+                        Icon(Icons.phone_android_rounded, size: 14, color: avatarColor),
+                        const SizedBox(width: 6),
+                        Text(
+                          phoneNumber,
+                          style: GoogleFonts.outfit(
+                            color: avatarColor,
+                            fontSize: 13.5,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      timeAgo,
+                      style: GoogleFonts.outfit(
+                        color: AppColors.textSecondary,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+          Divider(color: Colors.white.withValues(alpha: 0.08), height: 1),
+          const SizedBox(height: 12),
+          Text(
+            'Tag yang disimpan oleh orang lain:',
+            style: GoogleFonts.outfit(
+              color: AppColors.textSecondary,
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 6,
+            runSpacing: 6,
+            children: communityTags.map((tag) {
+              return Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF1E2636),
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: const Color(0xFF2D3754)),
+                ),
+                child: Text(
+                  tag,
+                  style: GoogleFonts.outfit(
+                    color: AppColors.primaryLight,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
                   ),
-                ],
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 12),
-        Row(
-          children: [
-            Text(
-              'Tag yang disimpan:',
-              style: GoogleFonts.outfit(color: AppColors.textSecondary, fontSize: 12.5),
-            ),
-            const SizedBox(width: 8),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-              decoration: BoxDecoration(
-                color: const Color(0xFF1E2636),
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: const Color(0xFF2D3754)),
-              ),
-              child: Text(
-                '# $externalTag',
-                style: GoogleFonts.outfit(color: AppColors.primaryLight, fontSize: 12.5, fontWeight: FontWeight.w600),
-              ),
-            ),
-          ],
-        ),
-      ],
+                ),
+              );
+            }).toList(),
+          ),
+        ],
+      ),
     );
   }
 }
