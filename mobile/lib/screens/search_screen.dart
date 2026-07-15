@@ -2820,7 +2820,7 @@ class SearchScreenState extends State<SearchScreen> {
   }
 
   // =========================================================================
-  // TAMPILAN SAAT TOMBOL SEARCH DIPENCET (Persis Gambar ke-5: "Baru Saja Dilihat"
+  // TAMPILAN SAAT TOMBOL SEARCH DIPENCET
   // =========================================================================
   Widget _buildSearchExpandedView() {
     return SingleChildScrollView(
