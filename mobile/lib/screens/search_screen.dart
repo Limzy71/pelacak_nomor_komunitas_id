@@ -10,6 +10,7 @@ import '../theme/app_theme.dart';
 import '../widgets/tag_chip_card.dart';
 import '../widgets/app_toast.dart';
 import '../widgets/trust_meter.dart';
+import 'my_phone_searchers_screen.dart';
 
 class SearchScreen extends StatefulWidget {
   final ApiService apiService;
@@ -209,7 +210,7 @@ class SearchScreenState extends State<SearchScreen> {
     }
   }
 
-  void _showMyPhoneProtectionModal() {
+  void showMyPhoneProtectionModal() {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -3002,7 +3003,20 @@ class SearchScreenState extends State<SearchScreen> {
               color: Colors.transparent,
               borderRadius: BorderRadius.circular(20),
               child: InkWell(
-                onTap: _showMyPhoneProtectionModal,
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => MyPhoneSearchersScreen(
+                        searchCount: _myPhoneSearchCount,
+                        trustScore: _myPhoneTrustScore,
+                        myPhoneTags: _myPhoneTags,
+                        myPhoneNumber: _myPhoneNumber,
+                        onRefresh: _fetchMyPhoneSearchStats,
+                      ),
+                    ),
+                  );
+                },
                 borderRadius: BorderRadius.circular(20),
                 child: Container(
                   padding: const EdgeInsets.all(20),
@@ -3211,40 +3225,6 @@ class SearchScreenState extends State<SearchScreen> {
                           ),
                         ),
                       ],
-
-                      const SizedBox(height: 16),
-
-                      // Footer Kotak Info Ringkas & Bersih
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF10141D),
-                          borderRadius: BorderRadius.circular(14),
-                          border: Border.all(color: const Color(0xFF1E2636)),
-                        ),
-                        child: Row(
-                          children: [
-                            const Icon(
-                              Icons.verified_user_outlined,
-                              color: AppColors.accentGreen,
-                              size: 20,
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Text(
-                                _myPhoneSearchCount > 0
-                                    ? 'Sistem proteksi mencatat $_myPhoneSearchCount pemeriksaan oleh pengguna lain. Identitas spesifik dilindungi enkripsi UU PDP dan terpantau aman.'
-                                    : 'Sistem proteksi AI aktif memantau 24/7. Jika ada nomor tidak dikenal yang memeriksa Anda, riwayatnya akan muncul di sini.',
-                                style: GoogleFonts.outfit(
-                                  color: Colors.white.withValues(alpha: 0.85),
-                                  fontSize: 13,
-                                  height: 1.4,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
                     ],
                   ),
                 ),
