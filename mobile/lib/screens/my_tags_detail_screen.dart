@@ -220,12 +220,12 @@ class _MyTagsDetailScreenState extends State<MyTagsDetailScreen> {
           backgroundColor: const Color(0xFF1E2636),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           title: Text(
-            'Pengguna Anonim',
+            'Informasi Tidak Tersedia',
             style: GoogleFonts.outfit(color: Colors.white, fontWeight: FontWeight.bold),
           ),
           content: Text(
-            'Tag ini disimpan secara lokal atau oleh pengguna yang belum membagikan profil mereka. Informasi detail tidak tersedia.',
-            style: GoogleFonts.outfit(color: AppColors.textSecondary),
+            'Identitas penyimpan tag ini dilindungi oleh pengaturan privasi atau bersumber dari sinkronisasi kontak lokal. Detail profil tidak dapat ditampilkan.',
+            style: GoogleFonts.outfit(color: AppColors.textSecondary, height: 1.4),
           ),
           actions: [
             TextButton(
