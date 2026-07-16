@@ -638,7 +638,7 @@ class SearchScreenState extends State<SearchScreen> {
 
       if (_hasContactPermission) {
         await _fetchRealDeviceContacts();
-        await _fetchQuickContactsTagCounts();
+        _fetchQuickContactsTagCounts();
       }
       if (_hasCallLogPermission) {
         await _fetchRealCallLogs();
@@ -2133,11 +2133,11 @@ class SearchScreenState extends State<SearchScreen> {
                         ? null
                         : () async {
                             setState(() => _isRefreshingCallLog = true);
-                            await Future.wait([
-                              _fetchRealCallLogs(),
-                              _fetchRealDeviceContacts(),
-                            ]);
-                            if (mounted) setState(() => _isRefreshingCallLog = false);
+                            Future.delayed(const Duration(milliseconds: 300), () {
+                              if (mounted) setState(() => _isRefreshingCallLog = false);
+                            });
+                            _fetchRealCallLogs();
+                            _fetchRealDeviceContacts();
                           },
                     borderRadius: BorderRadius.circular(12),
                     child: Padding(
@@ -2170,7 +2170,55 @@ class SearchScreenState extends State<SearchScreen> {
               ],
             ),
             const SizedBox(height: 12),
-            if (_realRecentCalls.isEmpty || !_hasCallLogPermission || !_hasContactPermission)
+            if (_isRefreshingCallLog)
+              Shimmer.fromColors(
+                baseColor: const Color(0xFF1E2636),
+                highlightColor: const Color(0xFF2D3754),
+                child: Column(
+                  children: List.generate(
+                    3,
+                    (index) => Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 10),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Container(
+                                width: 140,
+                                height: 16,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                              ),
+                              const SizedBox(height: 6),
+                              Container(
+                                width: 180,
+                                height: 12,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                              ),
+                            ],
+                          ),
+                          Container(
+                            width: 60,
+                            height: 14,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              )
+            else if (_realRecentCalls.isEmpty || !_hasCallLogPermission || !_hasContactPermission)
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 8),
                 child: Center(
