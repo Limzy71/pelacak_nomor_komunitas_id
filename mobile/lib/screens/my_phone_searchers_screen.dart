@@ -59,33 +59,35 @@ class _MyPhoneSearchersScreenState extends State<MyPhoneSearchersScreen> {
   Future<void> _handleRefresh() async {
     setState(() => _isManualRefreshing = true);
 
-    // Animasi shimmer 0,5 detik agar UX terasa sangat cepat namun tetap memberikan feedback visual
-    final shimmerDelay = Future.delayed(const Duration(milliseconds: 500));
-    final fetchTask = _apiService.getPhoneSearchers(widget.myPhoneNumber).catchError((_) => <SearcherItemData>[]);
-
-    await Future.wait([shimmerDelay, fetchTask]);
-    final data = await fetchTask;
-
-    if (mounted) {
-      setState(() {
-        _dynamicItems = data;
-        _isManualRefreshing = false;
-      });
-      if (widget.onRefresh != null) {
-        widget.onRefresh!();
+    // Matikan shimmer secara instan tepat setelah 300ms (tidak menunggu respon jaringan)
+    Future.delayed(const Duration(milliseconds: 300), () {
+      if (mounted) {
+        setState(() => _isManualRefreshing = false);
       }
+    });
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'Statistik pencarian telah diperbarui.',
-            style: GoogleFonts.plusJakartaSans(color: Colors.white),
+    try {
+      final data = await _apiService.getPhoneSearchers(widget.myPhoneNumber);
+      if (mounted) {
+        setState(() {
+          _dynamicItems = data;
+        });
+        if (widget.onRefresh != null) {
+          widget.onRefresh!();
+        }
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Statistik pencarian telah diperbarui.',
+              style: GoogleFonts.plusJakartaSans(color: Colors.white),
+            ),
+            backgroundColor: AppColors.primary,
+            behavior: SnackBarBehavior.floating,
           ),
-          backgroundColor: AppColors.primary,
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
-    }
+        );
+      }
+    } catch (_) {}
   }
 
   @override
