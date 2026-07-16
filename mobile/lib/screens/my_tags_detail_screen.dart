@@ -707,7 +707,10 @@ class _SelfTagModal extends StatelessWidget {
             child: Container(
               width: 44,
               height: 4.5,
-              decoration: BoxDecoration(color: Colors.white24, borderRadius: BorderRadius.circular(4)),
+              decoration: BoxDecoration(
+                color: Colors.white24,
+                borderRadius: BorderRadius.circular(4),
+              ),
             ),
           ),
           const SizedBox(height: 24),
@@ -719,16 +722,52 @@ class _SelfTagModal extends StatelessWidget {
                   color: AppColors.primaryLight.withValues(alpha: 0.15),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.verified_user_rounded, color: AppColors.primaryLight, size: 32),
+                child: const Icon(Icons.verified_user_rounded, color: AppColors.primaryLight, size: 30),
               ),
               const SizedBox(width: 16),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Tag Profil Anda', style: GoogleFonts.sora(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+                    Text(
+                      'Tag Profil Anda',
+                      style: GoogleFonts.sora(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                     const SizedBox(height: 4),
-                    Text('Dikelola oleh Anda', style: GoogleFonts.plusJakartaSans(color: AppColors.textSecondary, fontSize: 14)),
+                    Text(
+                      'Identitas Tambahan Akun',
+                      style: GoogleFonts.plusJakartaSans(
+                        color: AppColors.textSecondary,
+                        fontSize: 13.5,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: AppColors.accentGreen.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: AppColors.accentGreen.withValues(alpha: 0.3)),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.check_circle_rounded, color: AppColors.accentGreen, size: 14),
+                    const SizedBox(width: 5),
+                    Text(
+                      'Aktif',
+                      style: GoogleFonts.plusJakartaSans(
+                        color: AppColors.accentGreen,
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -736,24 +775,45 @@ class _SelfTagModal extends StatelessWidget {
           ),
           const SizedBox(height: 24),
           Container(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(18),
             decoration: BoxDecoration(
-              color: const Color(0xFF1E2636),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: const Color(0xFF2D3754)),
+              color: const Color(0xFF161C2C),
+              borderRadius: BorderRadius.circular(18),
+              border: Border.all(color: const Color(0xFF222B42)),
             ),
-            child: RichText(
-              text: TextSpan(
-                style: GoogleFonts.plusJakartaSans(color: AppColors.textSecondary, height: 1.4, fontSize: 14),
-                children: [
-                  const TextSpan(text: 'Anda menyematkan tag '),
-                  TextSpan(
-                    text: '#$savedTagLabel',
-                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+                      decoration: BoxDecoration(
+                        color: AppColors.primaryLight.withValues(alpha: 0.18),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: AppColors.primaryLight.withValues(alpha: 0.3)),
+                      ),
+                      child: Text(
+                        '# $savedTagLabel',
+                        style: GoogleFonts.sora(
+                          color: AppColors.primaryLight,
+                          fontSize: 14.5,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 14),
+                Text(
+                  'Tag ini disematkan langsung pada profil utama Anda. Pengguna lain yang menyimpan atau mencari nomor Anda akan melihat tag ini untuk mengenali identitas Anda dengan lebih cepat.',
+                  style: GoogleFonts.plusJakartaSans(
+                    color: Colors.white.withValues(alpha: 0.85),
+                    fontSize: 13.5,
+                    height: 1.55,
                   ),
-                  const TextSpan(text: ' pada profil Anda sendiri. Tag ini membantu pengguna lain untuk mengenali Anda dengan lebih mudah.'),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
           const SizedBox(height: 12),
