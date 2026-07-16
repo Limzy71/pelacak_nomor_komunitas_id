@@ -124,6 +124,7 @@ class SearchScreenState extends State<SearchScreen> {
   final Map<String, int> _quickContactTagCounts = {};
   // Cache data pencari nomor agar layar buka instan. Null berarti belum pernah di-fetch.
   List<SearcherItemData>? _cachedSearcherItems;
+  final Map<String, String> _recentCallTags = {};
 
   void refreshHomeData() {
     if (!mounted) return;
@@ -668,6 +669,7 @@ class SearchScreenState extends State<SearchScreen> {
               .take(60)
               .toList();
         });
+        _fetchRecentCallTags();
       }
     } catch (e) {
       // Abaikan jika gagal mengakses log
@@ -782,6 +784,55 @@ class SearchScreenState extends State<SearchScreen> {
     return colors[seed.hashCode.abs() % colors.length];
   }
 
+  String _formatCallTime(int? timestamp) {
+    if (timestamp == null || timestamp == 0) return '';
+    final dt = DateTime.fromMillisecondsSinceEpoch(timestamp);
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final yesterday = today.subtract(const Duration(days: 1));
+    final callDate = DateTime(dt.year, dt.month, dt.day);
+
+    final hourStr = dt.hour.toString().padLeft(2, '0');
+    final minStr = dt.minute.toString().padLeft(2, '0');
+    final timeStr = '$hourStr.$minStr';
+
+    if (callDate == today) {
+      return timeStr;
+    } else if (callDate == yesterday) {
+      return 'Kemarin, $timeStr';
+    } else {
+      return '${dt.day}/${dt.month}, $timeStr';
+    }
+  }
+
+  Future<void> _fetchRecentCallTags() async {
+    final calls = _realRecentCalls;
+    if (calls.isEmpty) return;
+
+    await Future.wait(
+      calls.map((c) async {
+        final num = c['number'] as String?;
+        if (num == null || num.isEmpty) return;
+        try {
+          final res = await widget.apiService.lookupPhoneNumber(
+            num,
+            skipIncrement: true,
+            hasContactAccess: _hasContactPermission,
+          );
+          if (mounted && res.data != null && res.data!.tags.isNotEmpty) {
+            final sortedTags = List.of(res.data!.tags)
+              ..sort((a, b) => (b.upvotes - b.downvotes).compareTo(a.upvotes - a.downvotes));
+            final topTag = sortedTags.first.labelName;
+            final formatted = topTag.startsWith('#') ? topTag : '#$topTag';
+            setState(() {
+              _recentCallTags[num] = formatted;
+            });
+          }
+        } catch (_) {}
+      }),
+    );
+  }
+
   // Getter Panggilan Terbaru Asli dari Riwayat Telepon Nyata HP (Call Log)
   List<Map<String, dynamic>> get _realRecentCalls {
     final List<Map<String, dynamic>> combined = [];
@@ -791,15 +842,23 @@ class SearchScreenState extends State<SearchScreen> {
         if (combined.length >= 5) break;
         final num = (log.number ?? '').trim();
         if (num.isNotEmpty && !combined.any((x) => x['number'] == num)) {
-          final name = (log.name != null && log.name!.trim().isNotEmpty) ? log.name!.trim() : num;
+          final hasContactName = log.name != null && log.name!.trim().isNotEmpty;
+          final name = hasContactName ? log.name!.trim() : num;
           final typeStr = log.callType == CallType.incoming
               ? 'Panggilan Masuk'
               : log.callType == CallType.outgoing
                   ? 'Panggilan Keluar'
                   : 'Tak Terjawab';
+          
+          final timeStr = _formatCallTime(log.timestamp);
+          final timeAndType = timeStr.isNotEmpty ? '$timeStr • $typeStr' : typeStr;
+          
+          // Jika nomor belum tersimpan sebagai nama kontak, jangan ulang nomor di subtitle!
+          final sub = hasContactName ? '$num • $timeAndType' : timeAndType;
+
           combined.add({
             'name': name,
-            'sub': '$num ($typeStr)',
+            'sub': sub,
             'date': 'Log Telepon',
             'isSpam': false,
             'number': num,
@@ -812,17 +871,22 @@ class SearchScreenState extends State<SearchScreen> {
         if (combined.length >= 5) break;
         final num = c.phones.first.number;
         if (!combined.any((x) => x['number'] == num)) {
-          final labelStr =
-              (c.phones.first.label == PhoneLabel.custom
+          final contactName = _getContactName(c).trim();
+          final hasContactName = contactName.isNotEmpty && contactName != num;
+          final name = hasContactName ? contactName : num;
+          final labelStr = (c.phones.first.label == PhoneLabel.custom
                       ? c.phones.first.customLabel
                       : c.phones.first.label.name)
                   .trim();
           final cleanLabel = labelStr.isNotEmpty && labelStr != 'custom'
               ? labelStr
               : 'Ponsel';
+          
+          final sub = hasContactName ? '$num • $cleanLabel' : cleanLabel;
+
           combined.add({
-            'name': _getContactName(c),
-            'sub': '$num ($cleanLabel)',
+            'name': name,
+            'sub': sub,
             'date': 'Log Telepon',
             'isSpam': false,
             'number': num,
@@ -2324,10 +2388,12 @@ class SearchScreenState extends State<SearchScreen> {
               )
             else
               ..._realRecentCalls.map((item) {
+                final num = item['number'] as String;
+                final topTag = _recentCallTags[num];
                 return InkWell(
                   onTap: () {
-                    _searchController.text = item['number'] as String;
-                    _performSearch(item['number'] as String);
+                    _searchController.text = num;
+                    _performSearch(num);
                   },
                   child: Container(
                     padding: const EdgeInsets.symmetric(vertical: 13),
@@ -2343,17 +2409,45 @@ class SearchScreenState extends State<SearchScreen> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
-                                item['name'] as String,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: GoogleFonts.sora(
-                                  fontSize: 15.5,
-                                  fontWeight: FontWeight.w600,
-                                  color: (item['isSpam'] as bool)
-                                      ? const Color(0xFFEF4444)
-                                      : Colors.white,
-                                ),
+                              Row(
+                                children: [
+                                  Flexible(
+                                    child: Text(
+                                      item['name'] as String,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: GoogleFonts.sora(
+                                        fontSize: 15.5,
+                                        fontWeight: FontWeight.w600,
+                                        color: (item['isSpam'] as bool)
+                                            ? const Color(0xFFEF4444)
+                                            : Colors.white,
+                                      ),
+                                    ),
+                                  ),
+                                  if (topTag != null && topTag.isNotEmpty) ...[
+                                    const SizedBox(width: 8),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                                      decoration: BoxDecoration(
+                                        color: AppColors.primary.withValues(alpha: 0.18),
+                                        borderRadius: BorderRadius.circular(6),
+                                        border: Border.all(
+                                          color: AppColors.primaryLight.withValues(alpha: 0.4),
+                                          width: 0.8,
+                                        ),
+                                      ),
+                                      child: Text(
+                                        topTag,
+                                        style: GoogleFonts.plusJakartaSans(
+                                          color: AppColors.primaryLight,
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ],
                               ),
                               const SizedBox(height: 4),
                               Row(
@@ -2366,11 +2460,15 @@ class SearchScreenState extends State<SearchScreen> {
                                     ),
                                     const SizedBox(width: 4),
                                   ],
-                                  Text(
-                                    item['sub'] as String,
-                                    style: GoogleFonts.plusJakartaSans(
-                                      color: Colors.white54,
-                                      fontSize: 13,
+                                  Expanded(
+                                    child: Text(
+                                      item['sub'] as String,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: GoogleFonts.plusJakartaSans(
+                                        color: Colors.white54,
+                                        fontSize: 13,
+                                      ),
                                     ),
                                   ),
                                 ],
