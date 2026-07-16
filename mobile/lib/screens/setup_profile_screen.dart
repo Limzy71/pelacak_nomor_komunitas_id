@@ -174,7 +174,7 @@ class _SetupProfileScreenState extends State<SetupProfileScreen> {
       );
       return;
     }
-    if (RegExp(r'[\.\,\'\-]{2,}').hasMatch(name)) {
+    if (RegExp(r"[\.\,\'\-]{2,}").hasMatch(name)) {
       AppToast.show(
         context,
         message: 'Nama lengkap tidak boleh mengandung tanda baca berurutan (contoh: \'\', ,, --).',

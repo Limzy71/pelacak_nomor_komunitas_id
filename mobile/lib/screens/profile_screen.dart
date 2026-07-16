@@ -214,7 +214,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   AppToast.show(context, message: 'Nama lengkap hanya boleh berisi huruf dan tanda baca lazim.', type: ToastType.error);
                   return;
                 }
-                if (RegExp(r'[\.\,\'\-]{2,}').hasMatch(newName)) {
+                if (RegExp(r"[\.\,\'\-]{2,}").hasMatch(newName)) {
                   AppToast.show(context, message: 'Nama lengkap tidak boleh mengandung tanda baca berurutan.', type: ToastType.error);
                   return;
                 }
