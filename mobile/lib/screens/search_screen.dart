@@ -2620,7 +2620,11 @@ class SearchScreenState extends State<SearchScreen> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => MyTagsDetailScreen(allTags: _allMyTagsCombined, apiService: widget.apiService),
+                            builder: (context) => MyTagsDetailScreen(
+                              allTags: _allMyTagsCombined,
+                              apiService: widget.apiService,
+                              myPhoneNumber: _myPhoneNumber,
+                            ),
                           ),
                         );
                       },
@@ -2676,7 +2680,11 @@ class SearchScreenState extends State<SearchScreen> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => MyTagsDetailScreen(allTags: _allMyTagsCombined, apiService: widget.apiService),
+                            builder: (context) => MyTagsDetailScreen(
+                              allTags: _allMyTagsCombined,
+                              apiService: widget.apiService,
+                              myPhoneNumber: _myPhoneNumber,
+                            ),
                           ),
                         );
                       },

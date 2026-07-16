@@ -9,11 +9,13 @@ import '../services/api_service.dart';
 class MyTagsDetailScreen extends StatefulWidget {
   final List<TagItem> allTags;
   final ApiService apiService;
+  final String myPhoneNumber;
 
   const MyTagsDetailScreen({
     super.key,
     required this.allTags,
     required this.apiService,
+    required this.myPhoneNumber,
   });
 
   @override
@@ -220,7 +222,9 @@ class _MyTagsDetailScreenState extends State<MyTagsDetailScreen> {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) {
-        if (tag.labelName.toLowerCase() == 'ikhsan') {
+        // Jika userId dari tag sama dengan nomor pengguna saat ini,
+        // artinya ini adalah tag buatan sendiri dari buku telepon sendiri.
+        if (tag.userId != null && widget.myPhoneNumber.isNotEmpty && tag.userId == widget.myPhoneNumber) {
           return _SelfTagModal(savedTagLabel: tag.labelName);
         }
         
