@@ -1502,9 +1502,6 @@ class SearchScreenState extends State<SearchScreen> {
                                   : timeAndType;
 
                               String? tag = _recentCallTags[numStr];
-                              if (tag == null && idx == 0) {
-                                tag = '#My Telkomsel';
-                              }
 
                               return ListTile(
                                 contentPadding: const EdgeInsets.symmetric(vertical: 4),
