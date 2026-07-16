@@ -174,12 +174,12 @@ class _SetupProfileScreenState extends State<SetupProfileScreen> {
       return;
     }
 
-    // Validasi Nama (Allow-list): Harus diawali huruf, 3-30 karakter, tanpa tanda baca berurutan
-    final nameRegex = RegExp(r"^(?!.*[\.\']{2,})[a-zA-Z][a-zA-Z\s\.\']{2,29}$");
+    // Validasi Nama (Allow-list + Anti-Smash): Harus diawali huruf, 3-30 karakter, tanpa tanda baca berurutan, maks 4 konsonan berurutan
+    final nameRegex = RegExp(r"^(?!.*[bcdfghjklmnpqrstvwxyzBCDFGHJKLMNPQRSTVWXYZ]{5,})(?!.*[\.\']{2,})[a-zA-Z][a-zA-Z\s\.\']{2,29}$");
     if (!nameRegex.hasMatch(name)) {
       AppToast.show(
         context,
-        message: 'Format nama tidak sesuai standar. Gunakan nama asli tanpa angka atau simbol tidak lazim.',
+        message: 'Format nama tidak sesuai standar. Gunakan nama asli tanpa angka, simbol, atau ketikan acak.',
         type: ToastType.error,
       );
       return;
