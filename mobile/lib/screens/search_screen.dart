@@ -1668,25 +1668,21 @@ class SearchScreenState extends State<SearchScreen> {
               return name.contains(q) || num.contains(q);
             }).toList();
 
-            final keyboardHeight = MediaQuery.of(ctx).viewInsets.bottom;
-            final screenHeight = MediaQuery.of(ctx).size.height;
-
-            return AnimatedPadding(
-              duration: const Duration(milliseconds: 200),
-              curve: Curves.easeOutCubic,
-              padding: EdgeInsets.only(bottom: keyboardHeight),
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                curve: Curves.easeOutCubic,
-                height: keyboardHeight > 0
-                    ? screenHeight * 0.52
-                    : screenHeight * 0.52,
+            return SizedBox(
+              height: MediaQuery.of(ctx).size.height * 0.52 +
+                  MediaQuery.of(ctx).viewInsets.bottom,
+              child: Container(
                 decoration: const BoxDecoration(
                   color: Color(0xFF141926),
                   borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
                 ),
                 child: Padding(
-                  padding: const EdgeInsets.only(top: 20, left: 20, right: 20, bottom: 12),
+                  padding: EdgeInsets.only(
+                    top: 20,
+                    left: 20,
+                    right: 20,
+                    bottom: MediaQuery.of(ctx).viewInsets.bottom + 12,
+                  ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -1781,6 +1777,7 @@ class SearchScreenState extends State<SearchScreen> {
       },
     );
   }
+
 
   @override
   Widget build(BuildContext context) {
