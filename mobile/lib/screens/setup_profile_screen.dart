@@ -150,7 +150,7 @@ class _SetupProfileScreenState extends State<SetupProfileScreen> {
     if (name.isEmpty || name.length < 3) {
       AppToast.show(
         context,
-        message: 'Silakan masukkan nama lengkap minimal 3 karakter.',
+        message: 'Mohon isi nama lengkap Anda dengan minimal 3 karakter.',
         type: ToastType.error,
       );
       return;
