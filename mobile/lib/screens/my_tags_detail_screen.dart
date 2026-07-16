@@ -609,19 +609,25 @@ class _AnonymousSaverModal extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
-                  color: AppColors.textSecondary.withValues(alpha: 0.15),
+                  color: const Color(0xFFF59E0B).withValues(alpha: 0.15),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.person_off_rounded, color: AppColors.textSecondary, size: 32),
+                child: const Icon(Icons.person_search_rounded, color: Color(0xFFF59E0B), size: 32),
               ),
               const SizedBox(width: 16),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Pengguna Anonim', style: GoogleFonts.sora(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+                    Text(
+                      'Bukan Pengguna PhoneRep',
+                      style: GoogleFonts.sora(color: Colors.white, fontSize: 17, fontWeight: FontWeight.bold),
+                    ),
                     const SizedBox(height: 4),
-                    Text('Informasi Dilindungi', style: GoogleFonts.plusJakartaSans(color: AppColors.textSecondary, fontSize: 14)),
+                    Text(
+                      'Profil tidak tersedia',
+                      style: GoogleFonts.plusJakartaSans(color: AppColors.textSecondary, fontSize: 14),
+                    ),
                   ],
                 ),
               ),
@@ -635,9 +641,37 @@ class _AnonymousSaverModal extends StatelessWidget {
               borderRadius: BorderRadius.circular(16),
               border: Border.all(color: const Color(0xFF2D3754)),
             ),
-            child: Text(
-              'Identitas penyimpan tag ini dilindungi oleh pengaturan privasi atau bersumber dari sinkronisasi kontak lokal. Detail profil tidak dapat ditampilkan.',
-              style: GoogleFonts.plusJakartaSans(color: AppColors.textSecondary, height: 1.4, fontSize: 14),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Icon(Icons.info_outline_rounded, color: Color(0xFFF59E0B), size: 18),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        'Nomor ini menyimpan kontak Anda, namun pemiliknya belum terdaftar sebagai pengguna PhoneRep.',
+                        style: GoogleFonts.plusJakartaSans(
+                          color: Colors.white,
+                          height: 1.45,
+                          fontSize: 13.5,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  'Detail profil, riwayat, dan tag yang mereka miliki tidak dapat ditampilkan karena data pengguna ini belum ada dalam sistem PhoneRep.',
+                  style: GoogleFonts.plusJakartaSans(
+                    color: AppColors.textSecondary,
+                    height: 1.45,
+                    fontSize: 13,
+                  ),
+                ),
+              ],
             ),
           ),
           const SizedBox(height: 12),
