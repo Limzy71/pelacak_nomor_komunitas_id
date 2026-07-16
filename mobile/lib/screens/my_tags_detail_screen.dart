@@ -213,38 +213,17 @@ class _MyTagsDetailScreenState extends State<MyTagsDetailScreen> {
     );
   }
   void _showSaverProfile(TagItem tag) {
-    if (tag.userId == null || tag.userId!.trim().isEmpty) {
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          backgroundColor: const Color(0xFF1E2636),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          title: Text(
-            'Informasi Tidak Tersedia',
-            style: GoogleFonts.outfit(color: Colors.white, fontWeight: FontWeight.bold),
-          ),
-          content: Text(
-            'Identitas penyimpan tag ini dilindungi oleh pengaturan privasi atau bersumber dari sinkronisasi kontak lokal. Detail profil tidak dapat ditampilkan.',
-            style: GoogleFonts.outfit(color: AppColors.textSecondary, height: 1.4),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text('Tutup', style: GoogleFonts.outfit(color: AppColors.primaryLight)),
-            ),
-          ],
-        ),
-      );
-      return;
-    }
-
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) {
+        if (tag.userId == null || tag.userId!.trim().isEmpty) {
+          return _AnonymousSaverModal();
+        }
         return _SaverProfileModal(
           saverNumber: tag.userId!,
+          savedTagLabel: tag.labelName,
           apiService: widget.apiService,
         );
       },
@@ -254,9 +233,14 @@ class _MyTagsDetailScreenState extends State<MyTagsDetailScreen> {
 
 class _SaverProfileModal extends StatefulWidget {
   final String saverNumber;
+  final String savedTagLabel;
   final ApiService apiService;
 
-  const _SaverProfileModal({required this.saverNumber, required this.apiService});
+  const _SaverProfileModal({
+    required this.saverNumber,
+    required this.savedTagLabel,
+    required this.apiService,
+  });
 
   @override
   State<_SaverProfileModal> createState() => _SaverProfileModalState();
@@ -294,6 +278,42 @@ class _SaverProfileModalState extends State<_SaverProfileModal> {
         });
       }
     }
+  }
+
+  List<TagItem> _getDiverseTags(List<TagItem> tags) {
+    if (tags.isEmpty) return [];
+    
+    final sorted = List<TagItem>.from(tags)..sort((a, b) => b.upvotes.compareTo(a.upvotes));
+    final result = <TagItem>[];
+    
+    for (final tag in sorted) {
+      if (result.length >= 5) break;
+      
+      final lowerName = tag.labelName.toLowerCase().replaceAll(RegExp(r'[^a-z0-9]'), '');
+      bool isSimilar = false;
+      for (final selected in result) {
+        final selectedLower = selected.labelName.toLowerCase().replaceAll(RegExp(r'[^a-z0-9]'), '');
+        if (lowerName.contains(selectedLower) || selectedLower.contains(lowerName)) {
+           isSimilar = true;
+           break;
+        }
+      }
+      
+      if (!isSimilar || result.isEmpty) {
+        result.add(tag);
+      }
+    }
+    
+    if (result.length < 5) {
+      for (final tag in sorted) {
+        if (result.length >= 5) break;
+        if (!result.any((t) => t.labelName == tag.labelName)) {
+          result.add(tag);
+        }
+      }
+    }
+    
+    return result;
   }
 
   @override
@@ -338,6 +358,27 @@ class _SaverProfileModalState extends State<_SaverProfileModal> {
               ),
             )
           else ...[
+            Container(
+              margin: const EdgeInsets.only(bottom: 24),
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: AppColors.primaryLight.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: AppColors.primaryLight.withValues(alpha: 0.2)),
+              ),
+              child: RichText(
+                text: TextSpan(
+                  style: GoogleFonts.outfit(color: Colors.white70, fontSize: 14, height: 1.4),
+                  children: [
+                    const TextSpan(text: 'Pengguna ini menyimpan nomor Anda dengan tag '),
+                    TextSpan(
+                      text: '#${widget.savedTagLabel}',
+                      style: const TextStyle(color: AppColors.primaryLight, fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                ),
+              ),
+            ),
             Row(
               children: [
                 Container(
@@ -376,7 +417,7 @@ class _SaverProfileModalState extends State<_SaverProfileModal> {
             ),
             const SizedBox(height: 24),
             Text(
-              'Tag pada profil ini:',
+              'Tag yang melekat pada profil ini:',
               style: GoogleFonts.outfit(
                 color: Colors.white,
                 fontSize: 15,
@@ -393,7 +434,7 @@ class _SaverProfileModalState extends State<_SaverProfileModal> {
               Wrap(
                 spacing: 8,
                 runSpacing: 8,
-                children: _record!.tags.take(3).map((t) {
+                children: _getDiverseTags(_record!.tags).map((t) {
                   return Container(
                     padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                     decoration: BoxDecoration(
@@ -413,6 +454,71 @@ class _SaverProfileModalState extends State<_SaverProfileModal> {
                 }).toList(),
               ),
           ]
+        ],
+      ),
+    );
+  }
+}
+
+class _AnonymousSaverModal extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
+      decoration: BoxDecoration(
+        color: const Color(0xFF10141D),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+        border: Border.all(color: const Color(0xFF20273C)),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Center(
+            child: Container(
+              width: 44,
+              height: 4.5,
+              decoration: BoxDecoration(color: Colors.white24, borderRadius: BorderRadius.circular(4)),
+            ),
+          ),
+          const SizedBox(height: 24),
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: AppColors.textSecondary.withValues(alpha: 0.15),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.person_off_rounded, color: AppColors.textSecondary, size: 32),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Pengguna Anonim', style: GoogleFonts.outfit(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 4),
+                    Text('Informasi Dilindungi', style: GoogleFonts.outfit(color: AppColors.textSecondary, fontSize: 14)),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 24),
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: const Color(0xFF1E2636),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: const Color(0xFF2D3754)),
+            ),
+            child: Text(
+              'Identitas penyimpan tag ini dilindungi oleh pengaturan privasi atau bersumber dari sinkronisasi kontak lokal. Detail profil tidak dapat ditampilkan.',
+              style: GoogleFonts.outfit(color: AppColors.textSecondary, height: 1.4, fontSize: 14),
+            ),
+          ),
+          const SizedBox(height: 12),
         ],
       ),
     );
