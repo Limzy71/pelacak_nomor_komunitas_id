@@ -206,6 +206,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   await prefs.setString('user_my_name', newName);
                   // Nomor telepon tidak di-update ke prefs karena readOnly (harus via pendaftaran)
                   
+                  // Sinkronisasi nama baru ke daftar Tag Saya secara lokal agar langsung muncul
+                  List<String> currentTags = prefs.getStringList('user_my_tags') ?? [];
+                  if (!currentTags.contains(newName)) {
+                    currentTags.add(newName);
+                    await prefs.setStringList('user_my_tags', currentTags);
+                  }
+
                   // Update nama baru sebagai tag ke backend
                   try {
                     final lookupRes = await widget.apiService.lookupPhoneNumber(_userPhone, skipIncrement: true);
@@ -222,7 +229,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   if (mounted) {
                     setState(() {
                       _userName = newName;
-                      // _userPhone tetap sama
+                      _userTags = currentTags; // Update UI Tag Saya secara instan
                     });
                     AppToast.show(
                       context,
