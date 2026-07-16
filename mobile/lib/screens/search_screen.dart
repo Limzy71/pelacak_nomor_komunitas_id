@@ -302,7 +302,7 @@ class SearchScreenState extends State<SearchScreen> {
               const SizedBox(height: 20),
               Text(
                 'Izin Akses & Keamanan Kontak',
-                style: GoogleFonts.outfit(
+                style: GoogleFonts.sora(
                   color: Colors.white,
                   fontSize: 21,
                   fontWeight: FontWeight.w800,
@@ -312,7 +312,7 @@ class SearchScreenState extends State<SearchScreen> {
               const SizedBox(height: 12),
               Text(
                 'Untuk mendeteksi panggilan spam/penipuan secara real-time, mengidentifikasi nomor asing, dan memproteksi daftar kontak Anda, aplikasi membutuhkan izin akses untuk membaca Kontak & Log Telepon Anda.',
-                style: GoogleFonts.outfit(
+                style: GoogleFonts.plusJakartaSans(
                   color: AppColors.textSecondary,
                   fontSize: 14,
                   height: 1.45,
@@ -334,7 +334,7 @@ class SearchScreenState extends State<SearchScreen> {
                     Expanded(
                       child: Text(
                         'Privasi Anda adalah prioritas utama. Data kontak Anda dienkripsi dan tidak akan pernah disebarkan tanpa izin.',
-                        style: GoogleFonts.outfit(
+                        style: GoogleFonts.plusJakartaSans(
                           color: Colors.white70,
                           fontSize: 12.5,
                           height: 1.35,
@@ -383,7 +383,7 @@ class SearchScreenState extends State<SearchScreen> {
                     child: Text(
                       'Aktifkan Izin & Proteksi',
                       maxLines: 1,
-                      style: GoogleFonts.outfit(
+                      style: GoogleFonts.sora(
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
                       ),
@@ -415,7 +415,7 @@ class SearchScreenState extends State<SearchScreen> {
                   ),
                   child: Text(
                     'Lanjutkan Tanpa Izin',
-                    style: GoogleFonts.outfit(
+                    style: GoogleFonts.sora(
                       fontSize: 14.5,
                       fontWeight: FontWeight.w600,
                     ),
@@ -475,7 +475,7 @@ class SearchScreenState extends State<SearchScreen> {
               const SizedBox(height: 20),
               Text(
                 'Batas Gratis 1x Habis',
-                style: GoogleFonts.outfit(
+                style: GoogleFonts.sora(
                   color: Colors.white,
                   fontSize: 22,
                   fontWeight: FontWeight.w800,
@@ -485,7 +485,7 @@ class SearchScreenState extends State<SearchScreen> {
               const SizedBox(height: 12),
               Text(
                 'Anda telah menggunakan 1x kesempatan pencarian gratis hari ini untuk perangkat ini.\n\nAktifkan izin akses kontak untuk mendapatkan pencarian nomor tanpa batas & mengaktifkan proteksi dari nomor penipuan/spam secara penuh!',
-                style: GoogleFonts.outfit(
+                style: GoogleFonts.plusJakartaSans(
                   color: AppColors.textSecondary,
                   fontSize: 14,
                   height: 1.45,
@@ -550,7 +550,7 @@ class SearchScreenState extends State<SearchScreen> {
                     child: Text(
                       'Aktifkan Izin & Buka Batas (Gratis)',
                       maxLines: 1,
-                      style: GoogleFonts.outfit(
+                      style: GoogleFonts.plusJakartaSans(
                         fontSize: 16,
                         fontWeight: FontWeight.w800,
                       ),
@@ -569,7 +569,7 @@ class SearchScreenState extends State<SearchScreen> {
                   ),
                   child: Text(
                     'Tutup',
-                    style: GoogleFonts.outfit(
+                    style: GoogleFonts.sora(
                       fontSize: 14.5,
                       fontWeight: FontWeight.w600,
                     ),
@@ -1012,7 +1012,7 @@ class SearchScreenState extends State<SearchScreen> {
                   padding: const EdgeInsets.fromLTRB(20, 20, 20, 10),
                   child: Text(
                     'Pilih Kode Negara',
-                    style: GoogleFonts.outfit(
+                    style: GoogleFonts.sora(
                       color: Colors.white,
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -1029,14 +1029,14 @@ class SearchScreenState extends State<SearchScreen> {
                         leading: Text(item['flag']!, style: const TextStyle(fontSize: 24)),
                         title: Text(
                           item['name']!,
-                          style: GoogleFonts.outfit(
+                          style: GoogleFonts.sora(
                             color: Colors.white,
                             fontWeight: isSel ? FontWeight.bold : FontWeight.normal,
                           ),
                         ),
                         trailing: Text(
                           item['code']!,
-                          style: GoogleFonts.outfit(
+                          style: GoogleFonts.plusJakartaSans(
                             color: isSel ? const Color(0xFF007AFF) : AppColors.textSecondary,
                             fontWeight: FontWeight.bold,
                           ),
@@ -1097,7 +1097,7 @@ class SearchScreenState extends State<SearchScreen> {
                   const SizedBox(width: 12),
                   Text(
                     _phoneRecord == null ? 'Tambah Tag Saya' : 'Tambah Label Baru',
-                    style: GoogleFonts.outfit(
+                    style: GoogleFonts.sora(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
@@ -1110,7 +1110,7 @@ class SearchScreenState extends State<SearchScreen> {
                 _phoneRecord == null
                     ? 'Buat label identitas atau catatan khusus untuk nomor Anda sendiri yang tersimpan di Tag Saya.'
                     : 'Bantu pengguna lain mengenali nomor ini dengan memberikan label nama, profesi, atau kategori.',
-                style: GoogleFonts.outfit(
+                style: GoogleFonts.plusJakartaSans(
                   color: AppColors.textSecondary,
                   fontSize: 13,
                   height: 1.4,
@@ -1119,12 +1119,12 @@ class SearchScreenState extends State<SearchScreen> {
               const SizedBox(height: 18),
               TextField(
                 controller: tagController,
-                style: GoogleFonts.outfit(color: Colors.white),
+                style: GoogleFonts.plusJakartaSans(color: Colors.white),
                 decoration: InputDecoration(
                   hintText: _phoneRecord == null
                       ? 'Nama Tag Saya (misal: My Im3 / Bisnis Saya / Pribadi)'
                       : 'Contoh: Kurir Paket / Toko Online / Rekan Kerja',
-                  hintStyle: GoogleFonts.outfit(color: Colors.white38),
+                  hintStyle: GoogleFonts.plusJakartaSans(color: Colors.white38),
                   prefixIcon: const Icon(
                     Icons.label_outline_rounded,
                     color: AppColors.textSecondary,
@@ -1140,10 +1140,10 @@ class SearchScreenState extends State<SearchScreen> {
                 TextField(
                   controller: phoneController,
                   keyboardType: TextInputType.phone,
-                  style: GoogleFonts.outfit(color: Colors.white),
+                  style: GoogleFonts.plusJakartaSans(color: Colors.white),
                   decoration: InputDecoration(
                     hintText: 'Nomor Telepon Anda (Opsional, untuk sinkronisasi server)',
-                    hintStyle: GoogleFonts.outfit(color: Colors.white38),
+                    hintStyle: GoogleFonts.plusJakartaSans(color: Colors.white38),
                     prefixIcon: const Icon(Icons.phone_rounded, color: AppColors.textSecondary),
                     filled: true,
                     fillColor: const Color(0xFF1E263D),
@@ -1215,7 +1215,7 @@ class SearchScreenState extends State<SearchScreen> {
                     backgroundColor: const Color(0xFF007AFF),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                   ),
-                  child: Text('SIMPAN TAG', style: GoogleFonts.outfit(color: Colors.white, fontWeight: FontWeight.bold, letterSpacing: 1.1)),
+                  child: Text('SIMPAN TAG', style: GoogleFonts.sora(color: Colors.white, fontWeight: FontWeight.bold, letterSpacing: 1.1)),
                 ),
               ),
             ],
@@ -1282,7 +1282,7 @@ class SearchScreenState extends State<SearchScreen> {
                     children: [
                       Text(
                         'Riwayat Panggilan (${filteredLogs.length})',
-                        style: GoogleFonts.outfit(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                        style: GoogleFonts.sora(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
                       ),
                       IconButton(
                         onPressed: () => Navigator.pop(ctx),
@@ -1304,7 +1304,7 @@ class SearchScreenState extends State<SearchScreen> {
                             labelPadding: const EdgeInsets.symmetric(horizontal: 6),
                             label: Text(
                               filterStr,
-                              style: GoogleFonts.outfit(
+                              style: GoogleFonts.sora(
                                 color: isSel ? Colors.white : AppColors.textSecondary,
                                 fontWeight: isSel ? FontWeight.bold : FontWeight.normal,
                                 fontSize: 13,
@@ -1349,7 +1349,7 @@ class SearchScreenState extends State<SearchScreen> {
                                   Text(
                                     'Belum Ada Panggilan $currentFilter',
                                     textAlign: TextAlign.center,
-                                    style: GoogleFonts.outfit(
+                                    style: GoogleFonts.sora(
                                       color: Colors.white,
                                       fontSize: 15,
                                       fontWeight: FontWeight.w600,
@@ -1359,7 +1359,7 @@ class SearchScreenState extends State<SearchScreen> {
                                   Text(
                                     'Riwayat panggilan untuk filter ini belum tersedia atau kosong.',
                                     textAlign: TextAlign.center,
-                                    style: GoogleFonts.outfit(
+                                    style: GoogleFonts.plusJakartaSans(
                                       color: AppColors.textSecondary,
                                       fontSize: 13,
                                       height: 1.4,
@@ -1396,8 +1396,8 @@ class SearchScreenState extends State<SearchScreen> {
                                     size: 20,
                                   ),
                                 ),
-                                title: Text(nameStr.isNotEmpty ? nameStr : numStr, style: GoogleFonts.outfit(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 15)),
-                                subtitle: Text('$numStr • $typeStr ($dateStr)', style: GoogleFonts.outfit(color: AppColors.textSecondary, fontSize: 12.5)),
+                                title: Text(nameStr.isNotEmpty ? nameStr : numStr, style: GoogleFonts.sora(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 15)),
+                                subtitle: Text('$numStr • $typeStr ($dateStr)', style: GoogleFonts.plusJakartaSans(color: AppColors.textSecondary, fontSize: 12.5)),
                                 trailing: const Icon(Icons.search_rounded, color: Color(0xFF007AFF), size: 20),
                                 onTap: () {
                                   Navigator.pop(ctx);
@@ -1481,7 +1481,7 @@ class SearchScreenState extends State<SearchScreen> {
                     children: [
                       Text(
                         'Semua Kontak (${_contacts.length} Orang)',
-                        style: GoogleFonts.outfit(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                        style: GoogleFonts.sora(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
                       ),
                       IconButton(
                         onPressed: () => Navigator.pop(ctx),
@@ -1491,10 +1491,10 @@ class SearchScreenState extends State<SearchScreen> {
                   ),
                   const SizedBox(height: 12),
                   TextField(
-                    style: GoogleFonts.outfit(color: Colors.white),
+                    style: GoogleFonts.plusJakartaSans(color: Colors.white),
                     decoration: InputDecoration(
                       hintText: 'Cari nama atau nomor telepon...',
-                      hintStyle: GoogleFonts.outfit(color: Colors.white38),
+                      hintStyle: GoogleFonts.plusJakartaSans(color: Colors.white38),
                       prefixIcon: const Icon(Icons.search_rounded, color: AppColors.textSecondary),
                       filled: true,
                       fillColor: const Color(0xFF1E263D),
@@ -1507,7 +1507,7 @@ class SearchScreenState extends State<SearchScreen> {
                   const SizedBox(height: 14),
                   Expanded(
                     child: filteredContacts.isEmpty
-                        ? Center(child: Text('Kontak tidak ditemukan.', style: GoogleFonts.outfit(color: AppColors.textSecondary)))
+                        ? Center(child: Text('Kontak tidak ditemukan.', style: GoogleFonts.plusJakartaSans(color: AppColors.textSecondary)))
                         : ListView.builder(
                             itemCount: filteredContacts.length,
                             itemBuilder: (ctx, idx) {
@@ -1521,11 +1521,11 @@ class SearchScreenState extends State<SearchScreen> {
                                   backgroundColor: const Color(0xFF007AFF).withValues(alpha: 0.2),
                                   child: Text(
                                     nameStr.isNotEmpty ? nameStr.substring(0, 1).toUpperCase() : '#',
-                                    style: GoogleFonts.outfit(color: const Color(0xFF2B8CFF), fontWeight: FontWeight.bold),
+                                    style: GoogleFonts.plusJakartaSans(color: const Color(0xFF2B8CFF), fontWeight: FontWeight.bold),
                                   ),
                                 ),
-                                title: Text(nameStr, style: GoogleFonts.outfit(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 15)),
-                                subtitle: Text(numStr, style: GoogleFonts.outfit(color: AppColors.textSecondary, fontSize: 13)),
+                                title: Text(nameStr, style: GoogleFonts.sora(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 15)),
+                                subtitle: Text(numStr, style: GoogleFonts.plusJakartaSans(color: AppColors.textSecondary, fontSize: 13)),
                                 trailing: const Icon(Icons.search_rounded, color: Color(0xFF007AFF), size: 20),
                                 onTap: () {
                                   Navigator.pop(ctx);
@@ -1607,7 +1607,7 @@ class SearchScreenState extends State<SearchScreen> {
                         Expanded(
                           child: Text(
                             _errorMessage!,
-                            style: GoogleFonts.outfit(
+                            style: GoogleFonts.plusJakartaSans(
                               color: const Color(0xFFEF4444),
                               fontSize: 13,
                             ),
@@ -1651,7 +1651,7 @@ class SearchScreenState extends State<SearchScreen> {
                         Expanded(
                           child: Text(
                             _statusMessage!,
-                            style: GoogleFonts.outfit(
+                            style: GoogleFonts.plusJakartaSans(
                               color: const Color(0xFF10B981),
                               fontSize: 13,
                             ),
@@ -1765,7 +1765,7 @@ class SearchScreenState extends State<SearchScreen> {
                     const SizedBox(width: 3),
                     Text(
                       _selectedCountryCode,
-                      style: GoogleFonts.outfit(
+                      style: GoogleFonts.sora(
                         color: Colors.white,
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
@@ -1797,13 +1797,13 @@ class SearchScreenState extends State<SearchScreen> {
                       child: TextField(
                         controller: _searchController,
                         focusNode: _searchFocusNode,
-                        style: GoogleFonts.outfit(
+                        style: GoogleFonts.plusJakartaSans(
                           color: Colors.white,
                           fontSize: 15,
                         ),
                         decoration: InputDecoration(
                           hintText: _getDynamicSearchHint(),
-                          hintStyle: GoogleFonts.outfit(
+                          hintStyle: GoogleFonts.plusJakartaSans(
                             color: Colors.white54,
                             fontSize: 14,
                           ),
@@ -1898,7 +1898,7 @@ class SearchScreenState extends State<SearchScreen> {
                       Expanded(
                         child: Text(
                           _phoneRecord!.phoneNumber,
-                          style: GoogleFonts.outfit(
+                          style: GoogleFonts.sora(
                             color: Colors.white,
                             fontSize: 15,
                             fontWeight: FontWeight.w600,
@@ -1971,7 +1971,7 @@ class SearchScreenState extends State<SearchScreen> {
                       const SizedBox(width: 3),
                       Text(
                         _selectedCountryCode,
-                        style: GoogleFonts.outfit(color: Colors.white, fontSize: 11.5, fontWeight: FontWeight.bold),
+                        style: GoogleFonts.sora(color: Colors.white, fontSize: 11.5, fontWeight: FontWeight.bold),
                       ),
                       const SizedBox(width: 1),
                       const Icon(
@@ -2004,7 +2004,7 @@ class SearchScreenState extends State<SearchScreen> {
                       Expanded(
                         child: Text(
                           _getDynamicSearchHint(),
-                          style: GoogleFonts.outfit(
+                          style: GoogleFonts.plusJakartaSans(
                             color: Colors.white60,
                             fontSize: 13,
                           ),
@@ -2055,7 +2055,7 @@ class SearchScreenState extends State<SearchScreen> {
               children: [
                 Text(
                   'Panggilan Terbaru',
-                  style: GoogleFonts.outfit(
+                  style: GoogleFonts.sora(
                     fontSize: 18,
                     fontWeight: FontWeight.w800,
                     color: Colors.white,
@@ -2076,7 +2076,7 @@ class SearchScreenState extends State<SearchScreen> {
                           const SizedBox(width: 4),
                           Text(
                             'Perbarui',
-                            style: GoogleFonts.outfit(
+                            style: GoogleFonts.sora(
                               color: AppColors.primaryLight,
                               fontSize: 13,
                               fontWeight: FontWeight.w600,
@@ -2123,7 +2123,7 @@ class SearchScreenState extends State<SearchScreen> {
                               const SizedBox(height: 14),
                               Text(
                                 'Izin Kontak Diperlukan',
-                                style: GoogleFonts.outfit(
+                                style: GoogleFonts.sora(
                                   color: Colors.white,
                                   fontSize: 15,
                                   fontWeight: FontWeight.w700,
@@ -2133,7 +2133,7 @@ class SearchScreenState extends State<SearchScreen> {
                               Text(
                                 'Izinkan akses kontak & log panggilan untuk melihat riwayat panggilan asli dari HP Anda.',
                                 textAlign: TextAlign.center,
-                                style: GoogleFonts.outfit(
+                                style: GoogleFonts.plusJakartaSans(
                                   color: AppColors.textSecondary,
                                   fontSize: 12.5,
                                   height: 1.4,
@@ -2154,7 +2154,7 @@ class SearchScreenState extends State<SearchScreen> {
                                   ),
                                   child: Text(
                                     'Izinkan Akses Kontak',
-                                    style: GoogleFonts.outfit(
+                                    style: GoogleFonts.sora(
                                       color: Colors.white,
                                       fontWeight: FontWeight.w700,
                                       fontSize: 14,
@@ -2177,7 +2177,7 @@ class SearchScreenState extends State<SearchScreen> {
                             Text(
                               'Belum ada riwayat panggilan kontak nyata.',
                               textAlign: TextAlign.center,
-                              style: GoogleFonts.outfit(
+                              style: GoogleFonts.plusJakartaSans(
                                 color: AppColors.textSecondary,
                                 fontSize: 13.5,
                                 height: 1.4,
@@ -2212,7 +2212,7 @@ class SearchScreenState extends State<SearchScreen> {
                                 item['name'] as String,
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
-                                style: GoogleFonts.outfit(
+                                style: GoogleFonts.sora(
                                   fontSize: 15.5,
                                   fontWeight: FontWeight.w600,
                                   color: (item['isSpam'] as bool)
@@ -2233,7 +2233,7 @@ class SearchScreenState extends State<SearchScreen> {
                                   ],
                                   Text(
                                     item['sub'] as String,
-                                    style: GoogleFonts.outfit(
+                                    style: GoogleFonts.plusJakartaSans(
                                       color: Colors.white54,
                                       fontSize: 13,
                                     ),
@@ -2248,7 +2248,7 @@ class SearchScreenState extends State<SearchScreen> {
                           children: [
                             Text(
                               item['date'] as String,
-                              style: GoogleFonts.outfit(
+                              style: GoogleFonts.plusJakartaSans(
                                 color: Colors.white54,
                                 fontSize: 12.5,
                               ),
@@ -2273,7 +2273,7 @@ class SearchScreenState extends State<SearchScreen> {
                   onPressed: _showAllCallLogsModal,
                   icon: Text(
                     'Tampilkan Semuanya ($_callLogFilterTime)',
-                    style: GoogleFonts.outfit(
+                    style: GoogleFonts.plusJakartaSans(
                       color: const Color(0xFF2B8CFF),
                       fontSize: 14.5,
                       fontWeight: FontWeight.w600,
@@ -2296,7 +2296,7 @@ class SearchScreenState extends State<SearchScreen> {
               children: [
                 Text(
                   'Tag Saya',
-                  style: GoogleFonts.outfit(
+                  style: GoogleFonts.sora(
                     fontSize: 18,
                     fontWeight: FontWeight.w800,
                     color: Colors.white,
@@ -2327,7 +2327,7 @@ class SearchScreenState extends State<SearchScreen> {
                           children: [
                             Text(
                               'Detail',
-                              style: GoogleFonts.outfit(
+                              style: GoogleFonts.sora(
                                 color: AppColors.primaryLight,
                                 fontSize: 12.5,
                                 fontWeight: FontWeight.w600,
@@ -2348,7 +2348,7 @@ class SearchScreenState extends State<SearchScreen> {
                 padding: const EdgeInsets.only(bottom: 12),
                 child: Text(
                   'Belum ada tag/label khusus untuk nomor Anda.',
-                  style: GoogleFonts.outfit(
+                  style: GoogleFonts.plusJakartaSans(
                     color: AppColors.textSecondary,
                     fontSize: 13,
                   ),
@@ -2385,7 +2385,7 @@ class SearchScreenState extends State<SearchScreen> {
                           children: [
                             Text(
                               '# ${t.labelName}',
-                              style: GoogleFonts.outfit(
+                              style: GoogleFonts.sora(
                                 color: Colors.white,
                                 fontSize: 14,
                                 fontWeight: FontWeight.bold,
@@ -2403,7 +2403,7 @@ class SearchScreenState extends State<SearchScreen> {
               const SizedBox(height: 28),
               Text(
                 'Kontak Cepat',
-                style: GoogleFonts.outfit(
+                style: GoogleFonts.sora(
                   fontSize: 18,
                   fontWeight: FontWeight.w800,
                   color: Colors.white,
@@ -2416,7 +2416,7 @@ class SearchScreenState extends State<SearchScreen> {
                   child: Center(
                     child: Text(
                       'Tidak ada kontak untuk ditampilkan.',
-                      style: GoogleFonts.outfit(
+                      style: GoogleFonts.plusJakartaSans(
                         color: AppColors.textSecondary,
                         fontSize: 13.5,
                       ),
@@ -2458,7 +2458,7 @@ class SearchScreenState extends State<SearchScreen> {
                       onPressed: _showAllContactsModal,
                       icon: Text(
                         'Tampilkan Semua (${_contacts.length} Orang)',
-                        style: GoogleFonts.outfit(
+                        style: GoogleFonts.plusJakartaSans(
                           color: const Color(0xFF2B8CFF),
                           fontSize: 14.5,
                           fontWeight: FontWeight.w600,
@@ -2532,7 +2532,7 @@ class SearchScreenState extends State<SearchScreen> {
                                 Expanded(
                                   child: Text(
                                     'Aktivitas Pencarian Nomor Anda',
-                                    style: GoogleFonts.outfit(
+                                    style: GoogleFonts.sora(
                                       color: AppColors.primaryLight,
                                       fontSize: 14.5,
                                       fontWeight: FontWeight.w700,
@@ -2557,7 +2557,7 @@ class SearchScreenState extends State<SearchScreen> {
                               children: [
                                 Text(
                                   'Detail',
-                                  style: GoogleFonts.outfit(
+                                  style: GoogleFonts.sora(
                                     color: Colors.white,
                                     fontSize: 12.5,
                                     fontWeight: FontWeight.w700,
@@ -2578,7 +2578,7 @@ class SearchScreenState extends State<SearchScreen> {
                       if (_isMyStatsLoading)
                         Text(
                           'Memeriksa aktivitas pencarian...',
-                          style: GoogleFonts.outfit(
+                          style: GoogleFonts.sora(
                             color: Colors.white,
                             fontSize: 14.5,
                             fontWeight: FontWeight.w600,
@@ -2587,7 +2587,7 @@ class SearchScreenState extends State<SearchScreen> {
                       else if (_myPhoneSearchCount > 0)
                         Text(
                           '$_myPhoneSearchCount Kali Diperiksa Orang Lain',
-                          style: GoogleFonts.outfit(
+                          style: GoogleFonts.plusJakartaSans(
                             color: Colors.white,
                             fontSize: 16.5,
                             fontWeight: FontWeight.w800,
@@ -2596,7 +2596,7 @@ class SearchScreenState extends State<SearchScreen> {
                       else
                         Text(
                           'Belum tercatat aktivitas pemeriksaan atau penelusuran pada profil nomor Anda.',
-                          style: GoogleFonts.outfit(
+                          style: GoogleFonts.plusJakartaSans(
                             color: AppColors.textSecondary,
                             fontSize: 13.5,
                             height: 1.45,
@@ -2629,7 +2629,7 @@ class SearchScreenState extends State<SearchScreen> {
             children: [
               Text(
                 'Baru Saja Dilihat',
-                style: GoogleFonts.outfit(
+                style: GoogleFonts.plusJakartaSans(
                   fontSize: 17,
                   fontWeight: FontWeight.w800,
                   color: Colors.white,
@@ -2644,7 +2644,7 @@ class SearchScreenState extends State<SearchScreen> {
                   },
                   child: Text(
                     'Hapus',
-                    style: GoogleFonts.outfit(
+                    style: GoogleFonts.plusJakartaSans(
                       color: const Color(0xFF2B8CFF),
                       fontSize: 14.5,
                       fontWeight: FontWeight.bold,
@@ -2666,7 +2666,7 @@ class SearchScreenState extends State<SearchScreen> {
                           ? 'Belum Ada Riwayat Pencarian'
                           : 'Belum Ada Nomor Dilihat',
                       textAlign: TextAlign.center,
-                      style: GoogleFonts.outfit(
+                      style: GoogleFonts.sora(
                         color: Colors.white,
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
@@ -2678,7 +2678,7 @@ class SearchScreenState extends State<SearchScreen> {
                           ? 'Nomor yang Anda cari akan otomatis tercatat di sini.'
                           : 'Riwayat nomor telepon yang baru saja Anda periksa akan muncul di sini.',
                       textAlign: TextAlign.center,
-                      style: GoogleFonts.outfit(
+                      style: GoogleFonts.plusJakartaSans(
                         color: AppColors.textSecondary,
                         fontSize: 13,
                         height: 1.35,
@@ -2710,7 +2710,7 @@ class SearchScreenState extends State<SearchScreen> {
                           backgroundColor: item['color'] as Color,
                           child: Text(
                             item['initial'] as String,
-                            style: GoogleFonts.outfit(
+                            style: GoogleFonts.sora(
                               color: Colors.white,
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
@@ -2724,7 +2724,7 @@ class SearchScreenState extends State<SearchScreen> {
                             children: [
                               Text(
                                 item['name'] as String,
-                                style: GoogleFonts.outfit(
+                                style: GoogleFonts.sora(
                                   fontSize: 15.5,
                                   fontWeight: FontWeight.w700,
                                   color: Colors.white,
@@ -2733,7 +2733,7 @@ class SearchScreenState extends State<SearchScreen> {
                               const SizedBox(height: 2),
                               Text(
                                 item['number'] as String,
-                                style: GoogleFonts.outfit(
+                                style: GoogleFonts.plusJakartaSans(
                                   color: Colors.white54,
                                   fontSize: 13,
                                 ),
@@ -2743,7 +2743,7 @@ class SearchScreenState extends State<SearchScreen> {
                         ),
                         Text(
                           item['date'] as String,
-                          style: GoogleFonts.outfit(
+                          style: GoogleFonts.plusJakartaSans(
                             color: Colors.white54,
                             fontSize: 12.5,
                           ),
@@ -2778,7 +2778,7 @@ class SearchScreenState extends State<SearchScreen> {
               children: [
                 Text(
                   _phoneRecord!.phoneNumber,
-                  style: GoogleFonts.outfit(
+                  style: GoogleFonts.sora(
                     color: Colors.white,
                     fontSize: 24,
                     fontWeight: FontWeight.w800,
@@ -2802,7 +2802,7 @@ class SearchScreenState extends State<SearchScreen> {
                       const SizedBox(width: 6),
                       Text(
                         'Operator: ${_phoneRecord!.carrier}',
-                        style: GoogleFonts.outfit(
+                        style: GoogleFonts.sora(
                           color: AppColors.accentCyan,
                           fontSize: 13,
                           fontWeight: FontWeight.w600,
@@ -2821,7 +2821,7 @@ class SearchScreenState extends State<SearchScreen> {
             children: [
               Text(
                 'Tag & Label (${_phoneRecord!.tags.length})',
-                style: GoogleFonts.outfit(
+                style: GoogleFonts.sora(
                   fontSize: 18,
                   fontWeight: FontWeight.w800,
                   color: Colors.white,
@@ -2842,7 +2842,7 @@ class SearchScreenState extends State<SearchScreen> {
                   ),
                   child: Text(
                     '+ Tambah Tag',
-                    style: GoogleFonts.outfit(
+                    style: GoogleFonts.sora(
                       color: AppColors.primaryLight,
                       fontWeight: FontWeight.bold,
                       fontSize: 13,
@@ -2856,7 +2856,7 @@ class SearchScreenState extends State<SearchScreen> {
           if (_phoneRecord!.tags.isEmpty)
             Text(
               'Belum ada label tag untuk nomor ini. Tekan tombol "+ Tambah Tag" untuk memberi label.',
-              style: GoogleFonts.outfit(
+              style: GoogleFonts.plusJakartaSans(
                 color: AppColors.textSecondary,
                 fontSize: 13,
               ),
@@ -2884,7 +2884,7 @@ class SearchScreenState extends State<SearchScreen> {
                   ),
                   child: Text(
                     '# ${t.labelName}',
-                    style: GoogleFonts.outfit(
+                    style: GoogleFonts.plusJakartaSans(
                       color: t.isSpam ? const Color(0xFFEF4444) : Colors.white,
                       fontSize: 14,
                       fontWeight: FontWeight.bold,
@@ -2897,7 +2897,7 @@ class SearchScreenState extends State<SearchScreen> {
 
           Text(
             'Daftar Ulasan & Reputasi',
-            style: GoogleFonts.outfit(
+            style: GoogleFonts.sora(
               fontSize: 18,
               fontWeight: FontWeight.w800,
               color: Colors.white,
@@ -2923,7 +2923,7 @@ class SearchScreenState extends State<SearchScreen> {
                   const SizedBox(height: 12),
                   Text(
                     'Belum Ada Ulasan Tag',
-                    style: GoogleFonts.outfit(
+                    style: GoogleFonts.sora(
                       color: Colors.white,
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
@@ -2933,7 +2933,7 @@ class SearchScreenState extends State<SearchScreen> {
                   Text(
                     'Jadilah yang pertama memberikan label apakah nomor ini kurir, penipu, atau rekan bisnis.',
                     textAlign: TextAlign.center,
-                    style: GoogleFonts.outfit(
+                    style: GoogleFonts.plusJakartaSans(
                       color: AppColors.textSecondary,
                       fontSize: 13,
                       height: 1.4,
@@ -2945,7 +2945,7 @@ class SearchScreenState extends State<SearchScreen> {
                     icon: const Icon(Icons.add, size: 18),
                     label: Text(
                       'Beri Tag Sekarang',
-                      style: GoogleFonts.outfit(fontWeight: FontWeight.bold),
+                      style: GoogleFonts.sora(fontWeight: FontWeight.bold),
                     ),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primary,

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shimmer/shimmer.dart';
 import '../theme/app_theme.dart';
 import '../models/phone_record.dart';
 import '../services/api_service.dart';
@@ -218,15 +220,16 @@ class _MyTagsDetailScreenState extends State<MyTagsDetailScreen> {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) {
-        // PREVIEW HARDCODE UI: 
-        // 1. Jika menekan 'Ikhsan', simulasikan bahwa ini adalah Tag dari Profil Sendiri.
         if (tag.labelName.toLowerCase() == 'ikhsan') {
           return _SelfTagModal(savedTagLabel: tag.labelName);
         }
         
-        // 2. Jika menekan tag lain, simulasikan sebagai tag yang di-save orang lain.
+        if (tag.userId == null || tag.userId!.trim().isEmpty) {
+          return _AnonymousSaverModal();
+        }
+        
         return _SaverProfileModal(
-          saverNumber: '+62 812-3456-7890',
+          saverNumber: tag.userId!,
           savedTagLabel: tag.labelName,
           apiService: widget.apiService,
         );
@@ -262,28 +265,25 @@ class _SaverProfileModalState extends State<_SaverProfileModal> {
   }
 
   Future<void> _fetchProfile() async {
-    // PREVIEW HARDCODE UI: Menyimulasikan response API dan mengirim list tag dengan kemiripan
-    await Future.delayed(const Duration(milliseconds: 800));
-    if (mounted) {
-      setState(() {
-        _isLoading = false;
-        _record = PhoneRecord(
-          id: 'mock_id',
-          phoneNumber: widget.saverNumber,
-          countryCode: 'ID',
-          searchCount: 1,
-          trustScore: 100.0,
-          carrier: 'Telkomsel',
-          tags: [
-            TagItem(id: '1', phoneNumberId: 'mock', labelName: 'Ikhsan Dev', upvotes: 10),
-            TagItem(id: '2', phoneNumberId: 'mock', labelName: 'Ikhsan Dev BDG', upvotes: 9), // Harus terfilter oleh logika similarity
-            TagItem(id: '3', phoneNumberId: 'mock', labelName: 'Rekan Kerja', upvotes: 8),
-            TagItem(id: '4', phoneNumberId: 'mock', labelName: 'Teman Kampus', upvotes: 7),
-            TagItem(id: '5', phoneNumberId: 'mock', labelName: 'Keluarga', upvotes: 6),
-            TagItem(id: '6', phoneNumberId: 'mock', labelName: 'Tukang Servis', upvotes: 5),
-          ],
-        );
-      });
+    try {
+      final response = await widget.apiService.lookupPhoneNumber(widget.saverNumber);
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          if (response.found && response.data != null) {
+            _record = response.data;
+          } else {
+            _errorMessage = 'Profil tidak ditemukan.';
+          }
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          _errorMessage = 'Gagal memuat profil.';
+        });
+      }
     }
   }
 
@@ -348,10 +348,74 @@ class _SaverProfileModalState extends State<_SaverProfileModal> {
           ),
           const SizedBox(height: 24),
           if (_isLoading)
-            const Center(
-              child: Padding(
-                padding: EdgeInsets.all(32),
-                child: CircularProgressIndicator(color: AppColors.primaryLight),
+            Shimmer.fromColors(
+              baseColor: const Color(0xFF1E2636),
+              highlightColor: const Color(0xFF2D3754),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    height: 70,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  Row(
+                    children: [
+                      Container(
+                        width: 60,
+                        height: 60,
+                        decoration: const BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              width: 150,
+                              height: 18,
+                              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(4)),
+                            ),
+                            const SizedBox(height: 8),
+                            Container(
+                              width: 100,
+                              height: 14,
+                              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(4)),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 32),
+                  Container(
+                    width: 200,
+                    height: 16,
+                    decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(4)),
+                  ),
+                  const SizedBox(height: 16),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: List.generate(
+                      3,
+                      (index) => Container(
+                        width: 90.0 + (index * 25),
+                        height: 36,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             )
           else if (_errorMessage.isNotEmpty)
@@ -460,6 +524,57 @@ class _SaverProfileModalState extends State<_SaverProfileModal> {
                   );
                 }).toList(),
               ),
+            const SizedBox(height: 32),
+            Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      Clipboard.setData(ClipboardData(text: widget.saverNumber));
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Nomor disalin!', style: GoogleFonts.plusJakartaSans()),
+                          backgroundColor: AppColors.primaryLight,
+                          behavior: SnackBarBehavior.floating,
+                        ),
+                      );
+                    },
+                    icon: const Icon(Icons.copy_rounded, size: 18),
+                    label: Text('Salin', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold)),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primaryLight.withValues(alpha: 0.1),
+                      foregroundColor: AppColors.primaryLight,
+                      elevation: 0,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Laporan terkirim.', style: GoogleFonts.plusJakartaSans()),
+                          backgroundColor: const Color(0xFF1E2636),
+                          behavior: SnackBarBehavior.floating,
+                        ),
+                      );
+                    },
+                    icon: const Icon(Icons.flag_rounded, size: 18),
+                    label: Text('Laporkan', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold)),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFEF4444).withValues(alpha: 0.1),
+                      foregroundColor: const Color(0xFFEF4444),
+                      elevation: 0,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ]
         ],
       ),

@@ -103,7 +103,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                         children: [
                           Text(
                             'Statistik & Pengaturan',
-                            style: GoogleFonts.outfit(
+                            style: GoogleFonts.sora(
                               fontSize: 22,
                               fontWeight: FontWeight.w800,
                               color: Colors.white,
@@ -111,7 +111,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                           ),
                           Text(
                             'Data Real-time NestJS Backend & Konfigurasi',
-                            style: GoogleFonts.outfit(
+                            style: GoogleFonts.plusJakartaSans(
                               fontSize: 12,
                               color: AppColors.accentOrange,
                               fontWeight: FontWeight.w500,
@@ -135,7 +135,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                           const SizedBox(width: 8),
                           Text(
                             'Konfigurasi Server API',
-                            style: GoogleFonts.outfit(
+                            style: GoogleFonts.sora(
                               color: Colors.white,
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
@@ -146,7 +146,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                       const SizedBox(height: 8),
                       Text(
                         'Untuk perangkat HP nyata via ADB Tunnel gunakan http://127.0.0.1:3000 (paling stabil). Jika via Wi-Fi langsung gunakan IP PC saat ini (http://192.168.1.159:3000). Untuk emulator gunakan http://10.0.2.2:3000.',
-                        style: GoogleFonts.outfit(
+                        style: GoogleFonts.plusJakartaSans(
                           color: AppColors.textSecondary,
                           fontSize: 12,
                         ),
@@ -157,7 +157,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                           Expanded(
                             child: TextField(
                               controller: _urlController,
-                              style: GoogleFonts.outfit(color: Colors.white, fontSize: 14),
+                              style: GoogleFonts.plusJakartaSans(color: Colors.white, fontSize: 14),
                               decoration: const InputDecoration(
                                 hintText: 'http://127.0.0.1:3000',
                                 prefixIcon: Icon(Icons.link, size: 18),
@@ -183,7 +183,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                             ),
                             child: Text(
                               'SIMPAN',
-                              style: GoogleFonts.outfit(color: Colors.white, fontWeight: FontWeight.bold),
+                              style: GoogleFonts.sora(color: Colors.white, fontWeight: FontWeight.bold),
                             ),
                           ),
                         ],
@@ -204,7 +204,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                 const SizedBox(height: 20),
                 Text(
                   'Ikhtisar Database Komunitas PhoneRep',
-                  style: GoogleFonts.outfit(
+                  style: GoogleFonts.sora(
                     color: Colors.white,
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -227,12 +227,12 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                       children: [
                         Text(
                           'Gagal Memuat Statistik Server',
-                          style: GoogleFonts.outfit(color: AppColors.accentRed, fontWeight: FontWeight.bold),
+                          style: GoogleFonts.sora(color: AppColors.accentRed, fontWeight: FontWeight.bold),
                         ),
                         const SizedBox(height: 4),
                         Text(
                           _errorMessage!,
-                          style: GoogleFonts.outfit(color: Colors.white70, fontSize: 13),
+                          style: GoogleFonts.plusJakartaSans(color: Colors.white70, fontSize: 13),
                         ),
                         const SizedBox(height: 12),
                         ElevatedButton.icon(
@@ -269,7 +269,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                   const SizedBox(height: 24),
                   Text(
                     'Nomor Paling Sering Dicari (${_analytics!.topSearchedNumbers.length})',
-                    style: GoogleFonts.outfit(
+                    style: GoogleFonts.sora(
                       color: Colors.white,
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
@@ -281,7 +281,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                       child: Center(
                         child: Text(
                           'Belum ada riwayat pencarian nomor',
-                          style: GoogleFonts.outfit(color: AppColors.textSecondary),
+                          style: GoogleFonts.plusJakartaSans(color: AppColors.textSecondary),
                         ),
                       ),
                     )
@@ -311,13 +311,13 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                                         ),
                                         child: Text(
                                           '#${idx + 1}',
-                                          style: GoogleFonts.outfit(color: AppColors.accentOrange, fontWeight: FontWeight.bold, fontSize: 11),
+                                          style: GoogleFonts.sora(color: AppColors.accentOrange, fontWeight: FontWeight.bold, fontSize: 11),
                                         ),
                                       ),
                                       const SizedBox(width: 8),
                                       Text(
                                         rec.phoneNumber,
-                                        style: GoogleFonts.outfit(
+                                        style: GoogleFonts.sora(
                                           color: Colors.white,
                                           fontSize: 16,
                                           fontWeight: FontWeight.w700,
@@ -328,7 +328,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                                   const SizedBox(height: 6),
                                   Text(
                                     '${rec.tags.length} Label Komunitas • Trust: ${rec.trustScore.toStringAsFixed(1)}',
-                                    style: GoogleFonts.outfit(
+                                    style: GoogleFonts.plusJakartaSans(
                                       color: AppColors.textSecondary,
                                       fontSize: 12,
                                     ),
@@ -345,7 +345,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                                   children: [
                                     Text(
                                       '${rec.searchCount}x',
-                                      style: GoogleFonts.outfit(
+                                      style: GoogleFonts.sora(
                                         color: AppColors.primaryLight,
                                         fontSize: 16,
                                         fontWeight: FontWeight.bold,
@@ -353,7 +353,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                                     ),
                                     Text(
                                       'Cari',
-                                      style: GoogleFonts.outfit(
+                                      style: GoogleFonts.plusJakartaSans(
                                         color: AppColors.textSecondary,
                                         fontSize: 10,
                                       ),
@@ -398,7 +398,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
         ),
         child: Text(
           '$label: $url',
-          style: GoogleFonts.outfit(color: AppColors.accentCyan, fontSize: 11, fontWeight: FontWeight.w600),
+          style: GoogleFonts.sora(color: AppColors.accentCyan, fontSize: 11, fontWeight: FontWeight.w600),
         ),
       ),
     );
@@ -424,7 +424,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                   title,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: GoogleFonts.outfit(
+                  style: GoogleFonts.sora(
                     color: AppColors.textSecondary,
                     fontSize: 11,
                     fontWeight: FontWeight.w700,
@@ -439,7 +439,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
           const SizedBox(height: 10),
           Text(
             value,
-            style: GoogleFonts.outfit(
+            style: GoogleFonts.sora(
               color: Colors.white,
               fontSize: 28,
               fontWeight: FontWeight.w800,

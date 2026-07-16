@@ -85,7 +85,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             children: [
               Text(
                 'Kelola Foto Profil',
-                style: GoogleFonts.outfit(
+                style: GoogleFonts.sora(
                   color: Colors.white,
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -101,7 +101,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                   child: const Icon(Icons.photo_library_rounded, color: AppColors.primaryLight),
                 ),
-                title: Text('Pilih dari Galeri', style: GoogleFonts.outfit(color: Colors.white, fontWeight: FontWeight.w600)),
+                title: Text('Pilih dari Galeri', style: GoogleFonts.sora(color: Colors.white, fontWeight: FontWeight.w600)),
                 onTap: () {
                   Navigator.pop(ctx);
                   _pickPhoto();
@@ -117,7 +117,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                     child: const Icon(Icons.delete_rounded, color: Color(0xFFEF4444)),
                   ),
-                  title: Text('Hapus Foto Profil', style: GoogleFonts.outfit(color: const Color(0xFFEF4444), fontWeight: FontWeight.w600)),
+                  title: Text('Hapus Foto Profil', style: GoogleFonts.plusJakartaSans(color: const Color(0xFFEF4444), fontWeight: FontWeight.w600)),
                   onTap: () async {
                     Navigator.pop(ctx);
                     final prefs = await SharedPreferences.getInstance();
@@ -153,36 +153,36 @@ class _ProfileScreenState extends State<ProfileScreen> {
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
           title: Text(
             'Edit Profil Saya',
-            style: GoogleFonts.outfit(color: Colors.white, fontWeight: FontWeight.bold),
+            style: GoogleFonts.sora(color: Colors.white, fontWeight: FontWeight.bold),
           ),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Nama Lengkap Anda', style: GoogleFonts.outfit(color: AppColors.textSecondary, fontSize: 13)),
+                Text('Nama Lengkap Anda', style: GoogleFonts.plusJakartaSans(color: AppColors.textSecondary, fontSize: 13)),
                 const SizedBox(height: 6),
                 TextField(
                   controller: nameCtrl,
-                  style: GoogleFonts.outfit(color: Colors.white),
+                  style: GoogleFonts.plusJakartaSans(color: Colors.white),
                   decoration: InputDecoration(
                     hintText: 'Contoh: Budi Santoso',
-                    hintStyle: GoogleFonts.outfit(color: Colors.white38),
+                    hintStyle: GoogleFonts.plusJakartaSans(color: Colors.white38),
                     filled: true,
                     fillColor: const Color(0xFF131824),
                     border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
                   ),
                 ),
                 const SizedBox(height: 16),
-                Text('Nomor Telepon Aktif', style: GoogleFonts.outfit(color: AppColors.textSecondary, fontSize: 13)),
+                Text('Nomor Telepon Aktif', style: GoogleFonts.plusJakartaSans(color: AppColors.textSecondary, fontSize: 13)),
                 const SizedBox(height: 6),
                 TextField(
                   controller: phoneCtrl,
                   keyboardType: TextInputType.phone,
-                  style: GoogleFonts.outfit(color: Colors.white),
+                  style: GoogleFonts.plusJakartaSans(color: Colors.white),
                   decoration: InputDecoration(
                     hintText: 'Contoh: 081234567890',
-                    hintStyle: GoogleFonts.outfit(color: Colors.white38),
+                    hintStyle: GoogleFonts.plusJakartaSans(color: Colors.white38),
                     filled: true,
                     fillColor: const Color(0xFF131824),
                     border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
@@ -194,7 +194,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(ctx),
-              child: Text('Batal', style: GoogleFonts.outfit(color: AppColors.textSecondary)),
+              child: Text('Batal', style: GoogleFonts.plusJakartaSans(color: AppColors.textSecondary)),
             ),
             ElevatedButton(
               onPressed: () async {
@@ -225,7 +225,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 backgroundColor: AppColors.primary,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
               ),
-              child: Text('Simpan', style: GoogleFonts.outfit(color: Colors.white, fontWeight: FontWeight.bold)),
+              child: Text('Simpan', style: GoogleFonts.sora(color: Colors.white, fontWeight: FontWeight.bold)),
             ),
           ],
         );
@@ -266,7 +266,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 children: [
                   Text(
                     'Profil Saya',
-                    style: GoogleFonts.outfit(
+                    style: GoogleFonts.sora(
                       fontSize: 24,
                       fontWeight: FontWeight.w800,
                       color: Colors.white,
@@ -338,7 +338,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   : Center(
                                       child: Text(
                                         _getInitials(_userName),
-                                        style: GoogleFonts.outfit(
+                                        style: GoogleFonts.sora(
                                           fontSize: 26,
                                           fontWeight: FontWeight.w800,
                                           color: Colors.white,
@@ -374,7 +374,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               Flexible(
                                 child: Text(
                                   _userName,
-                                  style: GoogleFonts.outfit(
+                                  style: GoogleFonts.sora(
                                     fontSize: 20,
                                     fontWeight: FontWeight.w800,
                                     color: Colors.white,
@@ -389,7 +389,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           const SizedBox(height: 4),
                           Text(
                             _userPhone,
-                            style: GoogleFonts.outfit(
+                            style: GoogleFonts.plusJakartaSans(
                               fontSize: 15,
                               color: AppColors.textSecondary,
                               fontWeight: FontWeight.w500,
@@ -410,7 +410,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 Flexible(
                                   child: Text(
                                     'Akun Terverifikasi',
-                                    style: GoogleFonts.outfit(
+                                    style: GoogleFonts.sora(
                                       color: AppColors.accentGreen,
                                       fontSize: 11.5,
                                       fontWeight: FontWeight.bold,
@@ -433,7 +433,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               // Statistik Komunitas
               Text(
                 'Statistik Keamanan Nomor',
-                style: GoogleFonts.outfit(
+                style: GoogleFonts.sora(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
@@ -469,7 +469,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 children: [
                   Text(
                     'Daftar Tag Saya',
-                    style: GoogleFonts.outfit(
+                    style: GoogleFonts.sora(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
@@ -477,7 +477,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                   Text(
                     '${_userTags.length} Label',
-                    style: GoogleFonts.outfit(
+                    style: GoogleFonts.plusJakartaSans(
                       fontSize: 13,
                       color: AppColors.textSecondary,
                     ),
@@ -495,7 +495,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                   child: Text(
                     'Belum ada tag khusus untuk nomor Anda. Anda dapat menambahkannya melalui Beranda di bagian Tag Saya.',
-                    style: GoogleFonts.outfit(
+                    style: GoogleFonts.plusJakartaSans(
                       color: AppColors.textSecondary,
                       fontSize: 13,
                       height: 1.4,
@@ -520,7 +520,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         const SizedBox(width: 6),
                         Text(
                           tag,
-                          style: GoogleFonts.outfit(color: Colors.white, fontWeight: FontWeight.w600),
+                          style: GoogleFonts.sora(color: Colors.white, fontWeight: FontWeight.w600),
                         ),
                       ],
                     ),
@@ -531,7 +531,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               // Menu Pengaturan Server & Statistik
               Text(
                 'Pengaturan & Sistem',
-                style: GoogleFonts.outfit(
+                style: GoogleFonts.sora(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
@@ -572,7 +572,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           children: [
                             Text(
                               'Statistik & Koneksi Server',
-                              style: GoogleFonts.outfit(
+                              style: GoogleFonts.sora(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
                                 color: Colors.white,
@@ -581,7 +581,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             const SizedBox(height: 3),
                             Text(
                               'Kelola IP Backend (${widget.apiService.baseUrl}) & data sistem',
-                              style: GoogleFonts.outfit(
+                              style: GoogleFonts.plusJakartaSans(
                                 fontSize: 12.5,
                                 color: AppColors.textSecondary,
                               ),
@@ -604,15 +604,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     builder: (ctx) => AlertDialog(
                       backgroundColor: AppColors.cardBg,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                      title: Text('Hapus Akun & Keluar dari Aplikasi?', style: GoogleFonts.outfit(color: Colors.white, fontWeight: FontWeight.bold)),
+                      title: Text('Hapus Akun & Keluar dari Aplikasi?', style: GoogleFonts.sora(color: Colors.white, fontWeight: FontWeight.bold)),
                       content: Text(
                         'Apakah Anda yakin ingin keluar dan menghapus seluruh data akun serta riwayat identifikasi Anda dari sistem? Tindakan ini tidak dapat dibatalkan.',
-                        style: GoogleFonts.outfit(color: AppColors.textSecondary, fontSize: 13.5, height: 1.45),
+                        style: GoogleFonts.plusJakartaSans(color: AppColors.textSecondary, fontSize: 13.5, height: 1.45),
                       ),
                       actions: [
                         TextButton(
                           onPressed: () => Navigator.pop(ctx, false),
-                          child: Text('Batal', style: GoogleFonts.outfit(color: AppColors.textSecondary)),
+                          child: Text('Batal', style: GoogleFonts.plusJakartaSans(color: AppColors.textSecondary)),
                         ),
                         ElevatedButton(
                           onPressed: () => Navigator.pop(ctx, true),
@@ -620,7 +620,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             backgroundColor: const Color(0xFFEF4444),
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                           ),
-                          child: Text('Ya, Hapus & Keluar', style: GoogleFonts.outfit(color: Colors.white, fontWeight: FontWeight.bold)),
+                          child: Text('Ya, Hapus & Keluar', style: GoogleFonts.sora(color: Colors.white, fontWeight: FontWeight.bold)),
                         ),
                       ],
                     ),
@@ -669,7 +669,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           children: [
                             Text(
                               'Hapus Akun & Keluar',
-                              style: GoogleFonts.outfit(
+                              style: GoogleFonts.sora(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
                                 color: const Color(0xFFEF4444),
@@ -678,7 +678,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             const SizedBox(height: 3),
                             Text(
                               'Hapus seluruh data riwayat & sesi akun dari sistem',
-                              style: GoogleFonts.outfit(
+                              style: GoogleFonts.plusJakartaSans(
                                 fontSize: 12.5,
                                 color: AppColors.textSecondary,
                               ),
@@ -723,7 +723,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           const SizedBox(height: 14),
           Text(
             value,
-            style: GoogleFonts.outfit(
+            style: GoogleFonts.sora(
               fontSize: 16,
               fontWeight: FontWeight.bold,
               color: Colors.white,
@@ -732,7 +732,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           const SizedBox(height: 4),
           Text(
             title,
-            style: GoogleFonts.outfit(
+            style: GoogleFonts.plusJakartaSans(
               fontSize: 12,
               color: AppColors.textSecondary,
             ),

@@ -71,7 +71,7 @@ class _MyPhoneSearchersScreenState extends State<MyPhoneSearchersScreen> {
         SnackBar(
           content: Text(
             'Statistik pencarian telah diperbarui.',
-            style: GoogleFonts.outfit(color: Colors.white),
+            style: GoogleFonts.plusJakartaSans(color: Colors.white),
           ),
           backgroundColor: AppColors.primary,
           behavior: SnackBarBehavior.floating,
@@ -98,7 +98,7 @@ class _MyPhoneSearchersScreenState extends State<MyPhoneSearchersScreen> {
           alignment: Alignment.centerLeft,
           child: Text(
             'Orang yang Melihat Nomor Anda',
-            style: GoogleFonts.outfit(
+            style: GoogleFonts.plusJakartaSans(
               color: Colors.white,
               fontSize: 17.5,
               fontWeight: FontWeight.w800,
@@ -155,7 +155,7 @@ class _MyPhoneSearchersScreenState extends State<MyPhoneSearchersScreen> {
                   Expanded(
                     child: Text(
                       'Belum ada orang yang mencari atau memeriksa profil nomor Anda.',
-                      style: GoogleFonts.outfit(
+                      style: GoogleFonts.plusJakartaSans(
                         color: Colors.white.withValues(alpha: 0.9),
                         fontSize: 13.5,
                         height: 1.4,
@@ -192,7 +192,7 @@ class _MyPhoneSearchersScreenState extends State<MyPhoneSearchersScreen> {
                   const SizedBox(height: 18),
                   Text(
                     'Belum Ada Aktivitas Pencarian',
-                    style: GoogleFonts.outfit(
+                    style: GoogleFonts.sora(
                       color: Colors.white,
                       fontSize: 17,
                       fontWeight: FontWeight.bold,
@@ -202,7 +202,7 @@ class _MyPhoneSearchersScreenState extends State<MyPhoneSearchersScreen> {
                   Text(
                     'Saat ini belum ada pengguna atau nomor asing yang mencari profil nomor Anda.\n\nJika nanti ada nomor yang memeriksa atau menyimpan tag untuk Anda, aktivitasnya akan langsung muncul di sini.',
                     textAlign: TextAlign.center,
-                    style: GoogleFonts.outfit(
+                    style: GoogleFonts.plusJakartaSans(
                       color: AppColors.textSecondary,
                       fontSize: 13.5,
                       height: 1.5,
@@ -227,7 +227,7 @@ class _MyPhoneSearchersScreenState extends State<MyPhoneSearchersScreen> {
                   Expanded(
                     child: Text(
                       'Ditemukan $displayCount orang yang telah mencari atau memeriksa profil nomor Anda.',
-                      style: GoogleFonts.outfit(
+                      style: GoogleFonts.plusJakartaSans(
                         color: Colors.white.withValues(alpha: 0.9),
                         fontSize: 13.5,
                         height: 1.4,
@@ -310,7 +310,7 @@ class _MyPhoneSearchersScreenState extends State<MyPhoneSearchersScreen> {
                           fit: BoxFit.cover,
                           errorBuilder: (context, error, stackTrace) => Text(
                             initials,
-                            style: GoogleFonts.outfit(
+                            style: GoogleFonts.plusJakartaSans(
                               color: avatarColor,
                               fontSize: 16,
                               fontWeight: FontWeight.w800,
@@ -320,7 +320,7 @@ class _MyPhoneSearchersScreenState extends State<MyPhoneSearchersScreen> {
                       )
                     : Text(
                         initials,
-                        style: GoogleFonts.outfit(
+                        style: GoogleFonts.plusJakartaSans(
                           color: avatarColor,
                           fontSize: 16,
                           fontWeight: FontWeight.w800,
@@ -338,7 +338,7 @@ class _MyPhoneSearchersScreenState extends State<MyPhoneSearchersScreen> {
                         Expanded(
                           child: Text(
                             profileName,
-                            style: GoogleFonts.outfit(
+                            style: GoogleFonts.plusJakartaSans(
                               color: Colors.white,
                               fontSize: 16,
                               fontWeight: FontWeight.w800,
@@ -353,7 +353,7 @@ class _MyPhoneSearchersScreenState extends State<MyPhoneSearchersScreen> {
                           ),
                           child: Text(
                             'Pencari',
-                            style: GoogleFonts.outfit(
+                            style: GoogleFonts.sora(
                               color: avatarColor,
                               fontSize: 11,
                               fontWeight: FontWeight.w700,
@@ -369,7 +369,7 @@ class _MyPhoneSearchersScreenState extends State<MyPhoneSearchersScreen> {
                         const SizedBox(width: 6),
                         Text(
                           phoneNumber,
-                          style: GoogleFonts.outfit(
+                          style: GoogleFonts.sora(
                             color: avatarColor,
                             fontSize: 13.5,
                             fontWeight: FontWeight.w600,
@@ -391,7 +391,7 @@ class _MyPhoneSearchersScreenState extends State<MyPhoneSearchersScreen> {
                                 const SizedBox(width: 3),
                                 Text(
                                   '${checkCount}x Dicek',
-                                  style: GoogleFonts.outfit(
+                                  style: GoogleFonts.plusJakartaSans(
                                     color: const Color(0xFFF43F5E),
                                     fontSize: 10,
                                     fontWeight: FontWeight.w800,
@@ -406,7 +406,7 @@ class _MyPhoneSearchersScreenState extends State<MyPhoneSearchersScreen> {
                     const SizedBox(height: 5),
                     Text(
                       timeAgo,
-                      style: GoogleFonts.outfit(
+                      style: GoogleFonts.plusJakartaSans(
                         color: AppColors.textSecondary,
                         fontSize: 12,
                       ),
@@ -421,7 +421,7 @@ class _MyPhoneSearchersScreenState extends State<MyPhoneSearchersScreen> {
           const SizedBox(height: 12),
           Text(
             'Tag yang disimpan oleh orang lain:',
-            style: GoogleFonts.outfit(
+            style: GoogleFonts.sora(
               color: AppColors.textSecondary,
               fontSize: 12,
               fontWeight: FontWeight.w600,
@@ -442,7 +442,7 @@ class _MyPhoneSearchersScreenState extends State<MyPhoneSearchersScreen> {
                   ),
                   child: Text(
                     tag,
-                    style: GoogleFonts.outfit(
+                    style: GoogleFonts.sora(
                       color: AppColors.primaryLight,
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
@@ -469,7 +469,7 @@ class _MyPhoneSearchersScreenState extends State<MyPhoneSearchersScreen> {
                       children: [
                         Text(
                           '+$extraCount Tag Lainnya',
-                          style: GoogleFonts.outfit(
+                          style: GoogleFonts.sora(
                             color: avatarColor,
                             fontSize: 12,
                             fontWeight: FontWeight.w700,
@@ -596,7 +596,7 @@ class _AllTagsBottomSheetContentState extends State<_AllTagsBottomSheetContent> 
           padding: const EdgeInsets.symmetric(vertical: 30),
           child: Text(
             'Tag "${_searchController.text}" tidak ditemukan.',
-            style: GoogleFonts.outfit(color: AppColors.textSecondary, fontSize: 14),
+            style: GoogleFonts.plusJakartaSans(color: AppColors.textSecondary, fontSize: 14),
           ),
         ),
       );
@@ -618,7 +618,7 @@ class _AllTagsBottomSheetContentState extends State<_AllTagsBottomSheetContent> 
               ),
               child: Text(
                 tag,
-                style: GoogleFonts.outfit(
+                style: GoogleFonts.sora(
                   color: AppColors.primaryLight,
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
@@ -639,7 +639,7 @@ class _AllTagsBottomSheetContentState extends State<_AllTagsBottomSheetContent> 
               icon: const Icon(Icons.add_circle_outline_rounded, color: AppColors.primaryLight, size: 18),
               label: Text(
                 'Muat Lebih Banyak (${totalCount - currentLimit} tag tersisa)',
-                style: GoogleFonts.outfit(
+                style: GoogleFonts.sora(
                   color: AppColors.primaryLight,
                   fontSize: 13.5,
                   fontWeight: FontWeight.bold,
@@ -684,7 +684,7 @@ class _AllTagsBottomSheetContentState extends State<_AllTagsBottomSheetContent> 
           const SizedBox(height: 18),
           Text(
             'Semua Tag untuk ${widget.profileName}',
-            style: GoogleFonts.outfit(
+            style: GoogleFonts.sora(
               color: Colors.white,
               fontSize: 18,
               fontWeight: FontWeight.bold,
@@ -696,7 +696,7 @@ class _AllTagsBottomSheetContentState extends State<_AllTagsBottomSheetContent> 
             children: [
               Text(
                 widget.phoneNumber,
-                style: GoogleFonts.outfit(
+                style: GoogleFonts.sora(
                   color: AppColors.primaryLight,
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
@@ -710,7 +710,7 @@ class _AllTagsBottomSheetContentState extends State<_AllTagsBottomSheetContent> 
                 ),
                 child: Text(
                   'Total ${widget.allTags.length} Tag',
-                  style: GoogleFonts.outfit(
+                  style: GoogleFonts.sora(
                     color: AppColors.accentCyan,
                     fontSize: 11.5,
                     fontWeight: FontWeight.bold,
@@ -724,10 +724,10 @@ class _AllTagsBottomSheetContentState extends State<_AllTagsBottomSheetContent> 
             TextField(
               controller: _searchController,
               onChanged: _filterTags,
-              style: GoogleFonts.outfit(color: Colors.white, fontSize: 13.5),
+              style: GoogleFonts.plusJakartaSans(color: Colors.white, fontSize: 13.5),
               decoration: InputDecoration(
                 hintText: 'Cari dari ${widget.allTags.length} tag komunitas...',
-                hintStyle: GoogleFonts.outfit(color: AppColors.textSecondary, fontSize: 13.5),
+                hintStyle: GoogleFonts.plusJakartaSans(color: AppColors.textSecondary, fontSize: 13.5),
                 prefixIcon: const Icon(Icons.search_rounded, color: AppColors.textSecondary, size: 20),
                 suffixIcon: _searchController.text.isNotEmpty
                     ? IconButton(
@@ -779,7 +779,7 @@ class _AllTagsBottomSheetContentState extends State<_AllTagsBottomSheetContent> 
               ),
               child: Text(
                 'Tutup',
-                style: GoogleFonts.outfit(
+                style: GoogleFonts.sora(
                   color: Colors.white,
                   fontSize: 15,
                   fontWeight: FontWeight.bold,

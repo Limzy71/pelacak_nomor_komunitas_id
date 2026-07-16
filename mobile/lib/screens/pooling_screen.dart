@@ -82,12 +82,12 @@ class _PoolingScreenState extends State<PoolingScreen> {
           context: context,
           builder: (ctx) => AlertDialog(
             backgroundColor: AppColors.cardBgElevated,
-            title: Text('Izin Kontak Dibutuhkan', style: GoogleFonts.outfit(color: Colors.white, fontWeight: FontWeight.bold)),
-            content: Text('Anda telah menolak izin kontak secara permanen. Buka Pengaturan Android untuk mengaktifkan izin kontak demi keamanan komunitas PhoneRep.', style: GoogleFonts.outfit(color: AppColors.textSecondary)),
+            title: Text('Izin Kontak Dibutuhkan', style: GoogleFonts.sora(color: Colors.white, fontWeight: FontWeight.bold)),
+            content: Text('Anda telah menolak izin kontak secara permanen. Buka Pengaturan Android untuk mengaktifkan izin kontak demi keamanan komunitas PhoneRep.', style: GoogleFonts.plusJakartaSans(color: AppColors.textSecondary)),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(ctx),
-                child: Text('Batal', style: GoogleFonts.outfit(color: AppColors.textSecondary)),
+                child: Text('Batal', style: GoogleFonts.plusJakartaSans(color: AppColors.textSecondary)),
               ),
               ElevatedButton(
                 onPressed: () {
@@ -95,7 +95,7 @@ class _PoolingScreenState extends State<PoolingScreen> {
                   openAppSettings();
                 },
                 style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),
-                child: Text('Buka Pengaturan', style: GoogleFonts.outfit(color: Colors.white)),
+                child: Text('Buka Pengaturan', style: GoogleFonts.plusJakartaSans(color: Colors.white)),
               ),
             ],
           ),
@@ -225,7 +225,7 @@ class _PoolingScreenState extends State<PoolingScreen> {
                           Expanded(
                             child: Text(
                               'Pengaturan Perlindungan & Pooling',
-                              style: GoogleFonts.outfit(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w600),
+                              style: GoogleFonts.sora(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w600),
                             ),
                           ),
                         ],
@@ -263,7 +263,7 @@ class _PoolingScreenState extends State<PoolingScreen> {
                     // Bagian Contact Pooling Sekali Klik (Struktur Bersih Tanpa Data Palsu)
                     Text(
                       'Sinkronisasi Buku Alamat Komunitas',
-                      style: GoogleFonts.outfit(
+                      style: GoogleFonts.sora(
                         color: Colors.white,
                         fontSize: 18,
                         fontWeight: FontWeight.w800,
@@ -306,7 +306,7 @@ class _PoolingScreenState extends State<PoolingScreen> {
                                   children: [
                                     Text(
                                       'Kontribusi Buku Alamat (Pooling)',
-                                      style: GoogleFonts.outfit(
+                                      style: GoogleFonts.sora(
                                         color: Colors.white,
                                         fontSize: 16,
                                         fontWeight: FontWeight.bold,
@@ -317,7 +317,7 @@ class _PoolingScreenState extends State<PoolingScreen> {
                                       _lastSyncResult != null
                                           ? '✔ Tersinkronisasi (+${_lastSyncResult!.syncedCount} nomor)'
                                           : '${_contacts.length} Nomor terdeteksi di perangkat ini',
-                                      style: GoogleFonts.outfit(
+                                      style: GoogleFonts.sora(
                                         color: _lastSyncResult != null ? AppColors.accentGreen : AppColors.accentCyan,
                                         fontSize: 13,
                                         fontWeight: FontWeight.w600,
@@ -335,11 +335,11 @@ class _PoolingScreenState extends State<PoolingScreen> {
                           const SizedBox(height: 16),
                           Text(
                             'Dengan menyinkronkan buku alamat secara otomatis, Anda berkontribusi memperkuat proteksi PhoneRep untuk mengenali nomor kurir, penipu, dan nomor penting tanpa membeberkan riwayat pribadi Anda.',
-                            style: GoogleFonts.outfit(color: AppColors.textSecondary, fontSize: 13, height: 1.45),
+                            style: GoogleFonts.plusJakartaSans(color: AppColors.textSecondary, fontSize: 13, height: 1.45),
                           ),
                           if (_errorMessage != null) ...[
                             const SizedBox(height: 12),
-                            Text(_errorMessage!, style: GoogleFonts.outfit(color: AppColors.accentRed, fontSize: 12)),
+                            Text(_errorMessage!, style: GoogleFonts.plusJakartaSans(color: AppColors.accentRed, fontSize: 12)),
                           ],
                           const SizedBox(height: 20),
                           SizedBox(
@@ -355,7 +355,7 @@ class _PoolingScreenState extends State<PoolingScreen> {
                                     : (_contacts.isEmpty
                                         ? 'BERI IZIN BUKU ALAMAT SEKARANG'
                                         : 'SINKRONISASI ${_contacts.length} KONTAK SEKARANG'),
-                                style: GoogleFonts.outfit(fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 0.5),
+                                style: GoogleFonts.sora(fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 0.5),
                               ),
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: _lastSyncResult != null ? AppColors.accentGreen : const Color(0xFF007AFF),
@@ -407,7 +407,7 @@ class _PoolingScreenState extends State<PoolingScreen> {
               children: [
                 Text(
                   title,
-                  style: GoogleFonts.outfit(
+                  style: GoogleFonts.plusJakartaSans(
                     color: Colors.white,
                     fontSize: 17,
                     fontWeight: FontWeight.w800,
@@ -416,7 +416,7 @@ class _PoolingScreenState extends State<PoolingScreen> {
                 const SizedBox(height: 8),
                 Text(
                   subtitle,
-                  style: GoogleFonts.outfit(
+                  style: GoogleFonts.plusJakartaSans(
                     color: Colors.white.withValues(alpha: 0.9),
                     fontSize: 13,
                     height: 1.45,
