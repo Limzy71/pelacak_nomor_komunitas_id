@@ -159,7 +159,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     color: AppColors.textSecondary, size: 24),
                 selectedIcon: Icon(Icons.person_rounded,
                     color: AppColors.primaryLight, size: 24),
-                label: 'Profil Saya',
+                label: 'Profil',
               ),
             ],
           ),

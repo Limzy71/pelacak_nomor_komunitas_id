@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shimmer/shimmer.dart';
 import '../models/phone_record.dart';
 import '../theme/app_theme.dart';
 import '../services/api_service.dart';
@@ -128,7 +129,34 @@ class _MyPhoneSearchersScreenState extends State<MyPhoneSearchersScreen> {
 
   Widget _buildSearchersList() {
     if (_isLoading && _dynamicItems == null) {
-      return const Center(child: CircularProgressIndicator(color: AppColors.primary));
+      return Shimmer.fromColors(
+        baseColor: const Color(0xFF1E2636),
+        highlightColor: const Color(0xFF2D3754),
+        child: ListView.builder(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+          itemCount: 5,
+          itemBuilder: (context, index) => Padding(
+            padding: const EdgeInsets.only(bottom: 14),
+            child: Row(
+              children: [
+                Container(width: 48, height: 48, decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle)),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(width: 120, height: 16, decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(4))),
+                      const SizedBox(height: 6),
+                      Container(width: 80, height: 14, decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(4))),
+                    ],
+                  ),
+                ),
+                Container(width: 30, height: 30, decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle)),
+              ],
+            ),
+          ),
+        ),
+      );
     }
 
     final items = _dynamicItems ?? [];
