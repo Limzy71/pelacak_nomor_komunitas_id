@@ -2453,41 +2453,37 @@ class SearchScreenState extends State<SearchScreen> {
                                     ),
                                     const SizedBox(width: 4),
                                   ],
-                                  Flexible(
-                                    child: Text(
-                                      item['sub'] as String,
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: GoogleFonts.plusJakartaSans(
-                                        color: Colors.white54,
-                                        fontSize: 13,
-                                      ),
+                                  Text(
+                                    item['sub'] as String,
+                                    style: GoogleFonts.plusJakartaSans(
+                                      color: Colors.white54,
+                                      fontSize: 13,
                                     ),
                                   ),
-                                  if (topTag != null && topTag.isNotEmpty) ...[
-                                    const SizedBox(width: 8),
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
-                                      decoration: BoxDecoration(
-                                        color: AppColors.primary.withValues(alpha: 0.18),
-                                        borderRadius: BorderRadius.circular(6),
-                                        border: Border.all(
-                                          color: AppColors.primaryLight.withValues(alpha: 0.4),
-                                          width: 0.8,
-                                        ),
-                                      ),
-                                      child: Text(
-                                        topTag,
-                                        style: GoogleFonts.plusJakartaSans(
-                                          color: AppColors.primaryLight,
-                                          fontSize: 11,
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
                                 ],
                               ),
+                              if (topTag != null && topTag.isNotEmpty) ...[
+                                const SizedBox(height: 5),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.primary.withValues(alpha: 0.18),
+                                    borderRadius: BorderRadius.circular(6),
+                                    border: Border.all(
+                                      color: AppColors.primaryLight.withValues(alpha: 0.4),
+                                      width: 0.8,
+                                    ),
+                                  ),
+                                  child: Text(
+                                    topTag,
+                                    style: GoogleFonts.plusJakartaSans(
+                                      color: AppColors.primaryLight,
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ],
                           ),
                         ),
