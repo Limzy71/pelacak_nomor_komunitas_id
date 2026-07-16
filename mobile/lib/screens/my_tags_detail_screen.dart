@@ -775,43 +775,49 @@ class _SelfTagModal extends StatelessWidget {
           ),
           const SizedBox(height: 24),
           Container(
-            padding: const EdgeInsets.all(18),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
-              color: const Color(0xFF161C2C),
-              borderRadius: BorderRadius.circular(18),
-              border: Border.all(color: const Color(0xFF222B42)),
+              color: const Color(0xFF1E2636),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: const Color(0xFF2D3754)),
             ),
-            child: Column(
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.tag_rounded, color: AppColors.primaryLight, size: 18),
+                const SizedBox(width: 8),
+                Text(
+                  savedTagLabel,
+                  style: GoogleFonts.sora(
+                    color: Colors.white,
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 20),
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: AppColors.primaryLight.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: AppColors.primaryLight.withValues(alpha: 0.2)),
+            ),
+            child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
-                      decoration: BoxDecoration(
-                        color: AppColors.primaryLight.withValues(alpha: 0.18),
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(color: AppColors.primaryLight.withValues(alpha: 0.3)),
-                      ),
-                      child: Text(
-                        '# $savedTagLabel',
-                        style: GoogleFonts.sora(
-                          color: AppColors.primaryLight,
-                          fontSize: 14.5,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
+                const Icon(Icons.info_outline_rounded, color: AppColors.primaryLight, size: 20),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    'Tag ini disematkan langsung pada profil utama Anda. Pengguna lain yang menyimpan atau mencari nomor Anda akan melihat tag ini untuk mengenali identitas Anda dengan lebih cepat.',
+                    style: GoogleFonts.plusJakartaSans(
+                      color: Colors.white.withValues(alpha: 0.85),
+                      fontSize: 13.5,
+                      height: 1.5,
                     ),
-                  ],
-                ),
-                const SizedBox(height: 14),
-                Text(
-                  'Tag ini disematkan langsung pada profil utama Anda. Pengguna lain yang menyimpan atau mencari nomor Anda akan melihat tag ini untuk mengenali identitas Anda dengan lebih cepat.',
-                  textAlign: TextAlign.justify,
-                  style: GoogleFonts.plusJakartaSans(
-                    color: Colors.white.withValues(alpha: 0.85),
-                    fontSize: 13.5,
-                    height: 1.55,
                   ),
                 ),
               ],

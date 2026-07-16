@@ -1136,7 +1136,7 @@ class SearchScreenState extends State<SearchScreen> {
         return SafeArea(
           child: ConstrainedBox(
             constraints: BoxConstraints(
-              maxHeight: MediaQuery.of(ctx).size.height * 0.75,
+              maxHeight: MediaQuery.of(ctx).size.height * 0.5,
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
