@@ -220,20 +220,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 final newName = nameCtrl.text.trim();
                 final newPhone = phoneCtrl.text.trim();
                 
-                if (newName.isEmpty || newName.length < 3) {
-                  AppToast.show(context, message: 'Nama lengkap minimal 3 karakter.', type: ToastType.error);
-                  return;
-                }
-                if (RegExp(r'\d').hasMatch(newName)) {
-                  AppToast.show(context, message: 'Nama lengkap tidak boleh mengandung angka.', type: ToastType.error);
-                  return;
-                }
-                if (!RegExp(r"^[a-zA-Z\s\.\,\'\-]+$").hasMatch(newName)) {
-                  AppToast.show(context, message: 'Nama lengkap hanya boleh berisi huruf dan tanda baca lazim.', type: ToastType.error);
-                  return;
-                }
-                if (RegExp(r"[\.\,\'\-]{2,}").hasMatch(newName)) {
-                  AppToast.show(context, message: 'Nama lengkap tidak boleh mengandung tanda baca berurutan.', type: ToastType.error);
+                // Validasi Nama (Allow-list): Harus diawali huruf, 3-30 karakter, tanpa tanda baca berurutan
+                final nameRegex = RegExp(r"^(?!.*[\.\']{2,})[a-zA-Z][a-zA-Z\s\.\']{2,29}$");
+                if (!nameRegex.hasMatch(newName)) {
+                  AppToast.show(
+                    context,
+                    message: 'Format nama tidak sesuai standar. Gunakan nama asli tanpa angka atau simbol.',
+                    type: ToastType.error,
+                  );
                   return;
                 }
 

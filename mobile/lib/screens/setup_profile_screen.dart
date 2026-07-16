@@ -169,50 +169,23 @@ class _SetupProfileScreenState extends State<SetupProfileScreen> {
     // Sanitasi input nomor telepon untuk menghilangkan spasi dan strip (-)
     phone = phone.replaceAll(RegExp(r'[\s\-]+'), '');
 
-    if (name.isEmpty || name.length < 3) {
+    // Validasi Nama (Allow-list): Harus diawali huruf, 3-30 karakter, tanpa tanda baca berurutan
+    final nameRegex = RegExp(r"^(?!.*[\.\']{2,})[a-zA-Z][a-zA-Z\s\.\']{2,29}$");
+    if (!nameRegex.hasMatch(name)) {
       AppToast.show(
         context,
-        message: 'Mohon isi nama lengkap Anda dengan minimal 3 karakter.',
+        message: 'Format nama tidak sesuai standar. Gunakan nama asli tanpa angka atau simbol tidak lazim.',
         type: ToastType.error,
       );
       return;
     }
-    if (RegExp(r'\d').hasMatch(name)) {
+
+    // Validasi Nomor (Allow-list): Diawali 0 atau +, 8-15 karakter
+    final phoneRegex = RegExp(r"^(\+|0)[0-9]{7,14}$");
+    if (!phoneRegex.hasMatch(phone)) {
       AppToast.show(
         context,
-        message: 'Nama lengkap tidak boleh mengandung angka.',
-        type: ToastType.error,
-      );
-      return;
-    }
-    if (!RegExp(r'[a-zA-Z]{2,}').hasMatch(name) || !RegExp(r"^[a-zA-Z\s\.\,\'\-]+$").hasMatch(name)) {
-      AppToast.show(
-        context,
-        message: 'Silakan masukkan nama lengkap yang valid (hanya huruf dan tanda baca nama).',
-        type: ToastType.error,
-      );
-      return;
-    }
-    if (RegExp(r"[\.\,\'\-]{2,}").hasMatch(name)) {
-      AppToast.show(
-        context,
-        message: 'Nama lengkap tidak boleh mengandung tanda baca berurutan (contoh: \'\', ,, --).',
-        type: ToastType.error,
-      );
-      return;
-    }
-    if (phone.isEmpty || phone.length < 8 || phone.length > 15) {
-      AppToast.show(
-        context,
-        message: 'Silakan masukkan nomor telepon aktif yang valid (8-15 digit).',
-        type: ToastType.error,
-      );
-      return;
-    }
-    if (RegExp(r'[a-zA-Z]').hasMatch(phone)) {
-      AppToast.show(
-        context,
-        message: 'Nomor telepon tidak boleh mengandung huruf.',
+        message: 'Format nomor telepon tidak sesuai standar. Pastikan diawali 0 atau + dengan panjang 8-15 digit.',
         type: ToastType.error,
       );
       return;
