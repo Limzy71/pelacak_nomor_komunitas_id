@@ -122,8 +122,8 @@ class SearchScreenState extends State<SearchScreen> {
   String _myPhoneNumber = '';
   bool _isMyStatsLoading = true;
   final Map<String, int> _quickContactTagCounts = {};
-  // Cache data pencari nomor agar layar buka instan
-  List<SearcherItemData> _cachedSearcherItems = [];
+  // Cache data pencari nomor agar layar buka instan. Null berarti belum pernah di-fetch.
+  List<SearcherItemData>? _cachedSearcherItems;
 
   void refreshHomeData() {
     if (!mounted) return;
@@ -2573,7 +2573,7 @@ class SearchScreenState extends State<SearchScreen> {
                         trustScore: _myPhoneTrustScore,
                         myPhoneTags: _myPhoneTags,
                         myPhoneNumber: _myPhoneNumber,
-                        searcherItems: _cachedSearcherItems.isNotEmpty ? _cachedSearcherItems : null,
+                        searcherItems: _cachedSearcherItems,
                         onRefresh: _fetchMyPhoneSearchStats,
                       ),
                     ),
