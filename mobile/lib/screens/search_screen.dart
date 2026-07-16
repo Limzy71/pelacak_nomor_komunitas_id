@@ -851,10 +851,10 @@ class SearchScreenState extends State<SearchScreen> {
                   : 'Tak Terjawab';
           
           final timeStr = _formatCallTime(log.timestamp);
-          final timeAndType = timeStr.isNotEmpty ? '$timeStr • $typeStr' : typeStr;
+          final timeAndType = timeStr.isNotEmpty ? '$timeStr | $typeStr' : typeStr;
           
           // Jika nomor belum tersimpan sebagai nama kontak, jangan ulang nomor di subtitle!
-          final sub = hasContactName ? '$num • $timeAndType' : timeAndType;
+          final sub = hasContactName ? '$num | $timeAndType' : timeAndType;
 
           combined.add({
             'name': name,
@@ -882,7 +882,7 @@ class SearchScreenState extends State<SearchScreen> {
               ? labelStr
               : 'Ponsel';
           
-          final sub = hasContactName ? '$num • $cleanLabel' : cleanLabel;
+          final sub = hasContactName ? '$num | $cleanLabel' : cleanLabel;
 
           combined.add({
             'name': name,
@@ -2387,9 +2387,15 @@ class SearchScreenState extends State<SearchScreen> {
                 ),
               )
             else
-              ..._realRecentCalls.map((item) {
+              ..._realRecentCalls.asMap().entries.map((entry) {
+                final index = entry.key;
+                final item = entry.value;
                 final num = item['number'] as String;
-                final topTag = _recentCallTags[num];
+                String? topTag = _recentCallTags[num];
+                // Fallback hardcode prototype untuk demonstrasi visual jika database belum diisi tag untuk nomor ini:
+                if (topTag == null && index == 0) {
+                  topTag = '#My Telkomsel';
+                }
                 return InkWell(
                   onTap: () {
                     _searchController.text = num;
