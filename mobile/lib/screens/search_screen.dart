@@ -105,6 +105,7 @@ class SearchScreenState extends State<SearchScreen> {
   bool _hasContactPermission = false;
   bool _hasCallLogPermission = false;
   bool _isContactsLoading = false;
+  bool _isRefreshingCallLog = false;
   List<Contact> _contacts = [];
   List<CallLogEntry> _callLogs = [];
 
@@ -198,18 +199,23 @@ class SearchScreenState extends State<SearchScreen> {
     final list = _realQuickContacts;
     if (list.isEmpty) return;
 
-    for (final t in list) {
-      if (t.phoneNumberId.isNotEmpty) {
+    // Parallel: semua request jalan bersamaan, bukan satu per satu
+    await Future.wait(
+      list.where((t) => t.phoneNumberId.isNotEmpty).map((t) async {
         try {
-          final res = await widget.apiService.lookupPhoneNumber(t.phoneNumberId, skipIncrement: true, hasContactAccess: _hasContactPermission);
+          final res = await widget.apiService.lookupPhoneNumber(
+            t.phoneNumberId,
+            skipIncrement: true,
+            hasContactAccess: _hasContactPermission,
+          );
           if (mounted && res.data != null) {
             setState(() {
               _quickContactTagCounts[t.phoneNumberId] = res.data!.tags.length;
             });
           }
         } catch (_) {}
-      }
-    }
+      }),
+    );
   }
 
 
@@ -2106,19 +2112,34 @@ class SearchScreenState extends State<SearchScreen> {
                 ),
                 if (_hasCallLogPermission && _hasContactPermission)
                   InkWell(
-                    onTap: () {
-                      _fetchRealCallLogs();
-                      _fetchRealDeviceContacts();
-                    },
+                    onTap: _isRefreshingCallLog
+                        ? null
+                        : () async {
+                            setState(() => _isRefreshingCallLog = true);
+                            await Future.wait([
+                              _fetchRealCallLogs(),
+                              _fetchRealDeviceContacts(),
+                            ]);
+                            if (mounted) setState(() => _isRefreshingCallLog = false);
+                          },
                     borderRadius: BorderRadius.circular(12),
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                       child: Row(
                         children: [
-                          Icon(Icons.refresh_rounded, size: 16, color: AppColors.primaryLight),
+                          _isRefreshingCallLog
+                              ? const SizedBox(
+                                  width: 14,
+                                  height: 14,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: AppColors.primaryLight,
+                                  ),
+                                )
+                              : const Icon(Icons.refresh_rounded, size: 16, color: AppColors.primaryLight),
                           const SizedBox(width: 4),
                           Text(
-                            'Perbarui',
+                            _isRefreshingCallLog ? 'Memperbarui...' : 'Perbarui',
                             style: GoogleFonts.sora(
                               color: AppColors.primaryLight,
                               fontSize: 13,
