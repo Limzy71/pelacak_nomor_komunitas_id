@@ -59,8 +59,8 @@ class _MyPhoneSearchersScreenState extends State<MyPhoneSearchersScreen> {
   Future<void> _handleRefresh() async {
     setState(() => _isManualRefreshing = true);
 
-    // Matikan shimmer secara instan tepat setelah 300ms (tidak menunggu respon jaringan)
-    Future.delayed(const Duration(milliseconds: 300), () {
+    // Matikan shimmer secara instan tepat setelah 500ms (tidak menunggu respon jaringan)
+    Future.delayed(const Duration(milliseconds: 500), () {
       if (mounted) {
         setState(() => _isManualRefreshing = false);
       }

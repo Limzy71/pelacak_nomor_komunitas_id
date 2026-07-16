@@ -2133,7 +2133,7 @@ class SearchScreenState extends State<SearchScreen> {
                         ? null
                         : () async {
                             setState(() => _isRefreshingCallLog = true);
-                            Future.delayed(const Duration(milliseconds: 300), () {
+                            Future.delayed(const Duration(milliseconds: 500), () {
                               if (mounted) setState(() => _isRefreshingCallLog = false);
                             });
                             _fetchRealCallLogs();
