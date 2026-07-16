@@ -1642,17 +1642,18 @@ class SearchScreenState extends State<SearchScreen> {
                 : MediaQuery.of(ctx).size.height * 0.52;
 
             return AnimatedContainer(
-              duration: const Duration(milliseconds: 300),
-              curve: Curves.easeOutCubic,
+              duration: const Duration(milliseconds: 250),
+              curve: Curves.easeOutQuad,
               width: double.infinity,
               height: targetHeight,
-              padding: EdgeInsets.only(
-                top: 20, 
-                left: 20, 
-                right: 20,
-                bottom: MediaQuery.of(ctx).viewInsets.bottom,
-              ),
-              child: Column(
+              child: Padding(
+                padding: EdgeInsets.only(
+                  top: 20,
+                  left: 20,
+                  right: 20,
+                  bottom: MediaQuery.of(ctx).viewInsets.bottom,
+                ),
+                child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
