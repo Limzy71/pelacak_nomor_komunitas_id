@@ -1,4 +1,5 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
+import { Cron, CronExpression } from '@nestjs/schedule';
 import { PrismaService } from '../prisma/prisma.service';
 import { VoteType } from '../../generated/prisma/client';
 import * as truecallerjs from 'truecallerjs';
@@ -929,5 +930,117 @@ export class PhoneLookupService {
         message: `Gagal menghapus data: ${error.message}`,
       };
     }
+  }
+
+  // ==========================================
+  // DATA RETENTION & AGGREGATION LOGIC (BE)
+  // ==========================================
+
+  /**
+   * Cron Job: Berjalan otomatis setiap pukul 00:00 (Tengah Malam)
+   * Menghapus riwayat pencarian profil yang lebih lama dari 60 hari untuk menjaga performa database.
+   */
+  @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
+  async purgeExpiredProfileSearchHistories() {
+    try {
+      const sixtyDaysAgo = new Date();
+      sixtyDaysAgo.setDate(sixtyDaysAgo.getDate() - 60);
+
+      const deleted = await this.prisma.profileSearchHistory.deleteMany({
+        where: {
+          lastSearchedAt: {
+            lt: sixtyDaysAgo,
+          },
+        },
+      });
+
+      if (deleted.count > 0) {
+        console.log(`[Data Retention Cron] Berhasil membersihkan ${deleted.count} riwayat pencarian profil lama (> 60 hari).`);
+      }
+    } catch (error) {
+      console.error('[Data Retention Cron] Gagal melakukan purge riwayat:', error);
+    }
+  }
+
+  /**
+   * Helper: Mencatat atau memperbarui (agregasi) riwayat saat seseorang memeriksa nomor telepon.
+   * Jika user yang sama sudah mencari nomor target sebelumnya, cukup increment searchCount (+1) & update lastSearchedAt.
+   */
+  async recordProfileSearchHistory(searcherUserId: string | null, targetPhoneId: string) {
+    if (!searcherUserId) return; // Jika anonim tanpa akun, tidak dicatat di profil searchers
+
+    try {
+      const existing = await this.prisma.profileSearchHistory.findUnique({
+        where: {
+          searcherUserId_targetPhoneId: {
+            searcherUserId,
+            targetPhoneId,
+          },
+        },
+      });
+
+      if (existing) {
+        await this.prisma.profileSearchHistory.update({
+          where: { id: existing.id },
+          data: {
+            searchCount: { increment: 1 },
+            lastSearchedAt: new Date(),
+          },
+        });
+      } else {
+        await this.prisma.profileSearchHistory.create({
+          data: {
+            searcherUserId,
+            targetPhoneId,
+            searchCount: 1,
+            lastSearchedAt: new Date(),
+          },
+        });
+      }
+    } catch (error) {
+      console.error('Error recording profile search history:', error);
+    }
+  }
+
+  /**
+   * Helper: Mengambil daftar riwayat orang yang memeriksa nomor pengguna (maksimal 100 terbaru / paginated)
+   * Mengimplementasikan Monetisasi:
+   * - Pengguna Gratis (Opsi B): Hanya melihat riwayat pencarian dalam 24 jam terakhir.
+   * - Pengguna Premium (Opsi A): Bisa melihat seluruh riwayat pencarian hingga 60 hari (batas maksimal retention).
+   */
+  async getPhoneSearchers(targetPhoneId: string, limit: number = 100, isPremium: boolean = false) {
+    const whereClause: any = {
+      targetPhoneId,
+    };
+
+    // Jika BUKAN Premium (Gratis), batasi pencarian hanya 24 jam terakhir (Opsi B - FOMO)
+    if (!isPremium) {
+      const twentyFourHoursAgo = new Date();
+      twentyFourHoursAgo.setDate(twentyFourHoursAgo.getDate() - 1);
+      whereClause.lastSearchedAt = {
+        gte: twentyFourHoursAgo,
+      };
+    }
+
+    return this.prisma.profileSearchHistory.findMany({
+      where: whereClause,
+      take: limit,
+      orderBy: {
+        lastSearchedAt: 'desc',
+      },
+      include: {
+        searcherUser: {
+          select: {
+            id: true,
+            name: true,
+            avatarUrl: true,
+            tags: {
+              select: { labelName: true },
+              take: 20,
+            },
+          },
+        },
+      },
+    });
   }
 }

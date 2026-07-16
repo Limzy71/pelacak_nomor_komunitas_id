@@ -10,28 +10,32 @@ generator client {
 
 // 1. Tabel User
 model User {
-  id        String    @id @default(uuid())
-  email     String    @unique
-  password  String
-  name      String
-  createdAt DateTime  @default(now()) @map("created_at")
-  updatedAt DateTime  @updatedAt @map("updated_at")
-  tags      Tag[]     
-  tagVotes  TagVote[] 
+  id                     String                 @id @default(uuid())
+  email                  String                 @unique
+  password               String
+  name                   String
+  avatarUrl              String?                @map("avatar_url")
+  isPremium              Boolean                @default(false) @map("is_premium")
+  createdAt              DateTime               @default(now()) @map("created_at")
+  updatedAt              DateTime               @updatedAt @map("updated_at")
+  tags                   Tag[]     
+  tagVotes               TagVote[] 
+  profileSearchHistories ProfileSearchHistory[]
 
   @@map("users") 
 }
 
 // 2. Tabel Pusat Nomor Telepon
 model PhoneNumber {
-  id          String   @id @default(uuid())
-  phoneNumber String   @unique @map("phone_number") 
-  countryCode String   @map("country_code")
-  searchCount Int      @default(0) @map("search_count")
-  trustScore  Float    @default(100.0) @map("trust_score")
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
-  tags        Tag[]    
+  id                     String                 @id @default(uuid())
+  phoneNumber            String                 @unique @map("phone_number") 
+  countryCode            String                 @map("country_code")
+  searchCount            Int                    @default(0) @map("search_count")
+  trustScore             Float                  @default(100.0) @map("trust_score")
+  createdAt              DateTime               @default(now()) @map("created_at")
+  updatedAt              DateTime               @updatedAt @map("updated_at")
+  tags                   Tag[]    
+  profileSearchHistories ProfileSearchHistory[]
 
   @@map("phone_numbers")
 }
@@ -82,4 +86,18 @@ model DeviceSearchLog {
 
   @@unique([deviceId, dateString])
   @@map("device_search_logs")
+}
+
+// 6. Tabel Riwayat Pencarian Profil (Siapa Mencari Nomor Siapa + Data Retention Aggregation)
+model ProfileSearchHistory {
+  id              String      @id @default(uuid())
+  searcherUserId  String?     @map("searcher_user_id") // ID pengguna yang mencari (jika login)
+  searcherUser    User?       @relation(fields: [searcherUserId], references: [id], onDelete: SetNull)
+  targetPhoneId   String      @map("target_phone_id")  // ID nomor telepon yang dicari/diperiksa
+  targetPhone     PhoneNumber @relation(fields: [targetPhoneId], references: [id], onDelete: Cascade)
+  searchCount     Int         @default(1) @map("search_count") // Agregasi frekuensi pencarian
+  lastSearchedAt  DateTime    @default(now()) @map("last_searched_at")
+
+  @@unique([searcherUserId, targetPhoneId])
+  @@map("profile_search_histories")
 }
