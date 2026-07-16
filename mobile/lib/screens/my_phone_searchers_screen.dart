@@ -30,22 +30,18 @@ class MyPhoneSearchersScreen extends StatefulWidget {
 class _MyPhoneSearchersScreenState extends State<MyPhoneSearchersScreen> {
   late int _searchCount;
   List<SearcherItemData>? _dynamicItems;
-  bool _isLoading = false;
+  bool _isManualRefreshing = false;
   final ApiService _apiService = ApiService();
 
   @override
   void initState() {
     super.initState();
     _searchCount = widget.searchCount;
-    _dynamicItems = widget.searcherItems;
+    // Jika null (belum pernah di-fetch), anggap kosong terlebih dahulu agar langsung tampil tanpa shimmer
+    _dynamicItems = widget.searcherItems ?? [];
     
-    if (_dynamicItems == null) {
-      // Tidak ada cache (null) — tampilkan shimmer dan fetch
-      _fetchData();
-    } else {
-      // Ada cache — tampilkan langsung, refresh diam-diam di background
-      _backgroundRefresh();
-    }
+    // Refresh diam-diam di background saat pertama kali dibuka
+    _backgroundRefresh();
   }
 
   // Refresh di background tanpa menampilkan shimmer (data lama tetap tampil)
@@ -60,29 +56,25 @@ class _MyPhoneSearchersScreenState extends State<MyPhoneSearchersScreen> {
     } catch (_) {}
   }
 
-  Future<void> _fetchData() async {
-    setState(() => _isLoading = true);
-    try {
-      final data = await _apiService.getPhoneSearchers(widget.myPhoneNumber);
-      if (mounted) {
-        setState(() {
-          _dynamicItems = data;
-          _isLoading = false;
-        });
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
-    }
-  }
-
   Future<void> _handleRefresh() async {
-    await _fetchData();
-    if (widget.onRefresh != null) {
-      widget.onRefresh!();
-    }
+    setState(() => _isManualRefreshing = true);
+
+    // Animasi shimmer 1,5 detik sambil menarik data baru
+    final shimmerDelay = Future.delayed(const Duration(milliseconds: 1500));
+    final fetchTask = _apiService.getPhoneSearchers(widget.myPhoneNumber).catchError((_) => <SearcherItemData>[]);
+
+    await Future.wait([shimmerDelay, fetchTask]);
+    final data = await fetchTask;
+
     if (mounted) {
+      setState(() {
+        _dynamicItems = data;
+        _isManualRefreshing = false;
+      });
+      if (widget.onRefresh != null) {
+        widget.onRefresh!();
+      }
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
@@ -123,7 +115,7 @@ class _MyPhoneSearchersScreenState extends State<MyPhoneSearchersScreen> {
         ),
         centerTitle: false,
         actions: [
-          if (_isLoading)
+          if (_isManualRefreshing)
             const Padding(
               padding: EdgeInsets.symmetric(horizontal: 16),
               child: Center(
@@ -143,7 +135,7 @@ class _MyPhoneSearchersScreenState extends State<MyPhoneSearchersScreen> {
   }
 
   Widget _buildSearchersList() {
-    if (_isLoading && _dynamicItems == null) {
+    if (_isManualRefreshing) {
       return Shimmer.fromColors(
         baseColor: const Color(0xFF1E2636),
         highlightColor: const Color(0xFF2D3754),
