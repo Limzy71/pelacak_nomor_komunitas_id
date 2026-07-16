@@ -59,8 +59,8 @@ class _MyPhoneSearchersScreenState extends State<MyPhoneSearchersScreen> {
   Future<void> _handleRefresh() async {
     setState(() => _isManualRefreshing = true);
 
-    // Animasi shimmer 1,5 detik sambil menarik data baru
-    final shimmerDelay = Future.delayed(const Duration(milliseconds: 1500));
+    // Animasi shimmer 0,5 detik agar UX terasa sangat cepat namun tetap memberikan feedback visual
+    final shimmerDelay = Future.delayed(const Duration(milliseconds: 500));
     final fetchTask = _apiService.getPhoneSearchers(widget.myPhoneNumber).catchError((_) => <SearcherItemData>[]);
 
     await Future.wait([shimmerDelay, fetchTask]);
