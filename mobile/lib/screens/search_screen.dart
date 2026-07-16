@@ -2505,7 +2505,7 @@ class SearchScreenState extends State<SearchScreen> {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Text(
-                              'Lihat Preview',
+                              'Detail',
                               style: GoogleFonts.outfit(
                                 color: AppColors.primaryLight,
                                 fontSize: 12.5,
@@ -2563,40 +2563,8 @@ class SearchScreenState extends State<SearchScreen> {
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            const SizedBox(width: 6),
-                            const Icon(Icons.visibility_rounded, color: Colors.white70, size: 14),
                           ],
                         ),
-                      ),
-                    ),
-                  ),
-                ),
-                Material(
-                  color: Colors.transparent,
-                  child: InkWell(
-                    onTap: _showAddTagDialog,
-                    borderRadius: BorderRadius.circular(12),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF1E2636),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: const Color(0xFF2D3754)),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(Icons.add_rounded, color: AppColors.primaryLight, size: 16),
-                          const SizedBox(width: 4),
-                          Text(
-                            'Tambah Tag',
-                            style: GoogleFonts.outfit(
-                              color: AppColors.primaryLight,
-                              fontSize: 13.5,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
                       ),
                     ),
                   ),
