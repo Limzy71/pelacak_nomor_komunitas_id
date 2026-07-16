@@ -1657,10 +1657,7 @@ class SearchScreenState extends State<SearchScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: const Color(0xFF141926),
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
+      backgroundColor: Colors.transparent,
       builder: (ctx) {
         return StatefulBuilder(
           builder: (ctx, setModalState) {
@@ -1670,91 +1667,116 @@ class SearchScreenState extends State<SearchScreen> {
               final q = searchContactQuery.toLowerCase();
               return name.contains(q) || num.contains(q);
             }).toList();
-            final isKeyboardOpen = MediaQuery.of(ctx).viewInsets.bottom > 0;
-            final targetHeight = isKeyboardOpen
-                ? MediaQuery.of(ctx).size.height * 0.85
-                : MediaQuery.of(ctx).size.height * 0.52;
 
-            return AnimatedContainer(
-              duration: const Duration(milliseconds: 250),
-              curve: Curves.easeOutQuad,
-              width: double.infinity,
-              height: targetHeight,
-              child: Padding(
-                padding: EdgeInsets.only(
-                  top: 20,
-                  left: 20,
-                  right: 20,
-                  bottom: MediaQuery.of(ctx).viewInsets.bottom,
+            final keyboardHeight = MediaQuery.of(ctx).viewInsets.bottom;
+            final screenHeight = MediaQuery.of(ctx).size.height;
+
+            return AnimatedPadding(
+              duration: const Duration(milliseconds: 200),
+              curve: Curves.easeOutCubic,
+              padding: EdgeInsets.only(bottom: keyboardHeight),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                curve: Curves.easeOutCubic,
+                height: keyboardHeight > 0
+                    ? screenHeight * 0.52
+                    : screenHeight * 0.52,
+                decoration: const BoxDecoration(
+                  color: Color(0xFF141926),
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
                 ),
-                child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 20, left: 20, right: 20, bottom: 12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        'Semua Kontak (${_contacts.length} Orang)',
-                        style: GoogleFonts.sora(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                      // Handle bar
+                      Center(
+                        child: Container(
+                          width: 44,
+                          height: 4.5,
+                          decoration: BoxDecoration(
+                            color: Colors.white24,
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                        ),
                       ),
-                      IconButton(
-                        onPressed: () => Navigator.pop(ctx),
-                        icon: const Icon(Icons.close_rounded, color: Colors.white70),
+                      const SizedBox(height: 16),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Semua Kontak (${_contacts.length} Orang)',
+                            style: GoogleFonts.sora(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                          ),
+                          IconButton(
+                            onPressed: () => Navigator.pop(ctx),
+                            icon: const Icon(Icons.close_rounded, color: Colors.white70),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      TextField(
+                        style: GoogleFonts.plusJakartaSans(color: Colors.white),
+                        decoration: InputDecoration(
+                          hintText: 'Cari nama atau nomor telepon...',
+                          hintStyle: GoogleFonts.plusJakartaSans(color: Colors.white38),
+                          prefixIcon: const Icon(Icons.search_rounded, color: AppColors.textSecondary),
+                          filled: true,
+                          fillColor: const Color(0xFF1E263D),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(14),
+                            borderSide: const BorderSide(color: Color(0xFF2D3754)),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(14),
+                            borderSide: BorderSide(color: AppColors.primaryLight.withValues(alpha: 0.5)),
+                          ),
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide.none),
+                        ),
+                        onChanged: (val) {
+                          setModalState(() => searchContactQuery = val);
+                        },
+                      ),
+                      const SizedBox(height: 14),
+                      Expanded(
+                        child: filteredContacts.isEmpty
+                            ? Center(child: Text('Kontak tidak ditemukan.', style: GoogleFonts.plusJakartaSans(color: AppColors.textSecondary)))
+                            : ListView.builder(
+                                keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+                                itemCount: filteredContacts.length,
+                                itemBuilder: (ctx, idx) {
+                                  final c = filteredContacts[idx];
+                                  final nameStr = _getContactName(c);
+                                  final numStr = c.phones.isNotEmpty ? c.phones.first.number : '-';
+
+                                  return ListTile(
+                                    contentPadding: const EdgeInsets.symmetric(vertical: 4),
+                                    leading: CircleAvatar(
+                                      backgroundColor: const Color(0xFF007AFF).withValues(alpha: 0.2),
+                                      child: Text(
+                                        nameStr.isNotEmpty ? nameStr.substring(0, 1).toUpperCase() : '#',
+                                        style: GoogleFonts.plusJakartaSans(color: const Color(0xFF2B8CFF), fontWeight: FontWeight.bold),
+                                      ),
+                                    ),
+                                    title: Text(nameStr, style: GoogleFonts.sora(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 15)),
+                                    subtitle: Text(numStr, style: GoogleFonts.plusJakartaSans(color: AppColors.textSecondary, fontSize: 13)),
+                                    trailing: const Icon(Icons.search_rounded, color: Color(0xFF007AFF), size: 20),
+                                    onTap: () {
+                                      Navigator.pop(ctx);
+                                      _searchController.text = numStr;
+                                      _performSearch(numStr);
+                                    },
+                                  );
+                                },
+                              ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 12),
-                  TextField(
-                    style: GoogleFonts.plusJakartaSans(color: Colors.white),
-                    decoration: InputDecoration(
-                      hintText: 'Cari nama atau nomor telepon...',
-                      hintStyle: GoogleFonts.plusJakartaSans(color: Colors.white38),
-                      prefixIcon: const Icon(Icons.search_rounded, color: AppColors.textSecondary),
-                      filled: true,
-                      fillColor: const Color(0xFF1E263D),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide.none),
-                    ),
-                    onChanged: (val) {
-                      setModalState(() => searchContactQuery = val);
-                    },
-                  ),
-                  const SizedBox(height: 14),
-                  Expanded(
-                    child: filteredContacts.isEmpty
-                        ? Center(child: Text('Kontak tidak ditemukan.', style: GoogleFonts.plusJakartaSans(color: AppColors.textSecondary)))
-                        : ListView.builder(
-                            itemCount: filteredContacts.length,
-                            itemBuilder: (ctx, idx) {
-                              final c = filteredContacts[idx];
-                              final nameStr = _getContactName(c);
-                              final numStr = c.phones.isNotEmpty ? c.phones.first.number : '-';
-
-                              return ListTile(
-                                contentPadding: const EdgeInsets.symmetric(vertical: 4),
-                                leading: CircleAvatar(
-                                  backgroundColor: const Color(0xFF007AFF).withValues(alpha: 0.2),
-                                  child: Text(
-                                    nameStr.isNotEmpty ? nameStr.substring(0, 1).toUpperCase() : '#',
-                                    style: GoogleFonts.plusJakartaSans(color: const Color(0xFF2B8CFF), fontWeight: FontWeight.bold),
-                                  ),
-                                ),
-                                title: Text(nameStr, style: GoogleFonts.sora(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 15)),
-                                subtitle: Text(numStr, style: GoogleFonts.plusJakartaSans(color: AppColors.textSecondary, fontSize: 13)),
-                                trailing: const Icon(Icons.search_rounded, color: Color(0xFF007AFF), size: 20),
-                                onTap: () {
-                                  Navigator.pop(ctx);
-                                  _searchController.text = numStr;
-                                  _performSearch(numStr);
-                                },
-                              );
-                            },
-                          ),
-                  ),
-                ],
+                ),
               ),
-            ),
-          );
-        },
+            );
+          },
         );
       },
     );
