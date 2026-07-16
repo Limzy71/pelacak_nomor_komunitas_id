@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Delete, Body, Param, Query, Headers, Ip } from '@nestjs/common';
+import { Controller, Get, Post, Delete, Body, Param, Query, Headers, Ip, UnauthorizedException } from '@nestjs/common';
 import { PhoneLookupService } from './phone-lookup.service';
 import { SyncContactsDto } from './dto/sync-contacts.dto';
 
@@ -108,7 +108,16 @@ export class PhoneLookupController {
   }
 
   @Delete('reset/:number')
-  async resetNumberData(@Param('number') number: string) {
+  async resetNumberData(
+    @Param('number') number: string,
+    @Headers('x-admin-secret') adminSecret?: string,
+  ) {
+    const expectedSecret = process.env.ADMIN_SECRET_KEY || 'phonerep-admin-secret-2026';
+    if (adminSecret !== expectedSecret) {
+      throw new UnauthorizedException(
+        'Akses Ditolak: Endpoint ini hanya dapat diakses oleh administrator sistem dengan kunci khusus.',
+      );
+    }
     return await this.phoneLookupService.resetPhoneNumberData(number);
   }
 }
