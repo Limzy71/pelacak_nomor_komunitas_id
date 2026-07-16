@@ -2910,7 +2910,7 @@ class SearchScreenState extends State<SearchScreen> {
                         )
                       else if (_myPhoneSearchCount > 0)
                         Text(
-                          '$_myPhoneSearchCount Kali Diperiksa Orang Lain',
+                          '${_myPhoneSearchCount}x Diperiksa Orang Lain',
                           style: GoogleFonts.plusJakartaSans(
                             color: Colors.white,
                             fontSize: 16.5,
