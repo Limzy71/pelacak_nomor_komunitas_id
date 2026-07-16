@@ -739,7 +739,7 @@ class _SelfTagModal extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Identitas Tambahan Akun',
+                      'Dikelola oleh Anda',
                       style: GoogleFonts.plusJakartaSans(
                         color: AppColors.textSecondary,
                         fontSize: 13.5,
