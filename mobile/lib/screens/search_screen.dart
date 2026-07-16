@@ -342,14 +342,16 @@ class SearchScreenState extends State<SearchScreen> {
                 child: const Icon(Icons.shield_rounded, color: AppColors.primaryLight, size: 36),
               ),
               const SizedBox(height: 20),
-              Text(
-                'Izin Akses & Keamanan Kontak',
-                style: GoogleFonts.sora(
-                  color: Colors.white,
-                  fontSize: 21,
-                  fontWeight: FontWeight.w800,
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  'Izin Akses & Keamanan Kontak',
+                  style: GoogleFonts.sora(
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.w800,
+                  ),
                 ),
-                textAlign: TextAlign.center,
               ),
               const SizedBox(height: 12),
               Text(
@@ -357,9 +359,9 @@ class SearchScreenState extends State<SearchScreen> {
                 style: GoogleFonts.plusJakartaSans(
                   color: AppColors.textSecondary,
                   fontSize: 14,
-                  height: 1.45,
+                  height: 1.55,
                 ),
-                textAlign: TextAlign.center,
+                textAlign: TextAlign.justify,
               ),
               const SizedBox(height: 20),
               Container(
@@ -370,8 +372,9 @@ class SearchScreenState extends State<SearchScreen> {
                   border: Border.all(color: AppColors.primaryLight.withValues(alpha: 0.2)),
                 ),
                 child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Icon(Icons.verified_user_rounded, color: AppColors.accentGreen, size: 22),
+                    const Icon(Icons.verified_user_rounded, color: AppColors.accentGreen, size: 20),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
@@ -379,8 +382,9 @@ class SearchScreenState extends State<SearchScreen> {
                         style: GoogleFonts.plusJakartaSans(
                           color: Colors.white70,
                           fontSize: 12.5,
-                          height: 1.35,
+                          height: 1.5,
                         ),
+                        textAlign: TextAlign.justify,
                       ),
                     ),
                   ],
