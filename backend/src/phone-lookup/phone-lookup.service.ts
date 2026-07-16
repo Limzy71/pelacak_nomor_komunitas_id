@@ -296,6 +296,34 @@ export class PhoneLookupService {
       }
     }
 
+    const existingTag = await this.prisma.tag.findFirst({
+      where: {
+        phoneNumberId,
+        labelName: {
+          equals: cleanLabel,
+          mode: 'insensitive',
+        },
+      },
+    });
+
+    if (existingTag) {
+      if (validUserId) {
+        // Gunakan voteTag untuk menangani logika double-vote & increment
+        return this.voteTag(existingTag.id, validUserId, 'UPVOTE');
+      } else {
+        // Jika tidak ada userId (jarang terjadi sekarang), cukup increment upvotes secara langsung
+        const updatedTag = await this.prisma.tag.update({
+          where: { id: existingTag.id },
+          data: { upvotes: { increment: 1 } },
+        });
+        return {
+          success: true,
+          message: 'Label tag sudah ada dan jumlah dukungan berhasil ditambahkan.',
+          data: updatedTag,
+        };
+      }
+    }
+
     const newTag = await this.prisma.tag.create({
       data: {
         phoneNumberId,
@@ -305,6 +333,17 @@ export class PhoneLookupService {
         upvotes: 1,
       },
     });
+
+    if (validUserId) {
+      // Catat vote pertama untuk mencegah double vote nantinya
+      await this.prisma.tagVote.create({
+        data: {
+          tagId: newTag.id,
+          userId: validUserId,
+          voteType: 'UPVOTE',
+        },
+      }).catch(() => {});
+    }
 
     return {
       success: true,
