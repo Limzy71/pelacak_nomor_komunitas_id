@@ -179,7 +179,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 TextField(
                   controller: phoneCtrl,
                   keyboardType: TextInputType.phone,
-                  style: GoogleFonts.plusJakartaSans(color: Colors.white),
+                  readOnly: true, // Nomor HP tidak boleh diubah sembarangan tanpa OTP
+                  style: GoogleFonts.plusJakartaSans(color: Colors.white54),
                   decoration: InputDecoration(
                     hintText: 'Contoh: 081234567890',
                     hintStyle: GoogleFonts.plusJakartaSans(color: Colors.white38),
@@ -203,7 +204,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 if (newName.isNotEmpty && newPhone.isNotEmpty) {
                   final prefs = await SharedPreferences.getInstance();
                   await prefs.setString('user_my_name', newName);
-                  await prefs.setString('user_my_phone', newPhone);
+                  // Nomor telepon tidak di-update ke prefs karena readOnly (harus via pendaftaran)
+                  
+                  // Update nama baru sebagai tag ke backend
+                  try {
+                    final lookupRes = await widget.apiService.lookupPhoneNumber(_userPhone, skipIncrement: true);
+                    if (lookupRes.found && lookupRes.data != null) {
+                      await widget.apiService.addTag(lookupRes.data!.id, newName, userId: _userPhone);
+                    }
+                  } catch (e) {
+                    debugPrint('Gagal update tag nama baru: $e');
+                  }
 
                   if (!ctx.mounted) return;
                   Navigator.pop(ctx);
@@ -211,7 +222,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   if (mounted) {
                     setState(() {
                       _userName = newName;
-                      _userPhone = newPhone;
+                      // _userPhone tetap sama
                     });
                     AppToast.show(
                       context,
