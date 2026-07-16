@@ -279,13 +279,18 @@ export class PhoneLookupService {
 
     let validUserId: string | null = null;
     if (userId) {
+      // Normalisasi userId agar konsisten dengan format E.164
+      let normUserId = userId.trim().replace(/[\s\-\(\)\.]+/g, '');
+      if (normUserId.startsWith('0')) normUserId = '+62' + normUserId.substring(1);
+      else if (normUserId.startsWith('62') && !normUserId.startsWith('+')) normUserId = '+' + normUserId;
+      
       try {
         const userRecord = await this.prisma.user.upsert({
-          where: { id: userId },
+          where: { id: normUserId },
           update: {},
           create: {
-            id: userId,
-            email: `${userId}@mobile.phonerep.komunitas`,
+            id: normUserId,
+            email: `${normUserId.replace('+', '')}@mobile.phonerep.komunitas`,
             password: 'mobile-tag-hash',
             name: 'Pengguna Komunitas',
           },
@@ -367,16 +372,21 @@ export class PhoneLookupService {
     }
 
     // 2. Pastikan user terdaftar di database (jika belum, auto-create untuk pengguna aplikasi mobile komunitas)
+    // Normalisasi userId
+    let normUserId = userId.trim().replace(/[\s\-\(\)\.]+/g, '');
+    if (normUserId.startsWith('0')) normUserId = '+62' + normUserId.substring(1);
+    else if (normUserId.startsWith('62') && !normUserId.startsWith('+')) normUserId = '+' + normUserId;
+
     let user = await this.prisma.user.findUnique({
-      where: { id: userId },
+      where: { id: normUserId },
     });
 
     if (!user) {
       try {
         user = await this.prisma.user.create({
           data: {
-            id: userId,
-            email: `${userId}@mobile.phonerep.komunitas`,
+            id: normUserId,
+            email: `${normUserId.replace('+', '')}@mobile.phonerep.komunitas`,
             password: 'mobile-vote-hash',
             name: 'Pengguna Komunitas',
           },
@@ -395,7 +405,7 @@ export class PhoneLookupService {
       where: {
         tagId_userId: {
           tagId,
-          userId,
+          userId: normUserId,
         },
       },
     });
@@ -475,13 +485,18 @@ export class PhoneLookupService {
 
     let validUserId: string | null = null;
     if (dto.userId) {
+      // Normalisasi userId
+      let normUserId = dto.userId.trim().replace(/[\s\-\(\)\.]+/g, '');
+      if (normUserId.startsWith('0')) normUserId = '+62' + normUserId.substring(1);
+      else if (normUserId.startsWith('62') && !normUserId.startsWith('+')) normUserId = '+' + normUserId;
+
       try {
         const userRecord = await this.prisma.user.upsert({
-          where: { id: dto.userId },
+          where: { id: normUserId },
           update: {},
           create: {
-            id: dto.userId,
-            email: `${dto.userId}@mobile.phonerep.komunitas`,
+            id: normUserId,
+            email: `${normUserId.replace('+', '')}@mobile.phonerep.komunitas`,
             password: 'mobile-app-sync-hash',
             name: 'Mobile App User',
           },
