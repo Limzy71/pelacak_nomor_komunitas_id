@@ -161,9 +161,26 @@ class _PoolingScreenState extends State<PoolingScreen> {
       _lastSyncResult = null;
     });
 
+    final prefs = await SharedPreferences.getInstance();
+    final myPhone = prefs.getString('user_my_phone') ?? 'android_user_${DateTime.now().millisecondsSinceEpoch}';
+    
+    String myNorm = myPhone.replaceAll(RegExp(r'[\s\-\(\)\.]+'), '');
+    if (myNorm.startsWith('08')) myNorm = '+62${myNorm.substring(1)}';
+    else if (myNorm.startsWith('628')) myNorm = '+$myNorm';
+
     final payload = <Map<String, String>>[];
     for (final c in _contacts) {
       final rawNum = c.phones.first.number;
+      
+      String norm = rawNum.replaceAll(RegExp(r'[\s\-\(\)\.]+'), '');
+      if (norm.startsWith('08')) norm = '+62${norm.substring(1)}';
+      else if (norm.startsWith('628')) norm = '+$norm';
+
+      // Abaikan sinkronisasi jika nomor kontak adalah nomor pengguna sendiri
+      if (!myPhone.startsWith('android_user') && norm == myNorm) {
+        continue;
+      }
+
       payload.add({
         'name': _getContactName(c),
         'phoneNumber': rawNum,
@@ -173,7 +190,7 @@ class _PoolingScreenState extends State<PoolingScreen> {
     try {
       final res = await widget.apiService.syncContacts(
         payload,
-        userId: 'android_user_${DateTime.now().millisecondsSinceEpoch}',
+        userId: myPhone,
       );
       if (mounted) {
         setState(() {

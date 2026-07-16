@@ -706,6 +706,16 @@ class SearchScreenState extends State<SearchScreen> {
                   } else if (norm.startsWith('628')) {
                     norm = '+$norm';
                   }
+                  
+                  // Filter: Abaikan kontak jika nomornya adalah nomor pengguna sendiri
+                  String myNorm = _myPhoneNumber.replaceAll(RegExp(r'[\s\-\(\)\.]+'), '');
+                  if (myNorm.startsWith('08')) myNorm = '+62${myNorm.substring(1)}';
+                  else if (myNorm.startsWith('628')) myNorm = '+$myNorm';
+                  
+                  if (_myPhoneNumber.isNotEmpty && norm == myNorm) {
+                    continue;
+                  }
+
                   final key = '${norm}_${name.toLowerCase()}';
                   if (!seenKeys.contains(key)) {
                     seenKeys.add(key);
