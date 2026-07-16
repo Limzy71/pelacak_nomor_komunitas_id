@@ -1636,11 +1636,22 @@ class SearchScreenState extends State<SearchScreen> {
               final q = searchContactQuery.toLowerCase();
               return name.contains(q) || num.contains(q);
             }).toList();
+            final isKeyboardOpen = MediaQuery.of(ctx).viewInsets.bottom > 0;
+            final targetHeight = isKeyboardOpen
+                ? MediaQuery.of(ctx).size.height * 0.85
+                : MediaQuery.of(ctx).size.height * 0.52;
 
-            return Container(
+            return AnimatedContainer(
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeOutCubic,
               width: double.infinity,
-              height: MediaQuery.of(ctx).size.height * 0.52,
-              padding: const EdgeInsets.only(top: 20, left: 20, right: 20),
+              height: targetHeight,
+              padding: EdgeInsets.only(
+                top: 20, 
+                left: 20, 
+                right: 20,
+                bottom: MediaQuery.of(ctx).viewInsets.bottom,
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -2461,9 +2472,7 @@ class SearchScreenState extends State<SearchScreen> {
                 ),
               )
             else
-              ..._realRecentCalls.asMap().entries.map((entry) {
-                final index = entry.key;
-                final item = entry.value;
+              ..._realRecentCalls.map((item) {
                 final num = item['number'] as String;
                 String? topTag = _recentCallTags[num];
                 return InkWell(
