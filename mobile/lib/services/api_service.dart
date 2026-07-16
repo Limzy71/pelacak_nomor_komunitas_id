@@ -18,9 +18,8 @@ class ApiService extends ChangeNotifier {
 
   ApiService() {
     if (!kIsWeb && Platform.isAndroid) {
-      // Default menggunakan IP Wi-Fi PC saat ini untuk pengujian HP fisik langsung: http://192.168.1.159:3000
-      // Bisa diganti via menu Pengaturan atau otomatis fallback ke http://127.0.0.1:3000 (ADB Tunnel)
-      _baseUrl = 'http://192.168.1.159:3000';
+      // IP Wi-Fi PC saat ini: http://192.168.100.220:3000 (juga mendukung ADB reverse via 127.0.0.1:3000)
+      _baseUrl = 'http://192.168.100.220:3000';
     } else {
       _baseUrl = 'http://localhost:3000';
     }
@@ -42,7 +41,7 @@ class ApiService extends ChangeNotifier {
 
   String _getAltUrl() {
     if (_baseUrl.contains('127.0.0.1') || _baseUrl.contains('localhost')) {
-      return 'http://192.168.1.159:3000';
+      return 'http://192.168.100.220:3000';
     }
     return 'http://127.0.0.1:3000';
   }
@@ -148,7 +147,7 @@ class ApiService extends ChangeNotifier {
             headers: _defaultHeaders,
             body: jsonEncode(payload),
           )
-          .timeout(const Duration(seconds: 30));
+          .timeout(const Duration(seconds: 8));
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         final decoded = jsonDecode(response.body) as Map<String, dynamic>;

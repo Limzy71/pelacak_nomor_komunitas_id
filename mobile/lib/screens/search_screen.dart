@@ -1019,9 +1019,6 @@ class SearchScreenState extends State<SearchScreen> {
       }
     } catch (e) {
       if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
         if (e is QuotaExceededException || e.toString().contains('Limit pencarian gratis')) {
           AppToast.show(
             context,
@@ -1036,6 +1033,12 @@ class SearchScreenState extends State<SearchScreen> {
           }
           _showAutoDismissStatus(null, error: rawErr);
         }
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
       }
     }
   }
