@@ -57,7 +57,12 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
     } catch (e) {
       if (mounted) {
         setState(() {
-          _errorMessage = e.toString().replaceAll('Exception: ', '');
+          String rawErr = e.toString().toLowerCase();
+          if (rawErr.contains('timeout') || rawErr.contains('socketexception') || rawErr.contains('connection refused')) {
+            _errorMessage = 'Koneksi ke server terputus.';
+          } else {
+            _errorMessage = e.toString().replaceAll('Exception: ', '');
+          }
           _isLoading = false;
         });
       }

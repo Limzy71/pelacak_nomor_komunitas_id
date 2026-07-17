@@ -213,7 +213,12 @@ class _PoolingScreenState extends State<PoolingScreen> {
     } catch (e) {
       if (mounted) {
         setState(() {
-          _errorMessage = e.toString().replaceAll('Exception: ', '');
+          String rawErr = e.toString().toLowerCase();
+          if (rawErr.contains('timeout') || rawErr.contains('socketexception') || rawErr.contains('connection refused')) {
+            _errorMessage = 'Koneksi ke server terputus. Pastikan internet Anda stabil.';
+          } else {
+            _errorMessage = e.toString().replaceAll('Exception: ', '');
+          }
           _isLoading = false;
         });
       }

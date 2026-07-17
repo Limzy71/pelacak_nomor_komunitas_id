@@ -92,7 +92,25 @@ class _MyPhoneSearchersScreenState extends State<MyPhoneSearchersScreen> {
           ),
         );
       }
-    } catch (_) {}
+    } catch (e) {
+      if (mounted) {
+        String rawErr = e.toString().toLowerCase();
+        String errMsg = 'Gagal memperbarui data.';
+        if (rawErr.contains('timeout') || rawErr.contains('socketexception') || rawErr.contains('connection refused')) {
+          errMsg = 'Koneksi terputus. Gagal memperbarui data.';
+        }
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              errMsg,
+              style: GoogleFonts.plusJakartaSans(color: Colors.white),
+            ),
+            backgroundColor: Colors.redAccent,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    }
   }
 
   @override

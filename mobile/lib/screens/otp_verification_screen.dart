@@ -292,7 +292,12 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
       if (mounted) {
         setState(() {
           _isLoading = false;
-          _errorMessage = 'Terjadi kesalahan saat menyimpan profil: $e';
+          String rawErr = e.toString().toLowerCase();
+          if (rawErr.contains('timeout') || rawErr.contains('socketexception') || rawErr.contains('connection refused')) {
+            _errorMessage = 'Koneksi ke server terputus saat menyimpan profil. Coba lagi.';
+          } else {
+            _errorMessage = 'Terjadi kesalahan saat menyimpan profil: ${e.toString().replaceAll('Exception: ', '')}';
+          }
         });
       }
     }
