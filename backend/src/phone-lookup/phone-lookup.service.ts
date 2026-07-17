@@ -31,7 +31,7 @@ export class PhoneLookupService {
         throw new HttpException(
           {
             code: 'QUOTA_EXCEEDED',
-            message: 'Limit pencarian gratis harian (1x) telah habis.',
+            message: 'Limit pencarian gratis harian (1x) telah habis. Reset besok pukul 07:00 WIB.',
             quota: 1,
             used: log.searchCount,
           },
