@@ -130,7 +130,14 @@ class SearchScreenState extends State<SearchScreen> with WidgetsBindingObserver 
     if (!mounted) return;
     _loadUserTagsFromPrefs();
     _fetchMyPhoneSearchStats();
-    _checkAndLoadContacts();
+    // Patuhi cooldown yang sama seperti di didChangeAppLifecycleState
+    // agar tidak terjadi double-sync jika refreshHomeData dipanggil bersamaan dengan resume
+    final now = DateTime.now();
+    final lastSync = _lastContactSyncTime;
+    if (lastSync == null || now.difference(lastSync).inMinutes >= 5) {
+      _lastContactSyncTime = now;
+      _checkAndLoadContacts();
+    }
   }
 
   // Cooldown sinkronisasi kontak saat resume — mencegah sync berulang terlalu sering
@@ -243,23 +250,22 @@ class SearchScreenState extends State<SearchScreen> with WidgetsBindingObserver 
     final list = _realQuickContacts;
     if (list.isEmpty) return;
 
-    // Parallel: semua request jalan bersamaan, bukan satu per satu
-    await Future.wait(
-      list.where((t) => t.phoneNumberId.isNotEmpty).map((t) async {
-        try {
-          final res = await widget.apiService.lookupPhoneNumber(
-            t.phoneNumberId,
-            skipIncrement: true,
-            hasContactAccess: _hasContactPermission,
-          ).timeout(const Duration(seconds: 4));
-          if (mounted && res.data != null) {
-            setState(() {
-              _quickContactTagCounts[t.phoneNumberId] = res.data!.tags.length;
-            });
-          }
-        } catch (_) {}
-      }),
-    );
+    // Sequential: satu request per satu untuk menghindari beban API bersamaan
+    for (final t in list.where((t) => t.phoneNumberId.isNotEmpty)) {
+      if (!mounted) break;
+      try {
+        final res = await widget.apiService.lookupPhoneNumber(
+          t.phoneNumberId,
+          skipIncrement: true,
+          hasContactAccess: _hasContactPermission,
+        ).timeout(const Duration(seconds: 4));
+        if (mounted && res.data != null) {
+          setState(() {
+            _quickContactTagCounts[t.phoneNumberId] = res.data!.tags.length;
+          });
+        }
+      } catch (_) {}
+    }
   }
 
 
@@ -1031,9 +1037,19 @@ class SearchScreenState extends State<SearchScreen> with WidgetsBindingObserver 
     });
 
     try {
+      // Normalisasi _myPhoneNumber ke E.164 sebelum dibandingkan dengan cleanQuery
+      // agar skipIncrement benar meski user login dengan format '08xxx' atau '628xxx'
+      String normMyPhone = _myPhoneNumber.replaceAll(RegExp(r'[\s\-\(\)\.]+'), '');
+      if (normMyPhone.startsWith('08')) {
+        normMyPhone = '+62${normMyPhone.substring(1)}';
+      } else if (normMyPhone.startsWith('628') && !normMyPhone.startsWith('+')) {
+        normMyPhone = '+$normMyPhone';
+      }
+      final isSelfSearch = normMyPhone.isNotEmpty && cleanQuery == normMyPhone;
+
       final res = await widget.apiService.lookupPhoneNumber(
         cleanQuery,
-        skipIncrement: cleanQuery == _myPhoneNumber,
+        skipIncrement: isSelfSearch,
         hasContactAccess: _hasContactPermission,
       );
       if (mounted) {
