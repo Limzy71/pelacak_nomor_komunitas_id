@@ -1382,14 +1382,10 @@ class SearchScreenState extends State<SearchScreen> with WidgetsBindingObserver 
                       }
                     } catch (e) {
                       if (mounted) {
-                        if (!_userTags.contains(label)) {
-                          setState(() => _userTags.add(label));
-                          _saveUserTagsToPrefs();
-                        }
                         AppToast.show(
                           context,
-                          message: 'Label "#$label" ditambahkan ke daftar Anda. (${e.toString().replaceAll('Exception: ', '')})',
-                          type: ToastType.success,
+                          message: 'Gagal menyimpan tag: ${e.toString().replaceAll('Exception: ', '')}',
+                          type: ToastType.error,
                         );
                         setState(() => _isLoading = false);
                       }
