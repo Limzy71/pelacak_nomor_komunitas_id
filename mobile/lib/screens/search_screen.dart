@@ -555,7 +555,7 @@ class SearchScreenState extends State<SearchScreen> with WidgetsBindingObserver 
               ),
               const SizedBox(height: 20),
               Text(
-                'Limit Pencarian Harian Habis',
+                'Kuota Pencarian Harian Habis',
                 style: GoogleFonts.sora(
                   color: Colors.white,
                   fontSize: 22,
@@ -565,7 +565,7 @@ class SearchScreenState extends State<SearchScreen> with WidgetsBindingObserver 
               ),
               const SizedBox(height: 12),
               Text(
-                'Anda telah menggunakan 1x pencarian gratis hari ini. Kuota pencarian akan direset besok pukul 07:00 WIB.\n\nAktifkan izin akses kontak untuk menikmati pencarian nomor tanpa batas & proteksi spam otomatis!',
+                'Kuota pencarian gratis harian Anda (1x) telah habis. Kuota akan diperbarui besok pukul 07:00 WIB.\n\nAktifkan izin akses kontak untuk menikmati pencarian nomor tanpa batas',
                 style: GoogleFonts.plusJakartaSans(
                   color: AppColors.textSecondary,
                   fontSize: 14,
@@ -1102,7 +1102,7 @@ class SearchScreenState extends State<SearchScreen> with WidgetsBindingObserver 
         if (e is QuotaExceededException || e.toString().contains('Limit pencarian gratis')) {
           AppToast.show(
             context,
-            message: 'Limit gratis harian habis (1/1). Reset jam 07:00 WIB.',
+            message: 'Kuota pencarian gratis habis. Diperbarui besok pukul 07:00 WIB.',
             type: ToastType.info,
           );
           _showQuotaExceededModal();
