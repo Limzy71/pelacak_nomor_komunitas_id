@@ -799,25 +799,37 @@ class _SelfTagModal extends StatelessWidget {
           ),
           const SizedBox(height: 20),
           Container(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             decoration: BoxDecoration(
-              color: AppColors.primaryLight.withValues(alpha: 0.1),
+              color: AppColors.primaryLight.withValues(alpha: 0.08),
               borderRadius: BorderRadius.circular(16),
               border: Border.all(color: AppColors.primaryLight.withValues(alpha: 0.2)),
             ),
-            child: Row(
+            child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Icon(Icons.info_outline_rounded, color: AppColors.primaryLight, size: 20),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    'Tag ini disematkan langsung pada profil utama Anda. Pengguna lain yang menyimpan atau mencari nomor Anda akan melihat tag ini untuk mengenali identitas Anda dengan lebih cepat.',
-                    style: GoogleFonts.plusJakartaSans(
-                      color: Colors.white.withValues(alpha: 0.85),
-                      fontSize: 13.5,
-                      height: 1.5,
+                Row(
+                  children: [
+                    const Icon(Icons.info_outline_rounded, color: AppColors.primaryLight, size: 16),
+                    const SizedBox(width: 6),
+                    Text(
+                      'Informasi Tag',
+                      style: GoogleFonts.plusJakartaSans(
+                        color: AppColors.primaryLight,
+                        fontSize: 12.5,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 0.3,
+                      ),
                     ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Tag ini disematkan langsung pada profil utama Anda. Pengguna lain yang menyimpan atau mencari nomor Anda akan melihat tag ini untuk mengenali identitas Anda dengan lebih cepat.',
+                  style: GoogleFonts.plusJakartaSans(
+                    color: Colors.white.withValues(alpha: 0.8),
+                    fontSize: 13.5,
+                    height: 1.55,
                   ),
                 ),
               ],
