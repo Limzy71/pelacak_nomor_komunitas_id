@@ -11,6 +11,7 @@ class MyPhoneSearchersScreen extends StatefulWidget {
   final List<TagItem> myPhoneTags;
   final String myPhoneNumber;
   final List<SearcherItemData>? searcherItems;
+  final ApiService apiService;
   final VoidCallback? onRefresh;
   final Function(String)? onSearchNumber;
 
@@ -20,6 +21,7 @@ class MyPhoneSearchersScreen extends StatefulWidget {
     required this.trustScore,
     required this.myPhoneTags,
     required this.myPhoneNumber,
+    required this.apiService,
     this.searcherItems,
     this.onRefresh,
     this.onSearchNumber,
@@ -33,7 +35,6 @@ class _MyPhoneSearchersScreenState extends State<MyPhoneSearchersScreen> {
   late int _searchCount;
   List<SearcherItemData>? _dynamicItems;
   bool _isManualRefreshing = false;
-  final ApiService _apiService = ApiService();
 
   @override
   void initState() {
@@ -49,7 +50,8 @@ class _MyPhoneSearchersScreenState extends State<MyPhoneSearchersScreen> {
   // Refresh di background tanpa menampilkan shimmer (data lama tetap tampil)
   Future<void> _backgroundRefresh() async {
     try {
-      final data = await _apiService.getPhoneSearchers(widget.myPhoneNumber);
+      // Gunakan widget.apiService agar baseUrl konsisten
+      final data = await widget.apiService.getPhoneSearchers(widget.myPhoneNumber);
       if (mounted) {
         setState(() {
           _dynamicItems = data;
@@ -69,7 +71,8 @@ class _MyPhoneSearchersScreenState extends State<MyPhoneSearchersScreen> {
     });
 
     try {
-      final data = await _apiService.getPhoneSearchers(widget.myPhoneNumber);
+      // Gunakan widget.apiService agar baseUrl konsisten
+      final data = await widget.apiService.getPhoneSearchers(widget.myPhoneNumber);
       if (mounted) {
         setState(() {
           _dynamicItems = data;

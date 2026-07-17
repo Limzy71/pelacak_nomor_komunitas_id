@@ -157,17 +157,21 @@ class SearchScreenState extends State<SearchScreen> with WidgetsBindingObserver 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
-      // Hanya jalankan ulang sinkronisasi jika:
-      // 1. Izin kontak sudah diberikan
-      // 2. Tidak sedang dalam proses loading
-      // 3. Sudah melewati cooldown 5 menit (mencegah sync berulang terlalu sering)
-      if (!_hasContactPermission || _isContactsLoading) return;
       final now = DateTime.now();
       final lastSync = _lastContactSyncTime;
-      if (lastSync == null || now.difference(lastSync).inMinutes >= 5) {
-        _lastContactSyncTime = now;
+      final shouldSync = lastSync == null || now.difference(lastSync).inMinutes >= 5;
+      if (!shouldSync) return;
+      _lastContactSyncTime = now;
+
+      // Sinkronisasi kontak & stats jika izin kontak sudah diberikan
+      if (_hasContactPermission && !_isContactsLoading) {
         _fetchRealDeviceContacts();
         _fetchMyPhoneSearchStats();
+      }
+
+      // Refresh call log secara independen jika izin telepon sudah diberikan
+      if (_hasCallLogPermission) {
+        _fetchRealCallLogs();
       }
     }
   }
@@ -225,8 +229,8 @@ class SearchScreenState extends State<SearchScreen> with WidgetsBindingObserver 
   Future<void> _prefetchSearchers(String phoneNumber) async {
     if (phoneNumber.trim().isEmpty) return;
     try {
-      final apiService = ApiService();
-      final data = await apiService.getPhoneSearchers(phoneNumber);
+      // Gunakan widget.apiService agar baseUrl konsisten (tidak membuat instance baru)
+      final data = await widget.apiService.getPhoneSearchers(phoneNumber);
       if (mounted) {
         setState(() {
           _cachedSearcherItems = data;
@@ -868,28 +872,28 @@ class SearchScreenState extends State<SearchScreen> with WidgetsBindingObserver 
     final calls = _realRecentCalls;
     if (calls.isEmpty) return;
 
-    await Future.wait(
-      calls.map((c) async {
-        final num = c['number'] as String?;
-        if (num == null || num.isEmpty) return;
-        try {
-          final res = await widget.apiService.lookupPhoneNumber(
-            num,
-            skipIncrement: true,
-            hasContactAccess: _hasContactPermission,
-          ).timeout(const Duration(seconds: 4));
-          if (mounted && res.data != null && res.data!.tags.isNotEmpty) {
-            final sortedTags = List.of(res.data!.tags)
-              ..sort((a, b) => (b.upvotes - b.downvotes).compareTo(a.upvotes - a.downvotes));
-            final topTag = sortedTags.first.labelName;
-            final formatted = topTag.startsWith('#') ? topTag : '#$topTag';
-            setState(() {
-              _recentCallTags[num] = formatted;
-            });
-          }
-        } catch (_) {}
-      }),
-    );
+    // Proses secara sequential (bukan paralel) untuk menghindari beban API bersamaan
+    for (final c in calls) {
+      if (!mounted) break;
+      final num = c['number'] as String?;
+      if (num == null || num.isEmpty) continue;
+      try {
+        final res = await widget.apiService.lookupPhoneNumber(
+          num,
+          skipIncrement: true,
+          hasContactAccess: _hasContactPermission,
+        ).timeout(const Duration(seconds: 4));
+        if (mounted && res.data != null && res.data!.tags.isNotEmpty) {
+          final sortedTags = List.of(res.data!.tags)
+            ..sort((a, b) => (b.upvotes - b.downvotes).compareTo(a.upvotes - a.downvotes));
+          final topTag = sortedTags.first.labelName;
+          final formatted = topTag.startsWith('#') ? topTag : '#$topTag';
+          setState(() {
+            _recentCallTags[num] = formatted;
+          });
+        }
+      } catch (_) {}
+    }
   }
 
   // Getter Panggilan Terbaru Asli dari Riwayat Telepon Nyata HP (Call Log)
@@ -2882,6 +2886,7 @@ class SearchScreenState extends State<SearchScreen> with WidgetsBindingObserver 
                         myPhoneTags: _myPhoneTags,
                         myPhoneNumber: _myPhoneNumber,
                         searcherItems: _cachedSearcherItems,
+                        apiService: widget.apiService,
                         onRefresh: _fetchMyPhoneSearchStats,
                         onSearchNumber: (String number) {
                           Navigator.pop(context); // Tutup halaman MyPhoneSearchersScreen
