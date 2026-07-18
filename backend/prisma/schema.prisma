@@ -31,7 +31,7 @@ model PhoneNumber {
   phoneNumber            String                 @unique @map("phone_number") 
   countryCode            String                 @map("country_code")
   searchCount            Int                    @default(0) @map("search_count")
-  trustScore             Float                  @default(100.0) @map("trust_score")
+  trustScore             Float                  @default(50.0) @map("trust_score")
   createdAt              DateTime               @default(now()) @map("created_at")
   updatedAt              DateTime               @updatedAt @map("updated_at")
   tags                   Tag[]    
@@ -51,6 +51,7 @@ model Tag {
   upvotes       Int         @default(0)
   downvotes     Int         @default(0)
   isSpam        Boolean     @default(false) @map("is_spam")
+  source        String      @default("USER_REPORT") // Menandai asal tag (USER_REPORT atau CONTACT_SYNC_LEGACY)
   createdAt     DateTime    @default(now()) @map("created_at")
   tagVotes      TagVote[]
 

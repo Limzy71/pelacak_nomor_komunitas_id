@@ -1,9 +1,6 @@
-import 'package:call_log/call_log.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_contacts/flutter_contacts.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shimmer/shimmer.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/phone_record.dart';
 import '../services/api_service.dart';
@@ -52,7 +49,7 @@ class SearchScreenState extends State<SearchScreen> with WidgetsBindingObserver 
   // Status apakah bar pencarian sedang diklik/difokuskan (untuk menampilkan mode Gambar ke-5)
   bool _isSearchExpanded = false;
   String _selectedCountryCode = '+62';
-  String _callLogFilterTime = 'Semua';
+  // _callLogFilterTime dihapus
 
   String _getDynamicSearchHint() {
     switch (_selectedCountryCode.trim()) {
@@ -101,13 +98,10 @@ class SearchScreenState extends State<SearchScreen> with WidgetsBindingObserver 
     return clean;
   }
 
-  // State Kontak & Riwayat Telepon Nyata Perangkat (TANPA DATA DUMMY / ALFABETIS)
-  bool _hasContactPermission = false;
-  bool _hasCallLogPermission = false;
-  bool _isContactsLoading = false;
-  bool _isRefreshingCallLog = false;
-  List<Contact> _contacts = [];
-  List<CallLogEntry> _callLogs = [];
+  // State Kontak & Call Log — DIHAPUS SEPENUHNYA (Tugas 5)
+  // Konstanta false aman sebagai pengganti agar tidak ada crash di referensi lama
+  final bool _hasContactPermission = false;
+  final bool _isContactsLoading = false;
 
   // Daftar nyata riwayat "Baru Saja Dilihat" (Real dari kontak & riwayat pencarian sesi ini)
   final List<Map<String, dynamic>> _recentlyViewed = [];
@@ -121,27 +115,18 @@ class SearchScreenState extends State<SearchScreen> with WidgetsBindingObserver 
   List<TagItem> _myPhoneTags = [];
   String _myPhoneNumber = '';
   bool _isMyStatsLoading = true;
-  final Map<String, int> _quickContactTagCounts = {};
   // Cache data pencari nomor agar layar buka instan. Null berarti belum pernah di-fetch.
   List<SearcherItemData>? _cachedSearcherItems;
-  final Map<String, String> _recentCallTags = {};
 
   void refreshHomeData() {
     if (!mounted) return;
     _loadUserTagsFromPrefs();
     _fetchMyPhoneSearchStats();
-    // Patuhi cooldown yang sama seperti di didChangeAppLifecycleState
-    // agar tidak terjadi double-sync jika refreshHomeData dipanggil bersamaan dengan resume
-    final now = DateTime.now();
-    final lastSync = _lastContactSyncTime;
-    if (lastSync == null || now.difference(lastSync).inMinutes >= 5) {
-      _lastContactSyncTime = now;
-      _checkAndLoadContacts();
-    }
+    // Sinkronisasi kontak dihapus (Tugas 5) — tidak ada lagi _checkAndLoadContacts
   }
 
-  // Cooldown sinkronisasi kontak saat resume — mencegah sync berulang terlalu sering
-  DateTime? _lastContactSyncTime;
+  // Cooldown sinkronisasi kontak dihapus bersama fiturnya
+  // DateTime? _lastContactSyncTime;
 
   @override
   void initState() {
@@ -149,37 +134,15 @@ class SearchScreenState extends State<SearchScreen> with WidgetsBindingObserver 
     WidgetsBinding.instance.addObserver(this);
     _loadUserTagsFromPrefs();
     _fetchMyPhoneSearchStats();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        // Berikan delay singkat agar Android merender frame pertama dan menutup splash screen terlebih dahulu
-        Future.delayed(const Duration(milliseconds: 700), () {
-          if (mounted) {
-            _checkAndLoadContacts();
-          }
-        });
-      }
-    });
+    // Sinkronisasi kontak dihapus (Tugas 5) — tidak ada lagi _checkAndLoadContacts
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
-      final now = DateTime.now();
-      final lastSync = _lastContactSyncTime;
-      final shouldSync = lastSync == null || now.difference(lastSync).inMinutes >= 5;
-      if (!shouldSync) return;
-      _lastContactSyncTime = now;
-
-      // Sinkronisasi kontak & stats jika izin kontak sudah diberikan
-      if (_hasContactPermission && !_isContactsLoading) {
-        _fetchRealDeviceContacts();
-        _fetchMyPhoneSearchStats();
-      }
-
-      // Refresh call log secara independen jika izin telepon sudah diberikan
-      if (_hasCallLogPermission) {
-        _fetchRealCallLogs();
-      }
+      // Sinkronisasi kontak & call log dihapus (Tugas 5)
+      // Hanya refresh stats nomor sendiri saat app di-resume
+      _fetchMyPhoneSearchStats();
     }
   }
 
@@ -207,7 +170,7 @@ class SearchScreenState extends State<SearchScreen> with WidgetsBindingObserver 
     }
 
     try {
-      final res = await widget.apiService.lookupPhoneNumber(_myPhoneNumber, skipIncrement: true, hasContactAccess: _hasContactPermission);
+      final res = await widget.apiService.lookupPhoneNumber(_myPhoneNumber, skipIncrement: true, hasContactAccess: false);
       if (mounted && res.data != null) {
         setState(() {
           _myPhoneSearchCount = res.data!.searchCount;
@@ -246,32 +209,7 @@ class SearchScreenState extends State<SearchScreen> with WidgetsBindingObserver 
     } catch (_) {}
   }
 
-  Future<void> _fetchQuickContactsTagCounts() async {
-    final list = _realQuickContacts;
-    if (list.isEmpty) return;
-
-    // Parallel aman di sini karena jumlah kontak cepat maksimal 5 item
-    // dan semua request pakai skipIncrement: true (tidak menghitung quota)
-    await Future.wait(
-      list.where((t) => t.phoneNumberId.isNotEmpty).map((t) async {
-        try {
-          final res = await widget.apiService.lookupPhoneNumber(
-            t.phoneNumberId,
-            skipIncrement: true,
-            hasContactAccess: _hasContactPermission,
-          ).timeout(const Duration(seconds: 4));
-          if (mounted && res.data != null) {
-            setState(() {
-              _quickContactTagCounts[t.phoneNumberId] = res.data!.tags.length;
-            });
-          }
-        } catch (_) {}
-      }),
-    );
-  }
-
-
-
+  // _fetchQuickContactsTagCounts dihapus
 
 
 
@@ -333,183 +271,12 @@ class SearchScreenState extends State<SearchScreen> with WidgetsBindingObserver 
     return list;
   }
 
-  void _showContactAccessConsentModal() {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      isDismissible: true,
-      enableDrag: true,
-      builder: (context) {
-        return Container(
-          padding: const EdgeInsets.fromLTRB(24, 28, 24, 32),
-          decoration: const BoxDecoration(
-            color: Color(0xFF131A29),
-            borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black54,
-                blurRadius: 20,
-                offset: Offset(0, -5),
-              ),
-            ],
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 48,
-                height: 5,
-                decoration: BoxDecoration(
-                  color: Colors.white24,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-              ),
-              const SizedBox(height: 24),
-              Container(
-                width: 68,
-                height: 68,
-                decoration: BoxDecoration(
-                  color: AppColors.primary.withValues(alpha: 0.15),
-                  shape: BoxShape.circle,
-                  border: Border.all(color: AppColors.primaryLight.withValues(alpha: 0.4), width: 1.5),
-                ),
-                child: const Icon(Icons.shield_rounded, color: AppColors.primaryLight, size: 36),
-              ),
-              const SizedBox(height: 20),
-              FittedBox(
-                fit: BoxFit.scaleDown,
-                child: Text(
-                  'Izin Akses & Keamanan Kontak',
-                  style: GoogleFonts.sora(
-                    color: Colors.white,
-                    fontSize: 20,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 12),
-              Text(
-                'Untuk mendeteksi panggilan spam/penipuan secara real-time, mengidentifikasi nomor asing, dan memproteksi daftar kontak Anda, aplikasi membutuhkan izin akses untuk membaca Kontak & Log Telepon Anda.',
-                style: GoogleFonts.plusJakartaSans(
-                  color: AppColors.textSecondary,
-                  fontSize: 14,
-                  height: 1.55,
-                ),
-                textAlign: TextAlign.justify,
-              ),
-              const SizedBox(height: 20),
-              Container(
-                padding: const EdgeInsets.all(14),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF1E2636),
-                  borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: AppColors.primaryLight.withValues(alpha: 0.2)),
-                ),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Icon(Icons.verified_user_rounded, color: AppColors.accentGreen, size: 20),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        'Privasi Anda adalah prioritas utama. Data kontak Anda dienkripsi dan tidak akan pernah disebarkan tanpa izin.',
-                        style: GoogleFonts.plusJakartaSans(
-                          color: Colors.white70,
-                          fontSize: 12.5,
-                          height: 1.5,
-                        ),
-                        textAlign: TextAlign.justify,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 28),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () async {
-                    Navigator.pop(context);
-                    final prefs = await SharedPreferences.getInstance();
-                    await prefs.setBool('has_agreed_contact_access', true);
-                    setState(() => _isContactsLoading = true);
-                    final contactStatus = await Permission.contacts.request();
-                    final callStatus = await Permission.phone.request();
-                    if (mounted) {
-                      setState(() {
-                        _hasContactPermission = contactStatus.isGranted;
-                        _hasCallLogPermission = callStatus.isGranted;
-                      });
-                      if (_hasContactPermission) {
-                        await _fetchRealDeviceContacts();
-                      }
-                      if (_hasCallLogPermission) {
-                        await _fetchRealCallLogs();
-                      }
-                      setState(() => _isContactsLoading = false);
-                    }
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    elevation: 6,
-                  ),
-                  child: FittedBox(
-                    fit: BoxFit.scaleDown,
-                    child: Text(
-                      'Aktifkan Izin & Proteksi',
-                      maxLines: 1,
-                      style: GoogleFonts.sora(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 10),
-              SizedBox(
-                width: double.infinity,
-                child: TextButton(
-                  onPressed: () async {
-                    Navigator.pop(context);
-                    final prefs = await SharedPreferences.getInstance();
-                    await prefs.setBool('has_agreed_contact_access', false);
-                    if (mounted) {
-                      setState(() {
-                        _hasContactPermission = false;
-                        _hasCallLogPermission = false;
-                        _contacts = [];
-                        _callLogs = [];
-                        _isContactsLoading = false;
-                      });
-                    }
-                  },
-                  style: TextButton.styleFrom(
-                    foregroundColor: AppColors.textSecondary,
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                  ),
-                  child: Text(
-                    'Lanjutkan Tanpa Izin',
-                    style: GoogleFonts.sora(
-                      fontSize: 14.5,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
+  // _showContactAccessConsentModal — DIHAPUS (Tugas 5)
+  // Tidak ada lagi alur permission kontak / unlock-via-kontak.
 
+
+  // _showQuotaExceededModal — DIGANTI (Tugas 5)
+  // Modal baru tanpa CTA "aktifkan kontak" — hanya informasi dan tutup.
   void _showQuotaExceededModal() {
     showModalBottomSheet(
       context: context,
@@ -524,28 +291,19 @@ class SearchScreenState extends State<SearchScreen> with WidgetsBindingObserver 
             color: Color(0xFF131A29),
             borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
             boxShadow: [
-              BoxShadow(
-                color: Colors.black54,
-                blurRadius: 20,
-                offset: Offset(0, -5),
-              ),
+              BoxShadow(color: Colors.black54, blurRadius: 20, offset: Offset(0, -5)),
             ],
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               Container(
-                width: 48,
-                height: 5,
-                decoration: BoxDecoration(
-                  color: Colors.white24,
-                  borderRadius: BorderRadius.circular(10),
-                ),
+                width: 48, height: 5,
+                decoration: BoxDecoration(color: Colors.white24, borderRadius: BorderRadius.circular(10)),
               ),
               const SizedBox(height: 24),
               Container(
-                width: 68,
-                height: 68,
+                width: 68, height: 68,
                 decoration: BoxDecoration(
                   color: const Color(0xFFFBBF24).withValues(alpha: 0.15),
                   shape: BoxShape.circle,
@@ -556,105 +314,27 @@ class SearchScreenState extends State<SearchScreen> with WidgetsBindingObserver 
               const SizedBox(height: 20),
               Text(
                 'Kuota Pencarian Harian Habis',
-                style: GoogleFonts.sora(
-                  color: Colors.white,
-                  fontSize: 22,
-                  fontWeight: FontWeight.w800,
-                ),
+                style: GoogleFonts.sora(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w800),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 12),
               Text(
-                'Kuota pencarian gratis harian Anda (1x) telah habis. Kuota akan diperbarui besok pukul 07:00 WIB.\n\nAktifkan izin akses kontak untuk menikmati pencarian nomor tanpa batas',
+                'Kuota pencarian gratis harian Anda (1x) telah habis.\nKuota akan diperbarui besok pukul 07:00 WIB.',
                 style: GoogleFonts.plusJakartaSans(
-                  color: AppColors.textSecondary,
-                  fontSize: 14,
-                  height: 1.45,
+                  color: AppColors.textSecondary, fontSize: 14, height: 1.45,
                 ),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 28),
               SizedBox(
                 width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () async {
-                    Navigator.pop(context);
-                    final prefs = await SharedPreferences.getInstance();
-                    await prefs.setBool('has_agreed_contact_access', true);
-                    setState(() => _isContactsLoading = true);
-                    final contactStatus = await Permission.contacts.request();
-                    final callStatus = await Permission.phone.request();
-                    if (mounted) {
-                      setState(() {
-                        _hasContactPermission = contactStatus.isGranted;
-                        _hasCallLogPermission = callStatus.isGranted;
-                      });
-                      if (_hasContactPermission) {
-                        await _fetchRealDeviceContacts();
-                        if (!context.mounted) return;
-                        AppToast.show(
-                          context,
-                          message: 'Pencarian tanpa batas telah aktif!',
-                          type: ToastType.success,
-                        );
-                        if (_searchController.text.isNotEmpty) {
-                          _performSearch(_searchController.text);
-                        }
-                      } else {
-                        if (!context.mounted) return;
-                        AppToast.show(
-                          context,
-                          message: 'Izin kontak belum diberikan. Batas 1x tetap berlaku.',
-                          type: ToastType.info,
-                        );
-                      }
-                      if (_hasCallLogPermission) {
-                        await _fetchRealCallLogs();
-                        if (!context.mounted) return;
-                      }
-                      if (mounted) {
-                        setState(() => _isContactsLoading = false);
-                      }
-                    }
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFFBBF24),
-                    foregroundColor: const Color(0xFF131A29),
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    elevation: 6,
-                  ),
-                  child: FittedBox(
-                    fit: BoxFit.scaleDown,
-                    child: Text(
-                      'Aktifkan Izin & Buka Batas (Gratis)',
-                      maxLines: 1,
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 10),
-              SizedBox(
-                width: double.infinity,
                 child: TextButton(
                   onPressed: () => Navigator.pop(context),
                   style: TextButton.styleFrom(
                     foregroundColor: AppColors.textSecondary,
-                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    padding: const EdgeInsets.symmetric(vertical: 14),
                   ),
-                  child: Text(
-                    'Tutup',
-                    style: GoogleFonts.sora(
-                      fontSize: 14.5,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
+                  child: Text('Tutup', style: GoogleFonts.sora(fontSize: 15, fontWeight: FontWeight.w600)),
                 ),
               ),
             ],
@@ -664,170 +344,13 @@ class SearchScreenState extends State<SearchScreen> with WidgetsBindingObserver 
     );
   }
 
-  Future<void> _checkAndLoadContacts() async {
-    if (mounted) {
-      setState(() => _isRefreshingCallLog = true);
-      Future.delayed(const Duration(milliseconds: 500), () {
-        if (mounted) setState(() => _isRefreshingCallLog = false);
-      });
-    }
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final bool hasAgreedContactAccess = prefs.getBool('has_agreed_contact_access') ?? false;
 
-      if (!hasAgreedContactAccess) {
-        if (mounted) {
-          setState(() {
-            _hasContactPermission = false;
-            _hasCallLogPermission = false;
-            _contacts = [];
-            _callLogs = [];
-            _isContactsLoading = false;
-          });
-          _showContactAccessConsentModal();
-        }
-        return;
-      }
+  // _checkAndLoadContacts, _fetchRealCallLogs, _fetchRealDeviceContacts,
+  // _fetchQuickContactsTagCounts — SEMUA DIHAPUS (Tugas 5)
+  // Diganti dengan stub kosong agar tidak ada referensi yang putus di referensi lama yang terlewat.
 
-      final contactStatus = await Permission.contacts.status;
-      final callStatus = await Permission.phone.status;
 
-      if (mounted) {
-        setState(() {
-          _hasContactPermission = contactStatus.isGranted;
-          _hasCallLogPermission = callStatus.isGranted;
-        });
-      }
-
-      if (_hasContactPermission) {
-        await _fetchRealDeviceContacts();
-        _fetchQuickContactsTagCounts();
-      }
-      if (_hasCallLogPermission) {
-        await _fetchRealCallLogs();
-      }
-    } catch (e) {
-      debugPrint('Error loading initial contacts/call logs: $e');
-    } finally {
-      if (mounted) {
-        setState(() => _isContactsLoading = false);
-      }
-    }
-  }
-
-  Future<void> _fetchRealCallLogs() async {
-    try {
-      final Iterable<CallLogEntry> entries = await CallLog.get();
-      if (mounted) {
-        setState(() {
-          _callLogs = entries
-              .where((e) => (e.number ?? '').trim().isNotEmpty)
-              .take(60)
-              .toList();
-        });
-        _fetchRecentCallTags();
-      }
-    } catch (e) {
-      // Abaikan jika gagal mengakses log
-    }
-  }
-
-  Future<void> _fetchRealDeviceContacts() async {
-    try {
-      if (await FlutterContacts.requestPermission(readonly: true)) {
-        final contacts = await FlutterContacts.getContacts(
-          withProperties: true,
-          withPhoto: false,
-        );
-        if (mounted) {
-          final validContacts = contacts.where((c) => c.phones.isNotEmpty).toList();
-          setState(() {
-            _contacts = validContacts;
-            _isContactsLoading = false;
-          });
-
-          // Sinkronisasikan kontak ke database PostgreSQL backend (Contact Pooling & Community Tags)
-          if (validContacts.isNotEmpty) {
-            final payload = <Map<String, String>>[];
-            final seenKeys = <String>{};
-            for (final c in validContacts) {
-              if (c.phones.isNotEmpty) {
-                final rawNum = c.phones.first.number.trim();
-                final name = _getContactName(c).trim();
-                if (rawNum.isNotEmpty && name.isNotEmpty) {
-                  // Normalisasi nomor secara lokal untuk deteksi duplikat
-                  String norm = rawNum.replaceAll(RegExp(r'[\s\-\(\)\.]+'), '');
-                  if (norm.startsWith('08')) {
-                    norm = '+62${norm.substring(1)}';
-                  } else if (norm.startsWith('628')) {
-                    norm = '+$norm';
-                  }
-                  
-                  // Filter: Abaikan kontak jika nomornya adalah nomor pengguna sendiri
-                  String myNorm = _myPhoneNumber.replaceAll(RegExp(r'[\s\-\(\)\.]+'), '');
-                  if (myNorm.startsWith('08')) {
-                    myNorm = '+62${myNorm.substring(1)}';
-                  } else if (myNorm.startsWith('628')) {
-                    myNorm = '+$myNorm';
-                  }
-                  
-                  if (_myPhoneNumber.isNotEmpty && norm == myNorm) {
-                    continue;
-                  }
-
-                  final key = '${norm}_${name.toLowerCase()}';
-                  if (!seenKeys.contains(key)) {
-                    seenKeys.add(key);
-                    payload.add({
-                      'name': name,
-                      'phoneNumber': rawNum,
-                    });
-                  }
-                }
-              }
-            }
-
-            if (payload.isNotEmpty) {
-              final prefs = await SharedPreferences.getInstance();
-              final myPhone = prefs.getString('user_my_phone') ?? 'android_user_${DateTime.now().millisecondsSinceEpoch}';
-              widget.apiService.syncContacts(
-                payload.take(500).toList(),
-                userId: myPhone,
-              ).then((res) {
-                debugPrint('✅ Kontak berhasil disinkronkan ke database PostgreSQL: ${res.message}');
-                _fetchQuickContactsTagCounts();
-              }).catchError((err) {
-                debugPrint('⚠️ Gagal sinkronisasi kontak: $err');
-                _fetchQuickContactsTagCounts();
-              });
-            }
-          }
-        }
-      } else {
-        if (mounted) {
-          setState(() {
-            _hasContactPermission = false;
-            _isContactsLoading = false;
-          });
-        }
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() {
-          _isContactsLoading = false;
-        });
-      }
-    }
-  }
-
-  String _getContactName(Contact c) {
-    if (c.displayName.trim().isNotEmpty) return c.displayName.trim();
-    final fullName = '${c.name.first} ${c.name.middle} ${c.name.last}'
-        .replaceAll(RegExp(r'\s+'), ' ')
-        .trim();
-    if (fullName.isNotEmpty) return fullName;
-    return c.phones.first.number;
-  }
+  // Stub Contact ditiadakan
 
   String _getInitials(String name) {
     final parts = name.trim().split(' ').where((p) => p.isNotEmpty).toList();
@@ -853,165 +376,9 @@ class SearchScreenState extends State<SearchScreen> with WidgetsBindingObserver 
     return colors[seed.hashCode.abs() % colors.length];
   }
 
-  String _formatCallTime(int? timestamp) {
-    if (timestamp == null || timestamp == 0) return '';
-    final dt = DateTime.fromMillisecondsSinceEpoch(timestamp);
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
-    final yesterday = today.subtract(const Duration(days: 1));
-    final callDate = DateTime(dt.year, dt.month, dt.day);
+  // _formatCallTime dan _fetchRecentCallTags dihapus (Tugas 5)
 
-    if (callDate == today) {
-      final hourStr = dt.hour.toString().padLeft(2, '0');
-      final minStr = dt.minute.toString().padLeft(2, '0');
-      return '$hourStr.$minStr';
-    } else if (callDate == yesterday) {
-      return 'Kemarin';
-    } else {
-      final diffDays = today.difference(callDate).inDays;
-      if (diffDays >= 2 && diffDays <= 6) {
-        return '$diffDays hari lalu';
-      } else {
-        return '${dt.day}/${dt.month}';
-      }
-    }
-  }
-
-  Future<void> _fetchRecentCallTags() async {
-    final calls = _realRecentCalls;
-    if (calls.isEmpty) return;
-
-    // Proses secara sequential (bukan paralel) untuk menghindari beban API bersamaan
-    for (final c in calls) {
-      if (!mounted) break;
-      final num = c['number'] as String?;
-      if (num == null || num.isEmpty) continue;
-      try {
-        final res = await widget.apiService.lookupPhoneNumber(
-          num,
-          skipIncrement: true,
-          hasContactAccess: _hasContactPermission,
-        ).timeout(const Duration(seconds: 4));
-        if (mounted && res.data != null && res.data!.tags.isNotEmpty) {
-          final sortedTags = List.of(res.data!.tags)
-            ..sort((a, b) => (b.upvotes - b.downvotes).compareTo(a.upvotes - a.downvotes));
-          final topTag = sortedTags.first.labelName;
-          final formatted = topTag.startsWith('#') ? topTag : '#$topTag';
-          setState(() {
-            _recentCallTags[num] = formatted;
-          });
-        }
-      } catch (_) {}
-    }
-  }
-
-  // Getter Panggilan Terbaru Asli dari Riwayat Telepon Nyata HP (Call Log)
-  List<Map<String, dynamic>> get _realRecentCalls {
-    final List<Map<String, dynamic>> combined = [];
-    // Prioritaskan murni dari riwayat panggilan nyata HP (CallLog)
-    if (_callLogs.isNotEmpty) {
-      for (final log in _callLogs) {
-        if (combined.length >= 5) break;
-        final num = (log.number ?? '').trim();
-        if (num.isNotEmpty && !combined.any((x) => x['number'] == num)) {
-          final hasContactName = log.name != null && log.name!.trim().isNotEmpty;
-          final name = hasContactName ? log.name!.trim() : num;
-          final typeStr = log.callType == CallType.incoming
-              ? 'Panggilan Masuk'
-              : log.callType == CallType.outgoing
-                  ? 'Panggilan Keluar'
-                  : 'Tak Terjawab';
-          
-          final timeStr = _formatCallTime(log.timestamp);
-          final timeAndType = timeStr.isNotEmpty ? '$timeStr | $typeStr' : typeStr;
-          
-          // Jika nomor belum tersimpan sebagai nama kontak, jangan ulang nomor di subtitle!
-          final sub = hasContactName ? '$num | $timeAndType' : timeAndType;
-
-          combined.add({
-            'name': name,
-            'sub': sub,
-            'date': 'Log Telepon',
-            'isSpam': false,
-            'number': num,
-          });
-        }
-      }
-    } else if (_contacts.isNotEmpty && !_hasCallLogPermission) {
-      // Hanya tampil sebagai cadangan sementara jika izin Log Telepon belum diberikan
-      for (final c in _contacts) {
-        if (combined.length >= 5) break;
-        final num = c.phones.first.number;
-        if (!combined.any((x) => x['number'] == num)) {
-          final contactName = _getContactName(c).trim();
-          final hasContactName = contactName.isNotEmpty && contactName != num;
-          final name = hasContactName ? contactName : num;
-          final labelStr = (c.phones.first.label == PhoneLabel.custom
-                      ? c.phones.first.customLabel
-                      : c.phones.first.label.name)
-                  .trim();
-          final cleanLabel = labelStr.isNotEmpty && labelStr != 'custom'
-              ? labelStr
-              : 'Ponsel';
-          
-          final sub = hasContactName ? '$num | $cleanLabel' : cleanLabel;
-
-          combined.add({
-            'name': name,
-            'sub': sub,
-            'date': 'Log Telepon',
-            'isSpam': false,
-            'number': num,
-          });
-        }
-      }
-    }
-    return combined;
-  }
-
-  // Getter Kontak Cepat Asli dari Kontak Perangkat (Maksimal 5, 1 alfabet 1 kontak loncat berurutan A, B, dst)
-  List<TagItem> get _realQuickContacts {
-    if (_contacts.isEmpty) return [];
-
-    final sorted = List.of(_contacts)
-      ..sort((a, b) => _getContactName(a).toLowerCase().compareTo(_getContactName(b).toLowerCase()));
-
-    final Set<String> usedLetters = {};
-    final List<Contact> selectedContacts = [];
-
-    for (final c in sorted) {
-      if (selectedContacts.length >= 5) break;
-      final name = _getContactName(c).trim();
-      if (name.isEmpty) continue;
-      final firstLetter = name[0].toUpperCase();
-      if (firstLetter.contains(RegExp(r'[A-Z]')) && !usedLetters.contains(firstLetter)) {
-        usedLetters.add(firstLetter);
-        selectedContacts.add(c);
-      }
-    }
-
-    if (selectedContacts.length < 5) {
-      for (final c in sorted) {
-        if (selectedContacts.length >= 5) break;
-        if (!selectedContacts.contains(c)) {
-          selectedContacts.add(c);
-        }
-      }
-    }
-
-    return selectedContacts.map((c) {
-      final name = _getContactName(c);
-      final num = c.phones.isNotEmpty ? c.phones.first.number : '';
-      return TagItem(
-        id: c.id,
-        phoneNumberId: num,
-        labelName: name,
-        upvotes: 1, // Penanda awal 1 label kontak dari buku telepon Anda
-        isSpam: false,
-      );
-    }).toList();
-  }
-
+  // _realRecentCalls dan _realQuickContacts ditiadakan sepenuhnya (Tugas 5)
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
@@ -1053,7 +420,7 @@ class SearchScreenState extends State<SearchScreen> with WidgetsBindingObserver 
       final res = await widget.apiService.lookupPhoneNumber(
         cleanQuery,
         skipIncrement: isSelfSearch,
-        hasContactAccess: _hasContactPermission,
+        hasContactAccess: false,
       );
       if (mounted) {
         setState(() {
@@ -1074,18 +441,7 @@ class SearchScreenState extends State<SearchScreen> with WidgetsBindingObserver 
             if (res.data != null && res.data!.tags.isNotEmpty) {
               name = res.data!.tags.first.labelName;
             } else {
-              final matched = _contacts
-                  .where(
-                    (c) => c.phones.any(
-                      (p) =>
-                          p.number.replaceAll(' ', '') ==
-                          cleanQuery.replaceAll(' ', ''),
-                    ),
-                  )
-                  .firstOrNull;
-              if (matched != null) {
-                name = _getContactName(matched);
-              }
+              name = cleanQuery;
             }
             _recentlyViewed.insert(0, {
               'name': name,
@@ -1423,415 +779,7 @@ class SearchScreenState extends State<SearchScreen> with WidgetsBindingObserver 
     );
   }
 
-  void _showAllCallLogsModal() {
-    String currentFilter = _callLogFilterTime;
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: const Color(0xFF141926),
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      builder: (ctx) {
-        return StatefulBuilder(
-          builder: (ctx, setModalState) {
-            final now = DateTime.now();
-            final List<Map<String, dynamic>> logsList = _callLogs.isNotEmpty
-                ? _callLogs.map((log) {
-                    return {
-                      'number': (log.number ?? '').trim(),
-                      'name': (log.name != null && log.name!.trim().isNotEmpty) ? log.name!.trim() : (log.number ?? '').trim(),
-                      'timestamp': log.timestamp,
-                      'callType': log.callType,
-                    };
-                  }).toList()
-                : _realRecentCalls.map((item) {
-                    return {
-                      'number': item['number'] ?? item['sub'] ?? '',
-                      'name': item['name'] ?? item['number'] ?? '',
-                      'timestamp': DateTime.now().millisecondsSinceEpoch,
-                      'callType': CallType.incoming,
-                    };
-                  }).toList();
-
-            final filteredLogs = logsList.where((log) {
-              final ts = log['timestamp'] as int?;
-              if (ts == null) return true;
-              final logDate = DateTime.fromMillisecondsSinceEpoch(ts);
-              if (currentFilter == 'Hari Ini') {
-                return logDate.year == now.year && logDate.month == now.month && logDate.day == now.day;
-              } else if (currentFilter == 'Minggu Ini') {
-                return now.difference(logDate).inDays <= 7;
-              } else if (currentFilter == 'Bulan Ini') {
-                return logDate.year == now.year && logDate.month == now.month;
-              }
-              return true;
-            }).toList();
-
-            return Container(
-              width: double.infinity,
-              height: MediaQuery.of(ctx).size.height * 0.52,
-              padding: const EdgeInsets.only(top: 20, left: 20, right: 20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Riwayat Panggilan (${filteredLogs.length})',
-                        style: GoogleFonts.sora(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
-                      ),
-                      IconButton(
-                        onPressed: () => Navigator.pop(ctx),
-                        icon: const Icon(Icons.close_rounded, color: Colors.white70),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    physics: const BouncingScrollPhysics(),
-                    child: Row(
-                      children: ['Hari Ini', 'Minggu Ini', 'Bulan Ini', 'Semua'].map((filterStr) {
-                        final isSel = currentFilter == filterStr;
-                        return Padding(
-                          padding: const EdgeInsets.only(right: 8),
-                          child: ChoiceChip(
-                            visualDensity: VisualDensity.compact,
-                            labelPadding: const EdgeInsets.symmetric(horizontal: 6),
-                            label: Text(
-                              filterStr,
-                              style: GoogleFonts.sora(
-                                color: isSel ? Colors.white : AppColors.textSecondary,
-                                fontWeight: isSel ? FontWeight.bold : FontWeight.normal,
-                                fontSize: 13,
-                              ),
-                            ),
-                            selected: isSel,
-                            selectedColor: const Color(0xFF007AFF),
-                            backgroundColor: const Color(0xFF1E263D),
-                            onSelected: (sel) {
-                              if (sel) {
-                                setModalState(() => currentFilter = filterStr);
-                                setState(() => _callLogFilterTime = filterStr);
-                              }
-                            },
-                          ),
-                        );
-                      }).toList(),
-                    ),
-                  ),
-                  const SizedBox(height: 14),
-                  Expanded(
-                    child: filteredLogs.isEmpty
-                        ? Center(
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 24),
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Container(
-                                    padding: const EdgeInsets.all(14),
-                                    decoration: const BoxDecoration(
-                                      color: Color(0xFF1E263D),
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: const Icon(
-                                      Icons.phone_disabled_rounded,
-                                      size: 32,
-                                      color: Colors.white38,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 14),
-                                  Text(
-                                    'Belum Ada Panggilan $currentFilter',
-                                    textAlign: TextAlign.center,
-                                    style: GoogleFonts.sora(
-                                      color: Colors.white,
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 6),
-                                  Text(
-                                    'Riwayat panggilan untuk filter ini belum tersedia atau kosong.',
-                                    textAlign: TextAlign.center,
-                                    style: GoogleFonts.plusJakartaSans(
-                                      color: AppColors.textSecondary,
-                                      fontSize: 13,
-                                      height: 1.4,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          )
-                        : ListView.builder(
-                            itemCount: filteredLogs.length,
-                            itemBuilder: (ctx, idx) {
-                              final log = filteredLogs[idx];
-                              final numStr = (log['number'] as String? ?? '').trim();
-                              final rawName = (log['name'] as String? ?? '').trim();
-                              final hasContactName = rawName.isNotEmpty && rawName != numStr;
-                              final titleName = hasContactName ? rawName : numStr;
-
-                              final ts = log['timestamp'] as int?;
-                              final timeFormatted = _formatCallTime(ts);
-                              final callType = log['callType'] as CallType?;
-                              final typeStr = callType == CallType.incoming
-                                  ? 'Panggilan Masuk'
-                                  : callType == CallType.outgoing
-                                      ? 'Panggilan Keluar'
-                                      : 'Tak Terjawab';
-                              final typeColor = callType == CallType.missed
-                                  ? AppColors.accentRed
-                                  : AppColors.accentCyan;
-
-                              final timeAndType = timeFormatted.isNotEmpty
-                                  ? '$timeFormatted | $typeStr'
-                                  : typeStr;
-                              final subStr = hasContactName
-                                  ? '$numStr | $timeAndType'
-                                  : timeAndType;
-
-                              String? tag = _recentCallTags[numStr];
-
-                              return ListTile(
-                                contentPadding: const EdgeInsets.symmetric(vertical: 4),
-                                leading: CircleAvatar(
-                                  backgroundColor: typeColor.withValues(alpha: 0.2),
-                                  child: Icon(
-                                    callType == CallType.incoming
-                                        ? Icons.call_received_rounded
-                                        : callType == CallType.outgoing
-                                            ? Icons.call_made_rounded
-                                            : Icons.call_missed_rounded,
-                                    color: typeColor,
-                                    size: 20,
-                                  ),
-                                ),
-                                title: Text(
-                                  titleName,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: GoogleFonts.sora(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 15,
-                                  ),
-                                ),
-                                subtitle: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    const SizedBox(height: 3),
-                                    Text(
-                                      subStr,
-                                      style: GoogleFonts.plusJakartaSans(
-                                        color: AppColors.textSecondary,
-                                        fontSize: 12.5,
-                                      ),
-                                    ),
-                                    if (tag != null && tag.isNotEmpty) ...[
-                                      const SizedBox(height: 4),
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
-                                        decoration: BoxDecoration(
-                                          color: AppColors.primary.withValues(alpha: 0.18),
-                                          borderRadius: BorderRadius.circular(5),
-                                          border: Border.all(
-                                            color: AppColors.primaryLight.withValues(alpha: 0.4),
-                                            width: 0.8,
-                                          ),
-                                        ),
-                                        child: Text(
-                                          tag,
-                                          style: GoogleFonts.plusJakartaSans(
-                                            color: AppColors.primaryLight,
-                                            fontSize: 10.5,
-                                            fontWeight: FontWeight.w600,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ],
-                                ),
-                                trailing: const Icon(
-                                  Icons.search_rounded,
-                                  color: Color(0xFF007AFF),
-                                  size: 20,
-                                ),
-                                onTap: () {
-                                  Navigator.pop(ctx);
-                                  _searchController.text = numStr;
-                                  _performSearch(numStr);
-                                },
-                              );
-                            },
-                          ),
-                  ),
-                ],
-              ),
-            );
-          },
-        );
-      },
-    );
-  }
-
-  void _onSearchContactIconTapped() async {
-    if (!_hasContactPermission) {
-      AppToast.show(
-        context,
-        message: 'Izin akses kontak diperlukan untuk memilih nomor dari kontak.',
-        type: ToastType.info,
-      );
-      _showContactAccessConsentModal();
-      return;
-    }
-
-    if (_contacts.isEmpty) {
-      AppToast.show(
-        context,
-        message: 'Memuat daftar kontak Anda...',
-        type: ToastType.info,
-      );
-      await _fetchRealDeviceContacts();
-      if (!mounted) return;
-    }
-
-    if (_contacts.isEmpty) {
-      AppToast.show(
-        context,
-        message: 'Daftar buku telepon Anda masih kosong.',
-        type: ToastType.info,
-      );
-      return;
-    }
-
-    _showAllContactsModal();
-  }
-
-  void _showAllContactsModal() {
-    String searchContactQuery = '';
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (ctx) {
-        return StatefulBuilder(
-          builder: (ctx, setModalState) {
-            final filteredContacts = _contacts.where((c) {
-              final name = _getContactName(c).toLowerCase();
-              final num = (c.phones.isNotEmpty ? c.phones.first.number : '').toLowerCase();
-              final q = searchContactQuery.toLowerCase();
-              return name.contains(q) || num.contains(q);
-            }).toList();
-
-            return Padding(
-              padding: MediaQuery.of(ctx).viewInsets,
-              child: Container(
-                height: MediaQuery.of(ctx).size.height * 0.52,
-                decoration: const BoxDecoration(
-                  color: Color(0xFF141926),
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 20, left: 20, right: 20, bottom: 12),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Handle bar
-                      Center(
-                        child: Container(
-                          width: 44,
-                          height: 4.5,
-                          decoration: BoxDecoration(
-                            color: Colors.white24,
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'Semua Kontak (${_contacts.length} Orang)',
-                            style: GoogleFonts.sora(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
-                          ),
-                          IconButton(
-                            onPressed: () => Navigator.pop(ctx),
-                            icon: const Icon(Icons.close_rounded, color: Colors.white70),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 12),
-                      TextField(
-                        style: GoogleFonts.plusJakartaSans(color: Colors.white),
-                        decoration: InputDecoration(
-                          hintText: 'Cari nama atau nomor telepon...',
-                          hintStyle: GoogleFonts.plusJakartaSans(color: Colors.white38),
-                          prefixIcon: const Icon(Icons.search_rounded, color: AppColors.textSecondary),
-                          filled: true,
-                          fillColor: const Color(0xFF1E263D),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(14),
-                            borderSide: const BorderSide(color: Color(0xFF2D3754)),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(14),
-                            borderSide: BorderSide(color: AppColors.primaryLight.withValues(alpha: 0.5)),
-                          ),
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide.none),
-                        ),
-                        onChanged: (val) {
-                          setModalState(() => searchContactQuery = val);
-                        },
-                      ),
-                      const SizedBox(height: 14),
-                      Expanded(
-                        child: filteredContacts.isEmpty
-                            ? Center(child: Text('Kontak tidak ditemukan.', style: GoogleFonts.plusJakartaSans(color: AppColors.textSecondary)))
-                            : ListView.builder(
-                                keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-                                itemCount: filteredContacts.length,
-                                itemBuilder: (ctx, idx) {
-                                  final c = filteredContacts[idx];
-                                  final nameStr = _getContactName(c);
-                                  final numStr = c.phones.isNotEmpty ? c.phones.first.number : '-';
-
-                                  return ListTile(
-                                    contentPadding: const EdgeInsets.symmetric(vertical: 4),
-                                    leading: CircleAvatar(
-                                      backgroundColor: const Color(0xFF007AFF).withValues(alpha: 0.2),
-                                      child: Text(
-                                        nameStr.isNotEmpty ? nameStr.substring(0, 1).toUpperCase() : '#',
-                                        style: GoogleFonts.plusJakartaSans(color: const Color(0xFF2B8CFF), fontWeight: FontWeight.bold),
-                                      ),
-                                    ),
-                                    title: Text(nameStr, style: GoogleFonts.sora(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 15)),
-                                    subtitle: Text(numStr, style: GoogleFonts.plusJakartaSans(color: AppColors.textSecondary, fontSize: 13)),
-                                    trailing: const Icon(Icons.search_rounded, color: Color(0xFF007AFF), size: 20),
-                                    onTap: () {
-                                      Navigator.pop(ctx);
-                                      _searchController.text = numStr;
-                                      _performSearch(numStr);
-                                    },
-                                  );
-                                },
-                              ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            );
-          },
-        );
-      },
-    );
-  }
+  // Modals call log dan kontak ditiadakan (Tugas 5)
 
 
   @override
@@ -2158,19 +1106,8 @@ class SearchScreenState extends State<SearchScreen> with WidgetsBindingObserver 
                           color: Colors.white60,
                           size: 18,
                         ),
-                      )
-                    else
-                      GestureDetector(
-                        onTap: _onSearchContactIconTapped,
-                        child: const Padding(
-                          padding: EdgeInsets.all(4.0),
-                          child: Icon(
-                            Icons.account_circle_outlined,
-                            color: AppColors.primaryLight,
-                            size: 24,
-                          ),
-                        ),
                       ),
+
                   ],
                 ),
               ),
@@ -2347,18 +1284,7 @@ class SearchScreenState extends State<SearchScreen> with WidgetsBindingObserver 
                   ),
                 ),
               ),
-              const SizedBox(width: 6),
-              GestureDetector(
-                onTap: _onSearchContactIconTapped,
-                child: const Padding(
-                  padding: EdgeInsets.all(4.0),
-                  child: Icon(
-                    Icons.account_circle_outlined,
-                    color: AppColors.primaryLight,
-                    size: 24,
-                  ),
-                ),
-              ),
+              // Ikon Contact Book dihilangkan (Tugas 5)
             ],
           ),
         ),
@@ -2373,7 +1299,7 @@ class SearchScreenState extends State<SearchScreen> with WidgetsBindingObserver 
     return RefreshIndicator(
       color: AppColors.primaryLight,
       backgroundColor: const Color(0xFF1F2637),
-      onRefresh: _checkAndLoadContacts,
+      onRefresh: () async {}, // stub karena kontak sudah dihapus
       child: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
@@ -2381,331 +1307,7 @@ class SearchScreenState extends State<SearchScreen> with WidgetsBindingObserver 
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
 
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Panggilan Terbaru',
-                  style: GoogleFonts.sora(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w800,
-                    color: Colors.white,
-                  ),
-                ),
-                if (_hasCallLogPermission && _hasContactPermission)
-                  InkWell(
-                    onTap: _isRefreshingCallLog
-                        ? null
-                        : () async {
-                            setState(() => _isRefreshingCallLog = true);
-                            Future.delayed(const Duration(milliseconds: 500), () {
-                              if (mounted) setState(() => _isRefreshingCallLog = false);
-                            });
-                            _fetchRealCallLogs();
-                            _fetchRealDeviceContacts();
-                          },
-                    borderRadius: BorderRadius.circular(12),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      child: Row(
-                        children: [
-                          _isRefreshingCallLog
-                              ? const SizedBox(
-                                  width: 14,
-                                  height: 14,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    color: AppColors.primaryLight,
-                                  ),
-                                )
-                              : const Icon(Icons.refresh_rounded, size: 16, color: AppColors.primaryLight),
-                          const SizedBox(width: 4),
-                          Text(
-                            _isRefreshingCallLog ? 'Memperbarui...' : 'Perbarui',
-                            style: GoogleFonts.sora(
-                              color: AppColors.primaryLight,
-                              fontSize: 13,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            if (_isRefreshingCallLog)
-              Shimmer.fromColors(
-                baseColor: const Color(0xFF1E2636),
-                highlightColor: const Color(0xFF2D3754),
-                child: Column(
-                  children: List.generate(
-                    3,
-                    (index) => Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 10),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Container(
-                                width: 140,
-                                height: 16,
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(4),
-                                ),
-                              ),
-                              const SizedBox(height: 6),
-                              Container(
-                                width: 180,
-                                height: 12,
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(4),
-                                ),
-                              ),
-                            ],
-                          ),
-                          Container(
-                            width: 60,
-                            height: 14,
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              )
-            else if (_realRecentCalls.isEmpty || !_hasCallLogPermission || !_hasContactPermission)
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                child: Center(
-                  child: (!_hasContactPermission || !_hasCallLogPermission)
-                      ? Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF1A2035),
-                            borderRadius: BorderRadius.circular(20),
-                            border: Border.all(
-                              color: AppColors.primary.withValues(alpha: 0.35),
-                              width: 1.2,
-                            ),
-                          ),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.all(14),
-                                decoration: BoxDecoration(
-                                  color: AppColors.primary.withValues(alpha: 0.12),
-                                  shape: BoxShape.circle,
-                                ),
-                                child: const Icon(
-                                  Icons.contacts_rounded,
-                                  color: AppColors.primaryLight,
-                                  size: 32,
-                                ),
-                              ),
-                              const SizedBox(height: 14),
-                              Text(
-                                'Izin Kontak Diperlukan',
-                                style: GoogleFonts.sora(
-                                  color: Colors.white,
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                              ),
-                              const SizedBox(height: 6),
-                              Text(
-                                'Izinkan akses kontak & log panggilan untuk melihat riwayat panggilan asli dari HP Anda.',
-                                textAlign: TextAlign.center,
-                                style: GoogleFonts.plusJakartaSans(
-                                  color: AppColors.textSecondary,
-                                  fontSize: 12.5,
-                                  height: 1.4,
-                                ),
-                              ),
-                              const SizedBox(height: 18),
-                              SizedBox(
-                                width: double.infinity,
-                                child: ElevatedButton(
-                                  onPressed: _showContactAccessConsentModal,
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: AppColors.primary,
-                                    padding: const EdgeInsets.symmetric(vertical: 13),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(14),
-                                    ),
-                                    elevation: 0,
-                                  ),
-                                  child: Text(
-                                    'Izinkan Akses Kontak',
-                                    style: GoogleFonts.sora(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.w700,
-                                      fontSize: 14,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        )
-                      : Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Icons.phone_disabled_rounded,
-                              size: 38,
-                              color: AppColors.textSecondary.withValues(alpha: 0.6),
-                            ),
-                            const SizedBox(height: 12),
-                            Text(
-                              'Belum ada riwayat panggilan kontak nyata.',
-                              textAlign: TextAlign.center,
-                              style: GoogleFonts.plusJakartaSans(
-                                color: AppColors.textSecondary,
-                                fontSize: 13.5,
-                                height: 1.4,
-                              ),
-                            ),
-                          ],
-                        ),
-                ),
-              )
-            else
-              ..._realRecentCalls.map((item) {
-                final num = item['number'] as String;
-                String? topTag = _recentCallTags[num];
-                return InkWell(
-                  onTap: () {
-                    _searchController.text = num;
-                    _performSearch(num);
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(vertical: 13),
-                    decoration: const BoxDecoration(
-                      border: Border(
-                        bottom: BorderSide(color: Color(0xFF1E2636), width: 1),
-                      ),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                item['name'] as String,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: GoogleFonts.sora(
-                                  fontSize: 15.5,
-                                  fontWeight: FontWeight.w600,
-                                  color: (item['isSpam'] as bool)
-                                      ? const Color(0xFFEF4444)
-                                      : Colors.white,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Row(
-                                children: [
-                                  if (item['isSpam'] as bool) ...[
-                                    const Icon(
-                                      Icons.warning_amber_rounded,
-                                      color: Color(0xFFEF4444),
-                                      size: 15,
-                                    ),
-                                    const SizedBox(width: 4),
-                                  ],
-                                  Text(
-                                    item['sub'] as String,
-                                    style: GoogleFonts.plusJakartaSans(
-                                      color: Colors.white54,
-                                      fontSize: 13,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              if (topTag != null && topTag.isNotEmpty) ...[
-                                const SizedBox(height: 5),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                                  decoration: BoxDecoration(
-                                    color: AppColors.primary.withValues(alpha: 0.18),
-                                    borderRadius: BorderRadius.circular(6),
-                                    border: Border.all(
-                                      color: AppColors.primaryLight.withValues(alpha: 0.4),
-                                      width: 0.8,
-                                    ),
-                                  ),
-                                  child: Text(
-                                    topTag,
-                                    style: GoogleFonts.plusJakartaSans(
-                                      color: AppColors.primaryLight,
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ],
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Row(
-                          children: [
-                            Text(
-                              item['date'] as String,
-                              style: GoogleFonts.plusJakartaSans(
-                                color: Colors.white54,
-                                fontSize: 12.5,
-                              ),
-                            ),
-                            const SizedBox(width: 6),
-                            const Icon(
-                              Icons.chevron_right_rounded,
-                              color: Colors.white38,
-                              size: 18,
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              }),
-            if (_hasCallLogPermission && _hasContactPermission && _realRecentCalls.isNotEmpty) ...[
-              const SizedBox(height: 4),
-              Center(
-                child: TextButton.icon(
-                  onPressed: _showAllCallLogsModal,
-                  icon: Text(
-                    'Tampilkan Semuanya ($_callLogFilterTime)',
-                    style: GoogleFonts.plusJakartaSans(
-                      color: const Color(0xFF2B8CFF),
-                      fontSize: 14.5,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  label: const Icon(
-                    Icons.chevron_right_rounded,
-                    color: Color(0xFF2B8CFF),
-                    size: 18,
-                  ),
-                ),
-              ),
-            ],
-            const SizedBox(height: 30),
+          // 1. TAMPILAN PANGGILAN TERBARU (CALL LOG) DIHILANGKAN
 
             // -------------------------------------------------------------
             // 2. TAMPILAN TAG PENGGUNA / TAG SAYA (Struktur Gambar 2 & 3)
@@ -2825,81 +1427,7 @@ class SearchScreenState extends State<SearchScreen> with WidgetsBindingObserver 
                 ),
               ],
             ),
-            if (_hasContactPermission) ...[
-              const SizedBox(height: 28),
-              Text(
-                'Kontak Cepat',
-                style: GoogleFonts.sora(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w800,
-                  color: Colors.white,
-                ),
-              ),
-              const SizedBox(height: 12),
-              if (_realQuickContacts.isEmpty)
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 20),
-                  child: Center(
-                    child: Text(
-                      'Tidak ada kontak untuk ditampilkan.',
-                      style: GoogleFonts.plusJakartaSans(
-                        color: AppColors.textSecondary,
-                        fontSize: 13.5,
-                      ),
-                    ),
-                  ),
-                )
-              else
-                Column(
-                  children: _realQuickContacts
-                      .map(
-                        (t) {
-                          final dbCount = _quickContactTagCounts[t.phoneNumberId];
-                          final displayTag = TagItem(
-                            id: t.id,
-                            phoneNumberId: t.phoneNumberId,
-                            labelName: t.labelName,
-                            upvotes: dbCount ?? t.upvotes,
-                            isSpam: t.isSpam,
-                          );
-                          return TagChipCard(
-                            tag: displayTag,
-                            onVote: (type) => _handleVote(t, type),
-                            onTap: () {
-                              if (t.phoneNumberId.isNotEmpty) {
-                                _searchController.text = t.phoneNumberId;
-                                _performSearch(t.phoneNumberId);
-                              }
-                            },
-                          );
-                        },
-                      )
-                      .toList(),
-                ),
-              if (_contacts.isNotEmpty) ...[
-                Transform.translate(
-                  offset: const Offset(0, -8),
-                  child: Center(
-                    child: TextButton.icon(
-                      onPressed: _showAllContactsModal,
-                      icon: Text(
-                        'Tampilkan Semua (${_contacts.length} Orang)',
-                        style: GoogleFonts.plusJakartaSans(
-                          color: const Color(0xFF2B8CFF),
-                          fontSize: 14.5,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      label: const Icon(
-                        Icons.chevron_right_rounded,
-                        color: Color(0xFF2B8CFF),
-                        size: 18,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ],
+            // 3. TAMPILAN KONTAK CEPAT DIHILANGKAN
             const SizedBox(height: 28),
 
             // -------------------------------------------------------------
@@ -3095,9 +1623,7 @@ class SearchScreenState extends State<SearchScreen> with WidgetsBindingObserver 
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      _contacts.isNotEmpty
-                          ? 'Belum Ada Riwayat Pencarian'
-                          : 'Belum Ada Nomor Dilihat',
+                      'Belum Ada Nomor Dilihat',
                       textAlign: TextAlign.center,
                       style: GoogleFonts.sora(
                         color: Colors.white,
@@ -3107,9 +1633,7 @@ class SearchScreenState extends State<SearchScreen> with WidgetsBindingObserver 
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      _contacts.isNotEmpty
-                          ? 'Nomor yang Anda cari akan otomatis tercatat di sini.'
-                          : 'Riwayat nomor telepon yang baru saja Anda periksa akan muncul di sini.',
+                      'Riwayat nomor telepon yang baru saja Anda periksa akan muncul di sini.',
                       textAlign: TextAlign.center,
                       style: GoogleFonts.plusJakartaSans(
                         color: AppColors.textSecondary,
